@@ -1,6 +1,6 @@
 import React from 'react';
 import { IdentificationIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-import { onlyLetters, onlyNumbers } from 'utilities/Validations/validations';
+import { onlyLetters, onlyNumbers, toUpper } from 'utilities/Validations/validations';
 
 const DatosClienteForm = ({ data, handleNestedChange }) => {
     const c  = data.datos_cliente;
@@ -83,9 +83,9 @@ const DatosClienteForm = ({ data, handleNestedChange }) => {
                     <div className="relative">
                         <EnvelopeIcon className="w-4 h-4 absolute left-3 top-3 text-gray-400"/>
                         <input type="email" value={ct.correo || ''}
-                            onChange={(e) => onCt('correo', e.target.value.toLowerCase())}
+                            onChange={(e) => onCt('correo', toUpper(e.target.value))}
                             className="w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none"
-                            placeholder="ejemplo@correo.com" />
+                            placeholder="EJEMPLO@CORREO.COM" />
                     </div>
                 </div>
 

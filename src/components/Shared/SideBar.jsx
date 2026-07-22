@@ -8,10 +8,9 @@ import {
     HomeIcon,
     CubeIcon,
     PercentBadgeIcon,
-    ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline'; 
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
-import {CreditCardIcon, Settings,TagIcon,User2Icon, UserSquare2Icon } from 'lucide-react';
+import {Settings,TagIcon,User2Icon, UserCircleIcon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
 
 // Importamos el logo
@@ -28,6 +27,17 @@ const MENU_GROUPS = [
                 section: 'Home',
                 link: '/home',
                 icon: HomeIcon,
+            }
+        ]
+    },
+    {
+        groupName: 'Mi Cuenta',
+        items: [
+            {
+                section: 'Mi Perfil',
+                link: '/mi-perfil',
+                icon: UserCircleIcon,
+                requiredPermission: 'perfil.index',
             }
         ]
     },
@@ -66,30 +76,7 @@ const MENU_GROUPS = [
                     { name: 'Listar', link: '/descuento/listar', requiredPermission: 'descuento.index' },
                     { name: 'Agregar', link: '/descuento/agregar', requiredPermission: 'descuento.store' },
                 ],
-            },
-            {
-                section: 'Membresías',
-                link: '/membresia/listar',
-                icon: CreditCardIcon,
-                requiredPermission: 'membresia.index',
-            },
-        ]
-    },
-    {
-        groupName: 'Mi Cuenta',
-        items: [
-            {
-                section: 'Adquirir Membresía',
-                link: '/membresia/solicitar',
-                icon: CreditCardIcon,
-                requiredPermission: 'membresia.solicitar',
-            },
-            {
-                section: 'Mis Solicitudes',
-                link: '/membresia/mis-solicitudes',
-                icon: ClipboardDocumentListIcon,
-                requiredPermission: 'membresia.misSolicitudes',
-            },
+            }
         ]
     },
     {

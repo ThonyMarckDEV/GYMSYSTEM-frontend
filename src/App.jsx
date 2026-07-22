@@ -34,10 +34,9 @@ import AgregarDescuento from 'pages/descuento/Store';
 import EditarDescuento from 'pages/descuento/Update';
 import ListarDescuentos from 'pages/descuento/Index';
 
-// UI MEMBRESIAS
-import ListarMembresias from 'pages/membresia/Index';
-import SolicitarMembresia from 'pages/membresia/Solicitar';
-import MisSolicitudesMembresia from 'pages/membresia/MisSolicitudes';
+// UI PERFIL
+import Perfil from 'pages/perfil/Perfil';
+import MiPerfil from 'pages/perfil/MiPerfil';
 
 // SETTINGS
 import ListarRoles from 'pages/rol/Index';
@@ -80,12 +79,9 @@ function AppContent() {
         <Route path="/descuento/editar/:id" element={<ProtectedRoute requiredPermission="descuento.update" element={<EditarDescuento />} />} />
         <Route path="/descuento/listar" element={<ProtectedRoute requiredPermission="descuento.index" element={<ListarDescuentos />} />} />
 
-        {/* MEMBRESIAS */}
-        <Route path="/membresia/listar" element={<ProtectedRoute requiredPermission="membresia.index" element={<ListarMembresias />} />} />
-
-        {/* MEMBRESIAS - CLIENTE */}
-        <Route path="/membresia/solicitar" element={<ProtectedRoute requiredPermission="membresia.solicitar" element={<SolicitarMembresia />} />} />
-        <Route path="/membresia/mis-solicitudes" element={<ProtectedRoute requiredPermission="membresia.misSolicitudes" element={<MisSolicitudesMembresia />} />} />
+        {/* PERFIL */}
+        <Route path="/perfil/:id" element={<ProtectedRoute requiredPermission="perfil.show" element={<Perfil />} />} />
+        <Route path="/mi-perfil" element={<ProtectedRoute requiredPermission="perfil.index" element={<MiPerfil />} />} />
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
