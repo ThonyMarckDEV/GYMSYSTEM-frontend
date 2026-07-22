@@ -4,6 +4,11 @@ import { handleResponse } from 'utilities/Responses/handleResponse';
 
 const BASE_URL = `${API_BASE_URL}/api/membresia`;
 
+export const index = async (clienteId) => {
+    const response = await fetchWithAuth(`${BASE_URL}/index/${clienteId}`, { method: 'GET' });
+    return handleResponse(response);
+};
+
 export const asignar = async (clienteId, data) => {
     const response = await fetchWithAuth(`${BASE_URL}/asignar/${clienteId}`, {
         method: 'POST',

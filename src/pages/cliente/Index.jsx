@@ -6,23 +6,27 @@ import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
+import ViewModal from 'components/Shared/Modals/ViewModal';
 
 import {
     UserGroupIcon, PencilSquareIcon, IdentificationIcon,
-    BriefcaseIcon, EyeIcon, CalendarDaysIcon, UserIcon
+    BriefcaseIcon, CalendarDaysIcon, UserIcon, EyeIcon,
+    PhoneIcon, EnvelopeIcon
 } from '@heroicons/react/24/outline';
+import { IdCardIcon } from 'lucide-react';
 
 const Index = () => {
     const navigate = useNavigate();
     const {
         loading, clientes, paginationInfo, filters, alert, setAlert,
+        isViewOpen, setIsViewOpen, viewData, viewLoading, handleView,
         showConfirm, setShowConfirm, setIdToToggle,
         fetchClientes, handleAskToggle, handleConfirmToggle,
         handleFilterChange, handleFilterSubmit, handleFilterClear
     } = useIndex();
 
     const filterConfig = useMemo(() => [
-        { name: 'search', type: 'text', label: 'Buscar (Nombre/DNI)', placeholder: 'Ej: Juan, 12345678...', colSpan: 'col-span-12 md:col-span-8' },
+        { name: 'search', type: 'text', label: 'Buscar (Nombre - Apellido Paterno - Apellido Materno / DNI)', placeholder: 'Ej: Juan, 12345678...', colSpan: 'col-span-12 md:col-span-8' },
         { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-12 md:col-span-4',
           options: [{ value: '', label: 'Todos' }, { value: '1', label: 'Activos' }, { value: '0', label: 'Inactivos' }] }
     ], []);
@@ -77,18 +81,22 @@ const Index = () => {
             header: 'Acciones',
             render: (row) => (
                 <div className="flex items-center gap-2">
-                    <button onClick={() => navigate(`/perfil/${row.id}`)}
-                        className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all" title="Ver perfil / Membresía">
+                    <button onClick={() => handleView(row.id)}
+                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all" title="Ver ficha del cliente">
                         <EyeIcon className="w-5 h-5" />
                     </button>
+                    <button onClick={() => navigate(`/membresia/${row.id}`)}
+                        className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all" title="Gestionar membresía">
+                        <IdCardIcon className="w-5 h-5" />
+                    </button>
                     <Link to={`/cliente/editar/${row.id}`}
-                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all">
+                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all" title="Editar datos">
                         <PencilSquareIcon className="w-5 h-5" />
                     </Link>
                 </div>
             )
         }
-    ], [handleAskToggle, navigate]);
+    ], [handleAskToggle, handleView, navigate]);
 
     return (
         <div className="container mx-auto p-6">
@@ -118,6 +126,71 @@ const Index = () => {
                     onCancel={() => { setShowConfirm(false); setIdToToggle(null); }}
                 />
             )}
+
+            <ViewModal isOpen={isViewOpen} onClose={() => setIsViewOpen(false)} title="Ficha del Cliente" isLoading={viewLoading}>
+                {viewData && (
+                    <div className="space-y-6">
+                        <div className="flex flex-col md:flex-row gap-6 border-b border-gray-100 pb-6">
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center border shrink-0 bg-slate-100 border-slate-200">
+                                <UserGroupIcon className="w-8 h-8 text-slate-400"/>
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-gray-800 font-black text-xl leading-tight">
+                                    {viewData.nombre} {viewData.apellidoPaterno} {viewData.apellidoMaterno}
+                                </p>
+                                <div className="flex flex-wrap gap-3 mt-3">
+                                    <span className="flex items-center gap-1 text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                                        <IdentificationIcon className="w-4 h-4 text-gray-400"/> DNI: {viewData.dni}
+                                    </span>
+                                    {viewData.contacto?.telefonoMovil && (
+                                        <span className="flex items-center gap-1 text-sm text-gray-600 bg-gray-50 px-2 py-1 rounded border border-gray-100">
+                                            <PhoneIcon className="w-4 h-4 text-gray-400"/> {viewData.contacto.telefonoMovil}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                            <div>
+                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Fecha Nacimiento</h4>
+                                <div className="flex items-center gap-2 text-gray-800 font-medium">
+                                    <CalendarDaysIcon className="w-4 h-4 text-gray-400"/> {viewData.fechaNacimiento}
+                                </div>
+                            </div>
+                            <div>
+                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Sexo</h4>
+                                <p className="text-gray-800 font-medium">{viewData.sexo}</p>
+                            </div>
+                            <div>
+                                <h4 className="text-xs font-bold text-gray-400 uppercase mb-1">Correo</h4>
+                                <div className="flex items-center gap-2 text-gray-800 font-medium">
+                                    <EnvelopeIcon className="w-4 h-4 text-gray-400"/> {viewData.contacto?.correo || 'No registrado'}
+                                </div>
+                            </div>
+                        </div>
+
+                        {viewData.usuario && (
+                            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mt-2">
+                                <div className="flex justify-between items-start mb-3">
+                                    <h4 className="text-sm font-black text-slate-700 uppercase flex items-center gap-2">
+                                        <BriefcaseIcon className="w-4 h-4"/> Credenciales del Sistema
+                                    </h4>
+                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${
+                                        viewData.usuario.estado ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'
+                                    }`}>
+                                        {viewData.usuario.estado ? 'Cuenta Activa' : 'Cuenta Bloqueada'}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500 mb-0.5">Usuario (Login)</p>
+                                    <p className="font-bold text-slate-800">{viewData.usuario.username}</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </ViewModal>
         </div>
     );
 };

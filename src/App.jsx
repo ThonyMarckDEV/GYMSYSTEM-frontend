@@ -35,7 +35,7 @@ import EditarDescuento from 'pages/descuento/Update';
 import ListarDescuentos from 'pages/descuento/Index';
 
 // UI PERFIL
-import Perfil from 'pages/perfil/Perfil';
+import MembresiaIndex from 'pages/membresia/Index';
 import MiPerfil from 'pages/perfil/MiPerfil';
 
 // SETTINGS
@@ -79,8 +79,10 @@ function AppContent() {
         <Route path="/descuento/editar/:id" element={<ProtectedRoute requiredPermission="descuento.update" element={<EditarDescuento />} />} />
         <Route path="/descuento/listar" element={<ProtectedRoute requiredPermission="descuento.index" element={<ListarDescuentos />} />} />
 
-        {/* PERFIL */}
-        <Route path="/perfil/:id" element={<ProtectedRoute requiredPermission="perfil.show" element={<Perfil />} />} />
+        {/* MEMBRESIA */}
+        <Route path="/membresia/:id" element={<ProtectedRoute requiredPermission="membresia.index" element={<MembresiaIndex />} />} />
+
+        {/* MI PERFIL */}
         <Route path="/mi-perfil" element={<ProtectedRoute requiredPermission="perfil.index" element={<MiPerfil />} />} />
 
         {/* SETTINGS */}

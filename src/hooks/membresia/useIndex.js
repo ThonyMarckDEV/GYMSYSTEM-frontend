@@ -1,11 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { show } from 'services/perfilService';
-import { asignar, congelar, reanudar, cancelar } from 'services/membresiaService';
+import { index, asignar, congelar, reanudar, cancelar } from 'services/membresiaService';
 import { combobox as comboboxPlanes } from 'services/planService';
 import { combobox as comboboxDescuentos } from 'services/descuentoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
-export const usePerfil = (clienteId) => {
+export const useIndex = (clienteId) => {
     const [loading, setLoading] = useState(true);
     const [data, setData]       = useState(null);
     const [alert, setAlert]     = useState(null);
@@ -19,13 +18,13 @@ export const usePerfil = (clienteId) => {
 
     const [actionLoading, setActionLoading] = useState(false);
 
-    const fetchPerfil = useCallback(async () => {
+    const fetchMembresia = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await show(clienteId);
+            const response = await index(clienteId);
             setData(response.data || response);
         } catch (err) {
-            setAlert(handleApiError(err, 'Error al cargar el perfil del cliente'));
+            setAlert(handleApiError(err, 'Error al cargar la membresía del cliente'));
         } finally {
             setLoading(false);
         }
@@ -45,9 +44,9 @@ export const usePerfil = (clienteId) => {
     }, []);
 
     useEffect(() => {
-        fetchPerfil();
+        fetchMembresia();
         fetchCombos();
-    }, [fetchPerfil, fetchCombos]);
+    }, [fetchMembresia, fetchCombos]);
 
     const handleAsignar = async (formData) => {
         setActionLoading(true);
@@ -55,7 +54,7 @@ export const usePerfil = (clienteId) => {
             await asignar(clienteId, formData);
             setAlert({ type: 'success', message: 'Membresía asignada exitosamente.' });
             setIsAsignarOpen(false);
-            await fetchPerfil();
+            await fetchMembresia();
         } catch (err) {
             setAlert(handleApiError(err, 'Error al asignar la membresía'));
         } finally {
@@ -69,7 +68,7 @@ export const usePerfil = (clienteId) => {
             await congelar(data.membresia_actual.id, { motivo });
             setAlert({ type: 'success', message: 'Membresía congelada exitosamente.' });
             setIsCongelarOpen(false);
-            await fetchPerfil();
+            await fetchMembresia();
         } catch (err) {
             setAlert(handleApiError(err, 'Error al congelar la membresía'));
         } finally {
@@ -91,7 +90,7 @@ export const usePerfil = (clienteId) => {
                 setAlert({ type: 'success', message: 'Membresía cancelada exitosamente.' });
             }
             setConfirmAction(null);
-            await fetchPerfil();
+            await fetchMembresia();
         } catch (err) {
             setAlert(handleApiError(err, 'Error al procesar la acción'));
         } finally {
@@ -104,6 +103,6 @@ export const usePerfil = (clienteId) => {
         isAsignarOpen, setIsAsignarOpen, handleAsignar,
         isCongelarOpen, setIsCongelarOpen, handleConfirmCongelar,
         confirmAction, setConfirmAction, handleAskConfirm, handleConfirmAction,
-        actionLoading, fetchPerfil,
+        actionLoading, fetchMembresia,
     };
 };
