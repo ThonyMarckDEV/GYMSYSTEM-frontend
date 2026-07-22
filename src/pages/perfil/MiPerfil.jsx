@@ -66,9 +66,6 @@ const MiPerfil = () => {
                                 <span className="text-xl font-black text-secondary">{iniciales}</span>
                             </div>
                             <h1 className="text-xl font-black text-primary">{cliente.nombre_completo}</h1>
-                            <p className="text-white/50 text-[10px] uppercase tracking-widest mt-1 flex items-center justify-center sm:justify-start gap-1">
-                                <SparklesIcon className="w-3 h-3" /> Miembro Iron System
-                            </p>
 
                             <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
                                 <span className="flex items-center gap-1.5 text-xs text-secondary bg-primary/90 px-3 py-1 rounded-full font-bold">
