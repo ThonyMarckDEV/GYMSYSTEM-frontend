@@ -15,7 +15,8 @@ export const useStore = () => {
         },
         usuario: { username: '', password: '' },
         rol_id: '',
-        rolNombre: ''
+        rolNombre: '',
+        sucursal_id: ''
     });
 
     const handleNestedChange = (section, field, value) => {

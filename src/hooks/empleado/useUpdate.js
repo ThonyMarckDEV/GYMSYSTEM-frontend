@@ -18,7 +18,8 @@ export const useUpdate = () => {
         },
         usuario: { username: '', password: '' },
         rol_id: '',
-        rolNombre: ''
+        rolNombre: '',
+        sucursal_id: ''
     });
 
     useEffect(() => {
@@ -44,7 +45,8 @@ export const useUpdate = () => {
                         password: ''
                     },
                     rol_id: data.usuario?.rol_id || '',
-                    rolNombre: data.usuario?.rol?.nombre || ''
+                    rolNombre: data.usuario?.rol?.nombre || '',
+                    sucursal_id: data.usuario?.sucursal_id || ''
                 });
 
             } catch (err) {

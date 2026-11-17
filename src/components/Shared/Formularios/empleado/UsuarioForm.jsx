@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserIcon, KeyIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import RolSearchSelect from 'components/Shared/Comboboxes/RolSearchSelect';
+import SucursalSelect from 'components/Shared/Comboboxes/SucursalSelect';
 
 const UsuarioForm = ({ form, setForm, handleNestedChange, isEditing = false }) => {
   
@@ -21,6 +22,16 @@ const UsuarioForm = ({ form, setForm, handleNestedChange, isEditing = false }) =
             <RolSearchSelect 
                 form={form} 
                 setForm={setForm} 
+            />
+        </div>
+
+        {/* SUCURSAL (opcional: vacío = trabaja en todas las sedes) */}
+        <div className="md:col-span-2">
+            <SucursalSelect
+                value={form.sucursal_id}
+                onChange={(val) => setForm(prev => ({ ...prev, sucursal_id: val }))}
+                emptyLabel="Todas las sucursales"
+                help="Déjalo en Todas para administradores. Un recepcionista suele tener una sucursal fija."
             />
         </div>
 
