@@ -125,9 +125,12 @@ const MedicionForm = ({ onGuardado, onError }) => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div><label className={labelCls}>Fecha *</label><input type="date" max={aISO(new Date())} value={f.fecha} onChange={e => set('fecha', e.target.value)} className={inputCls} required /></div>
                 <div><label className={labelCls}>Peso (kg) *</label><input type="number" min="25" max="350" step="0.1" value={f.peso_kg} onChange={e => set('peso_kg', e.target.value)} className={inputCls} required autoFocus /></div>
-                <div><label className={labelCls}>% de grasa</label><input type="number" min="2" max="70" step="0.1" value={f.grasa_pct} onChange={e => set('grasa_pct', e.target.value)} className={inputCls} placeholder="Si lo sabes" /></div>
+                <div><label className={labelCls}>% de grasa (de balanza)</label><input type="number" min="2" max="70" step="0.1" value={f.grasa_pct} onChange={e => set('grasa_pct', e.target.value)} className={inputCls} placeholder="Opcional" /></div>
                 <div><label className={labelCls}>Notas</label><input value={f.notas} onChange={e => set('notas', e.target.value)} className={inputCls} maxLength={255} placeholder="Opcional" /></div>
             </div>
+            <p className="text-[11px] text-slate-400">
+                ¿No sabes tu % de grasa? Déjalo vacío: lo estimamos con tu IMC, edad y sexo. Si en el gym te miden con balanza de bioimpedancia o plicómetro, ingrésalo para un dato más exacto.
+            </p>
             <div className="flex justify-end">
                 <button disabled={guardando || !f.peso_kg} className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-primary text-secondary rounded-lg font-black uppercase text-sm disabled:opacity-40">
                     <PlusIcon className="w-4 h-4" /> {guardando ? 'Guardando...' : 'Registrar'}
@@ -333,7 +336,7 @@ const Index = () => {
                     <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center">
                         <ScaleIcon className="w-10 h-10 text-slate-300 mx-auto" />
                         <p className="mt-2 font-black text-secondary">Registra tu primera medición</p>
-                        <p className="text-sm text-slate-500">Con tu peso (y si quieres, tus perímetros) verás tu IMC, tu % de grasa y tu evolución.</p>
+                        <p className="text-sm text-slate-500">Solo con tu peso verás tu IMC, tu % de grasa estimado y tu evolución.</p>
                         <button onClick={() => setPestana('mediciones')} className="mt-4 inline-flex items-center gap-1.5 bg-primary text-secondary px-5 py-2.5 rounded-lg font-black uppercase text-sm"><PlusIcon className="w-4 h-4" /> Registrar medición</button>
                     </div>
                 ) : (
@@ -351,9 +354,11 @@ const Index = () => {
                                 {actual.grasa_pct !== null ? (
                                     <>
                                         <Estado cat={actual.categoria_grasa} />
-                                        <span className="text-[11px] text-slate-500">{fmt(actual.masa_grasa_kg)} kg grasa · {fmt(actual.masa_magra_kg)} kg magra{actual.grasa_estimada ? ' · estimado' : ''}</span>
+                                        <span className="text-[11px] text-slate-500">{fmt(actual.masa_grasa_kg)} kg grasa · {fmt(actual.masa_magra_kg)} kg magra</span>
+                                        {actual.grasa_fuente === 'imc' && <span className="text-[11px] text-slate-400" title="Fórmula de Deurenberg. Margen de ±4-5 %: úsalo para ver si sube o baja.">Estimado con tu IMC, edad y sexo (±4-5 %)</span>}
+                                        {actual.grasa_fuente === 'perimetros' && <span className="text-[11px] text-slate-400">Estimado con tus medidas</span>}
                                     </>
-                                ) : <span className="text-[11px] text-slate-500">Si lo sabes (balanza o control), regístralo en tu medición</span>}
+                                ) : <span className="text-[11px] text-slate-500">Se calcula con tu edad: revisa tu fecha de nacimiento en recepción</span>}
                             </Tarjeta>
                         </div>
 
@@ -432,7 +437,7 @@ const Index = () => {
                                 ))}
                             </tbody>
                         </table>
-                        
+                        {datos.historial.some(h => h.grasa_estimada) && <p className="px-3 pb-3 text-[11px] text-slate-400">* % de grasa estimado (sin dato de balanza).</p>}
                     </div>
                 </div>
             )}
