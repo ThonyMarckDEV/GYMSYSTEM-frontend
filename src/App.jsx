@@ -43,6 +43,7 @@ import ListarRoles from 'pages/rol/Index';
 
 // UI EMPRESAS (multitenant — solo superadmin)
 import MiEmpresa from 'pages/empresa/MiEmpresa';
+import ConfiguracionInicial from 'pages/empresa/ConfiguracionInicial';
 
 // UI CAJA Y PAGOS
 import Caja from 'pages/caja/Index';
@@ -72,6 +73,9 @@ function AppContent() {
     <Routes>
       {/* 1. LOGIN */}
       <Route path="/" element={<ProtectedRouteHome element={<Login />} />} />
+
+      {/* PRIMER INICIO: el superadmin configura y activa la empresa (sin sidebar) */}
+      <Route path="/configuracion-inicial" element={<ProtectedRoute element={<ConfiguracionInicial />} />} />
 
       {/* 2. LAYOUT GLOBAL */}
       <Route element={<ProtectedRoute element={<SidebarLayout />} />}>
