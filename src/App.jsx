@@ -45,6 +45,10 @@ import ListarRoles from 'pages/rol/Index';
 import MiEmpresa from 'pages/empresa/MiEmpresa';
 import ConfiguracionInicial from 'pages/empresa/ConfiguracionInicial';
 
+// UI CLASES E INVENTARIO
+import Clases from 'pages/clase/Index';
+import Inventario from 'pages/inventario/Index';
+
 // UI CAJA Y PAGOS
 import Caja from 'pages/caja/Index';
 import HistorialCajas from 'pages/caja/Historial';
@@ -111,6 +115,10 @@ function AppContent() {
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
+
+        {/* CLASES E INVENTARIO */}
+        <Route path="/clases" element={<ProtectedRoute requiredPermission="clase.index" element={<Clases />} />} />
+        <Route path="/inventario" element={<ProtectedRoute requiredPermission="inventario.index" element={<Inventario />} />} />
 
         {/* CAJA Y PAGOS */}
         <Route path="/caja" element={<ProtectedRoute requiredPermission="cajaSesion.actual" element={<Caja />} />} />

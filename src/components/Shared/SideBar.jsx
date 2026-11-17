@@ -17,6 +17,8 @@ import {
     DevicePhoneMobileIcon,
     ArchiveBoxIcon,
     InboxStackIcon,
+    CalendarDaysIcon,
+    CubeTransparentIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
@@ -91,6 +93,8 @@ const MENU_GROUPS = [
     {
         groupName: 'Gimnasio',
         items: [
+            { section: 'Clases', link: '/clases', icon: CalendarDaysIcon, requiredPermission: 'clase.index' },
+            { section: 'Inventario', link: '/inventario', icon: CubeTransparentIcon, requiredPermission: 'inventario.index' },
             { 
                 section: 'Planes', icon: TagIcon,
                 subs: [
