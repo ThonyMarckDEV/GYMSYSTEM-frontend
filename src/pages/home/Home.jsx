@@ -1,5 +1,7 @@
 import React, { useMemo } from "react";
 import jwtUtils from "utilities/Token/jwtUtils";
+import { useAuth } from "context/AuthContext";
+import MiPlanCard from "components/Dashboard/MiPlanCard";
 import { 
   User, 
   ShieldCheck, 
@@ -10,6 +12,9 @@ import {
 
 const Home = () => {
   const token = jwtUtils.getAccessTokenFromCookie();
+  const { can, empresa, empresaActiva } = useAuth();
+  // Mi plan: solo para usuarios con permiso y una empresa en contexto
+  const mostrarMiPlan = can("suscripcion.miPlan") && (empresa || empresaActiva);
   
   const userData = useMemo(() => {
     if (!token) return null;
@@ -46,6 +51,13 @@ const Home = () => {
 
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
         </header>
+
+        {/* PLAN CONTRATADO POR LA EMPRESA */}
+        {mostrarMiPlan && (
+          <div className="mb-6">
+            <MiPlanCard />
+          </div>
+        )}
 
         {/* 2. GRID DE INFORMACIÓN Y SOPORTE */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
