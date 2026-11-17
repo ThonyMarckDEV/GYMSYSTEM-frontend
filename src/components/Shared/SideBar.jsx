@@ -66,6 +66,7 @@ const MENU_GROUPS = [
                 icon: UserCircleIcon,
                 requiredPermission: 'perfil.index',
             },
+            { section: 'Mis Pagos', link: '/mis-pagos', icon: CreditCardIcon, requiredPermission: 'perfil.pagos' },
             { section: 'Mis Rutinas', link: '/mis-rutinas', icon: ClipboardDocumentListIcon, requiredPermission: 'rutina.mias' },
         ]
     },

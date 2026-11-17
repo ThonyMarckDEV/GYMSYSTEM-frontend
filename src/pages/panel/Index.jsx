@@ -178,7 +178,10 @@ const Index = () => {
                     </section>
 
                     <section className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                        <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-widest flex items-center gap-2"><ReceiptPercentIcon className="w-4 h-4" /> Mis últimos pagos</h3>
+                        <div className="flex items-center justify-between gap-2">
+                            <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-widest flex items-center gap-2"><ReceiptPercentIcon className="w-4 h-4" /> Mis últimos pagos</h3>
+                            <Link to="/mis-pagos" className="text-xs font-bold text-slate-500 hover:text-secondary inline-flex items-center gap-1">Ver todos <ArrowRightIcon className="w-3.5 h-3.5" /></Link>
+                        </div>
                         {pagos.length === 0 ? (
                             <p className="text-sm text-slate-400 mt-3">Aún no tienes pagos registrados.</p>
                         ) : (
