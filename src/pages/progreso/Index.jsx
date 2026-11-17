@@ -19,10 +19,6 @@ const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 ro
 const labelCls = 'block text-[11px] font-bold text-slate-600 uppercase mb-1';
 const fmt = (v, d = 1) => (v === null || v === undefined ? '—' : Number(v).toLocaleString('es-PE', { maximumFractionDigits: d }));
 
-const PERIMETROS = [
-    ['cintura_cm', 'Cintura'], ['cadera_cm', 'Cadera'], ['pecho_cm', 'Pecho'],
-    ['brazo_cm', 'Brazo'], ['muslo_cm', 'Muslo'], ['cuello_cm', 'Cuello'],
-];
 const TIPOS_COMIDA = [['desayuno', 'Desayuno'], ['almuerzo', 'Almuerzo'], ['cena', 'Cena'], ['snack', 'Snack']];
 
 // Estado (bien / atención / riesgo) siempre con ícono + texto, nunca solo color
@@ -107,7 +103,7 @@ const PerfilForm = ({ datos, onGuardado, onError, compacto }) => {
 
 // ===================================================================== MEDICIÓN
 const MedicionForm = ({ onGuardado, onError }) => {
-    const vacio = { fecha: aISO(new Date()), peso_kg: '', grasa_pct: '', notas: '', ...Object.fromEntries(PERIMETROS.map(([k]) => [k, ''])) };
+    const vacio = { fecha: aISO(new Date()), peso_kg: '', grasa_pct: '', notas: '' };
     const [f, setF] = useState(vacio);
     const [guardando, setGuardando] = useState(false);
     const set = (k, v) => setF(p => ({ ...p, [k]: v }));
@@ -131,16 +127,6 @@ const MedicionForm = ({ onGuardado, onError }) => {
                 <div><label className={labelCls}>Peso (kg) *</label><input type="number" min="25" max="350" step="0.1" value={f.peso_kg} onChange={e => set('peso_kg', e.target.value)} className={inputCls} required autoFocus /></div>
                 <div><label className={labelCls}>% de grasa</label><input type="number" min="2" max="70" step="0.1" value={f.grasa_pct} onChange={e => set('grasa_pct', e.target.value)} className={inputCls} placeholder="Si lo sabes" /></div>
                 <div><label className={labelCls}>Notas</label><input value={f.notas} onChange={e => set('notas', e.target.value)} className={inputCls} maxLength={255} placeholder="Opcional" /></div>
-            </div>
-            <div>
-                <p className={labelCls}>Perímetros (cm) · opcional</p>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-                    {PERIMETROS.map(([k, l]) => (
-                        <div key={k}><label className="block text-[11px] text-slate-500 mb-1">{l}</label>
-                            <input type="number" min="15" max="250" step="0.1" value={f[k]} onChange={e => set(k, e.target.value)} className={inputCls} /></div>
-                    ))}
-                </div>
-                <p className="mt-2 text-[11px] text-slate-400">Sin % de grasa, lo estimamos con cintura y cuello (y cadera en mujeres) usando la fórmula de la Marina de EE. UU. Mide la cintura a la altura del ombligo, en ayunas.</p>
             </div>
             <div className="flex justify-end">
                 <button disabled={guardando || !f.peso_kg} className="inline-flex items-center gap-1.5 px-6 py-2.5 bg-primary text-secondary rounded-lg font-black uppercase text-sm disabled:opacity-40">
@@ -301,7 +287,6 @@ const Index = () => {
     const [pestana, setPestana] = useState('resumen');
     const [editandoPerfil, setEditandoPerfil] = useState(false);
     const [borrar, setBorrar] = useState(null);
-    const [perimetro, setPerimetro] = useState('cintura_cm');
 
     const cargar = useCallback(() => cargarResumen().then(r => setDatos(r.data)).catch(err => setAlert(handleApiError(err, 'No se pudo cargar tu progreso'))), []);
     useEffect(() => { cargar(); }, [cargar]);
@@ -353,7 +338,7 @@ const Index = () => {
                     </div>
                 ) : (
                     <div className="space-y-5">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <Tarjeta titulo="Peso" valor={fmt(actual.peso_kg)} unidad="kg">
                                 <Cambio valor={cambios.vs_anterior.peso_kg} unidad=" kg" bajarEsBueno={perfil.objetivo !== 'subir'} desde={cambios.vs_anterior.desde && 'la anterior'} />
                                 {cambios.falta_meta_kg !== null && <span className="text-[11px] text-slate-500">{cambios.falta_meta_kg === 0 ? '¡Llegaste a tu meta!' : `${fmt(Math.abs(cambios.falta_meta_kg))} kg para tu meta (${fmt(perfil.peso_meta_kg)} kg)`}</span>}
@@ -368,15 +353,7 @@ const Index = () => {
                                         <Estado cat={actual.categoria_grasa} />
                                         <span className="text-[11px] text-slate-500">{fmt(actual.masa_grasa_kg)} kg grasa · {fmt(actual.masa_magra_kg)} kg magra{actual.grasa_estimada ? ' · estimado' : ''}</span>
                                     </>
-                                ) : <span className="text-[11px] text-slate-500">Agrega cintura y cuello para estimarlo</span>}
-                            </Tarjeta>
-                            <Tarjeta titulo="Cintura" valor={fmt(actual.cintura_cm)} unidad="cm">
-                                {actual.riesgo_cintura ? (
-                                    <>
-                                        <Estado cat={actual.riesgo_cintura} />
-                                        {actual.riesgo_cintura.cintura_estatura && <span className="text-[11px] text-slate-500">Cintura/estatura {actual.riesgo_cintura.cintura_estatura} (ideal &lt; 0.5)</span>}
-                                    </>
-                                ) : <span className="text-[11px] text-slate-500">Sin medir</span>}
+                                ) : <span className="text-[11px] text-slate-500">Si lo sabes (balanza o control), regístralo en tu medición</span>}
                             </Tarjeta>
                         </div>
 
@@ -424,15 +401,10 @@ const Index = () => {
                 <div className="space-y-5">
                     {perfil.configurado ? <MedicionForm onGuardado={ok} onError={mostrarError} /> : <p className="text-sm text-slate-500">Primero guarda tu estatura (arriba).</p>}
 
-                    {datos.historial.length > 0 && (
+                    {datos.historial.length > 1 && (
                         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-                            <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                                <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-500">Perímetro (cm)</h3>
-                                <select value={perimetro} onChange={e => setPerimetro(e.target.value)} className="p-1.5 text-sm text-secondary border border-slate-300 rounded-lg bg-white" aria-label="Perímetro a graficar">
-                                    {PERIMETROS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-                                </select>
-                            </div>
-                            <GraficoLinea titulo={PERIMETROS.find(([k]) => k === perimetro)?.[1]} datos={serie(perimetro)} unidad=" cm" />
+                            <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-500">Peso (kg)</h3>
+                            <GraficoLinea titulo="Peso" datos={serie('peso_kg')} unidad=" kg" referencia={perfil.peso_meta_kg ? { valor: perfil.peso_meta_kg, etiqueta: `Meta ${fmt(perfil.peso_meta_kg)}` } : null} />
                         </div>
                     )}
 
@@ -443,26 +415,24 @@ const Index = () => {
                                 <tr className="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
                                     <th className="text-left p-3 font-black">Fecha</th><th className="text-right p-3 font-black">Peso</th><th className="text-right p-3 font-black">IMC</th>
                                     <th className="text-right p-3 font-black">% grasa</th>
-                                    {PERIMETROS.map(([k, l]) => <th key={k} className="text-right p-3 font-black">{l}</th>)}
                                     <th className="p-3" />
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
                                 {historialDesc.length === 0 ? (
-                                    <tr><td colSpan={10} className="p-6 text-center text-slate-400">Sin mediciones todavía.</td></tr>
+                                    <tr><td colSpan={5} className="p-6 text-center text-slate-400">Sin mediciones todavía.</td></tr>
                                 ) : historialDesc.map(h => (
                                     <tr key={h.id}>
                                         <td className="p-3 whitespace-nowrap font-bold text-slate-700">{fechaLarga(h.fecha)}{h.notas && <p className="text-[11px] font-normal text-slate-400">{h.notas}</p>}</td>
                                         <td className="p-3 text-right tabular-nums font-black text-slate-900">{fmt(h.peso_kg)}</td>
                                         <td className="p-3 text-right tabular-nums">{fmt(h.imc)}</td>
                                         <td className="p-3 text-right tabular-nums">{fmt(h.grasa_pct)}{h.grasa_estimada ? '*' : ''}</td>
-                                        {PERIMETROS.map(([k]) => <td key={k} className="p-3 text-right tabular-nums text-slate-600">{fmt(h[k])}</td>)}
                                         <td className="p-3 text-right"><button onClick={() => setBorrar(h)} className="p-1 text-slate-400 hover:text-red-600" aria-label={`Eliminar la medición del ${h.fecha}`}><TrashIcon className="w-4 h-4" /></button></td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        {datos.historial.some(h => h.grasa_estimada) && <p className="px-3 pb-3 text-[11px] text-slate-400">* % de grasa estimado con perímetros.</p>}
+                        
                     </div>
                 </div>
             )}
