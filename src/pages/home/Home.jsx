@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import jwtUtils from "utilities/Token/jwtUtils";
 import { useAuth } from "context/AuthContext";
+import MisClasesCard from "components/Clases/MisClasesCard";
 import { 
   User, 
   ShieldCheck, 
@@ -11,7 +12,7 @@ import {
 
 const Home = () => {
   const token = jwtUtils.getAccessTokenFromCookie();
-  const { empresa, sucursal } = useAuth();
+  const { empresa, sucursal, can, role } = useAuth();
   
   const userData = useMemo(() => {
     if (!token) return null;
@@ -54,6 +55,13 @@ const Home = () => {
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
         </header>
 
+
+        {/* PRÓXIMAS CLASES (cliente: sus reservas · instructor: las que dicta) */}
+        {can("clase.misClases") && (
+          <div className="mb-6">
+            <MisClasesCard esInstructor={role === "instructor"} />
+          </div>
+        )}
 
         {/* 2. GRID DE INFORMACIÓN Y SOPORTE */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
