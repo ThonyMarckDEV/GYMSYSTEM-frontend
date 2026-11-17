@@ -1,12 +1,11 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useIndex } from 'hooks/membresia/useIndex';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import CongelarModal from 'components/Shared/Modals/CongelarModal';
-import AsignarMembresiaModal from 'components/Shared/Modals/AsignarMembresiaModal';
 import { useAuth } from 'context/AuthContext';
 import {
     IdentificationIcon, PhoneIcon, EnvelopeIcon,
@@ -31,8 +30,7 @@ const ESTADO_LABEL = {
 const Index = () => {
     const { id } = useParams();
     const {
-        loading, data, alert, setAlert, planes, descuentos,
-        isAsignarOpen, setIsAsignarOpen, handleAsignar,
+        loading, data, alert, setAlert,
         isCongelarOpen, setIsCongelarOpen, handleConfirmCongelar,
         confirmAction, setConfirmAction, handleAskConfirm, handleConfirmAction,
         actionLoading,
@@ -44,8 +42,9 @@ const Index = () => {
 
     const { cliente, membresia_actual, historial } = data;
 
-    const puedeAsignar = !membresia_actual || membresia_actual.estado === 'vencida' || membresia_actual.estado === 'cancelada' ||
-        (membresia_actual.estado === 'activa' && membresia_actual.fecha_fin);
+    // Vender un plan o renovarlo se hace en Caja (con el DNI ya cargado)
+    const sinPlan = !membresia_actual || ['vencida', 'cancelada'].includes(membresia_actual.estado);
+    const puedeVender = membresia_actual?.estado !== 'congelada' && can('cajaSesion.cobrar');
 
     const confirmMensajes = {
         reanudar: '¿Reanudar esta membresía congelada?',
@@ -75,11 +74,11 @@ const Index = () => {
                             {cliente.correo && <span className="flex items-center gap-1"><EnvelopeIcon className="w-3.5 h-3.5"/> {cliente.correo}</span>}
                         </div>
                     </div>
-                    {puedeAsignar && can('membresia.asignar') && (
-                        <button onClick={() => setIsAsignarOpen(true)}
-                            className="bg-primary text-secondary px-4 py-2 rounded-md font-black uppercase text-xs hover:bg-primary-hover transition-colors shrink-0">
-                            + Asignar Membresía
-                        </button>
+                    {puedeVender && (
+                        <Link to={`/caja?dni=${cliente.dni}`}
+                            className="bg-primary text-secondary px-4 py-2 rounded-md font-black uppercase text-xs hover:bg-primary-hover transition-colors shrink-0 text-center">
+                            {sinPlan ? '+ Vender plan en Caja' : 'Renovar en Caja'}
+                        </Link>
                     )}
                 </div>
 
@@ -193,15 +192,6 @@ const Index = () => {
                 </div>
 
             </div>
-
-            <AsignarMembresiaModal
-                isOpen={isAsignarOpen}
-                onClose={() => setIsAsignarOpen(false)}
-                onConfirm={handleAsignar}
-                planes={planes}
-                descuentos={descuentos}
-                loading={actionLoading}
-            />
 
             <CongelarModal
                 isOpen={isCongelarOpen}

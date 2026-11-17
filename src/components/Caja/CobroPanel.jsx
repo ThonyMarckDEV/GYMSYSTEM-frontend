@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
     MagnifyingGlassIcon, UserIcon, ExclamationTriangleIcon, BanknotesIcon,
@@ -20,8 +20,17 @@ const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
  * Cobro en caja: buscar al cliente por DNI → si ya subió comprobante se verifica,
  * si no, se elige plan y se cobra en efectivo (con vuelto), Yape/Plin al momento o tarjeta.
  */
-const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoCobro, procesando, onBuscar, onCobrar, onVerificar, onRechazar, onLimpiar, onTicket }) => {
-    const [dni, setDni] = useState('');
+const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, busqueda, ultimoCobro, procesando, onBuscar, onCobrar, onVerificar, onRechazar, onLimpiar, onTicket }) => {
+    const [dni, setDni] = useState(dniInicial);
+
+    // Llegó desde la ficha del cliente (/caja?dni=...): buscarlo automáticamente una vez
+    const buscado = useRef(false);
+    useEffect(() => {
+        if (!buscado.current && /^\d{8}$/.test(dniInicial)) {
+            buscado.current = true;
+            onBuscar(dniInicial);
+        }
+    }, [dniInicial, onBuscar]);
     const [form, setForm] = useState({ plan_id: '', descuento_id: '', metodo_pago: 'efectivo', monto_recibido: '', numero_operacion: '' });
     const [verComprobante, setVerComprobante] = useState(false);
 

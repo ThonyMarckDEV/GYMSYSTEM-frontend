@@ -9,15 +9,6 @@ export const index = async (clienteId) => {
     return handleResponse(response);
 };
 
-export const asignar = async (clienteId, data) => {
-    const response = await fetchWithAuth(`${BASE_URL}/asignar/${clienteId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-    });
-    return handleResponse(response);
-};
-
 export const congelar = async (id, data) => {
     const response = await fetchWithAuth(`${BASE_URL}/congelar/${id}`, {
         method: 'PATCH',

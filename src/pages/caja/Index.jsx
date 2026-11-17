@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCaja } from 'hooks/caja/useCaja';
 import { useAuth } from 'context/AuthContext';
 import PageHeader from 'components/Shared/Headers/PageHeader';
@@ -91,6 +91,8 @@ const ResumenCierre = ({ data }) => {
 
 const Index = () => {
     const c = useCaja();
+    const [params] = useSearchParams();
+    const dniInicial = (params.get('dni') || '').replace(/\D/g, '').slice(0, 8);
     const [cerrando, setCerrando] = useState(false);
     const { abrirTicket, TicketModal, errorTicket } = useTicket();
 
@@ -120,6 +122,7 @@ const Index = () => {
                         <div className="xl:col-span-3">
                             <CobroPanel
                                 errorModal={errorDeAlerta(c.alert)}
+                                dniInicial={dniInicial}
                                 planes={c.planes} descuentos={c.descuentos} metodos={c.metodos}
                                 busqueda={c.busqueda} ultimoCobro={c.ultimoCobro} procesando={c.procesando}
                                 onBuscar={c.buscar} onCobrar={c.cobrarCliente}
