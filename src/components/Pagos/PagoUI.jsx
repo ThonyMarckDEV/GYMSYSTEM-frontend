@@ -139,7 +139,7 @@ export const QrPago = ({ tipo, datos }) => {
  * En celular se abre como hoja desde abajo (todo el ancho); desde sm, centrado.
  * Escape cierra y el fondo no se desplaza mientras está abierto.
  */
-export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max-w-lg', error }) => {
+export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max-w-lg', error, portal = false }) => {
     useEffect(() => {
         const previo = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
@@ -148,8 +148,8 @@ export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max
         return () => { document.body.style.overflow = previo; window.removeEventListener('keydown', tecla); };
     }, [onClose]);
 
-    return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm"
+    const contenido = (
+    <div className="fixed inset-0 h-[100dvh] w-screen z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-label={typeof titulo === 'string' ? titulo : undefined}>
         <div className={`bg-white rounded-t-2xl sm:rounded-xl shadow-elegant-gold w-full ${ancho} max-h-[94dvh] sm:max-h-[92vh] flex flex-col overflow-hidden border border-primary/20 hoja-subir`}>
             <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-primary/20 bg-secondary flex-shrink-0">
@@ -172,6 +172,9 @@ export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max
         </div>
     </div>
     );
+    // portal: se monta en <body> para que el fondo oscuro cubra toda la ventana
+    // aunque el modal se abra dentro del <main> con scroll propio
+    return portal ? createPortal(contenido, document.body) : contenido;
 };
 
 const btn = 'px-4 py-2 rounded-lg font-bold uppercase text-sm transition-colors disabled:opacity-50';

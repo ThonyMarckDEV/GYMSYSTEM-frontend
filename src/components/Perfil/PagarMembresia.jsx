@@ -118,7 +118,7 @@ const PagarMembresia = ({ onPagoEnviado }) => {
 
             {abierto && (
                 <Modal titulo={actual ? 'Renovar membresía' : 'Pagar membresía'} icon={actual ? ArrowPathIcon : CreditCardIcon}
-                    onClose={cerrar} ancho="sm:max-w-3xl" error={errorModal}
+                    onClose={cerrar} ancho="sm:max-w-3xl" error={errorModal} portal
                     pie={<>
                         <button type="button" onClick={cerrar} disabled={enviando}
                             className="flex-1 sm:flex-none px-5 py-3 sm:py-2.5 bg-slate-100 text-slate-600 rounded-lg font-bold uppercase text-sm">Cancelar</button>
