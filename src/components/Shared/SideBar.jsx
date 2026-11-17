@@ -21,8 +21,9 @@ import {
     CubeTransparentIcon,
     ShoppingBagIcon,
     ArrowsRightLeftIcon,
-    ShieldCheckIcon,
     DocumentArrowDownIcon,
+    ShieldCheckIcon,
+    ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
@@ -62,7 +63,8 @@ const MENU_GROUPS = [
                 link: '/mi-perfil',
                 icon: UserCircleIcon,
                 requiredPermission: 'perfil.index',
-            }
+            },
+            { section: 'Mis Rutinas', link: '/mis-rutinas', icon: ClipboardDocumentListIcon, requiredPermission: 'rutina.mias' },
         ]
     },
     {
