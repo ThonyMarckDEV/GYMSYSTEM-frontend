@@ -49,6 +49,7 @@ import ConfiguracionInicial from 'pages/empresa/ConfiguracionInicial';
 import Clases from 'pages/clase/Index';
 import Inventario from 'pages/inventario/Index';
 import Productos from 'pages/producto/Index';
+import Bitacora from 'pages/auditoria/Index';
 import Reportes from 'pages/reporte/Index';
 import Traslados from 'pages/traslado/Index';
 
@@ -123,6 +124,7 @@ function AppContent() {
         <Route path="/clases" element={<ProtectedRoute requiredPermission="clase.index" element={<Clases />} />} />
         <Route path="/inventario" element={<ProtectedRoute requiredPermission="inventario.index" element={<Inventario />} />} />
         <Route path="/productos" element={<ProtectedRoute requiredPermission="producto.index" element={<Productos />} />} />
+        <Route path="/bitacora" element={<ProtectedRoute requiredPermission="auditoria.index" element={<Bitacora />} />} />
         <Route path="/reportes" element={<ProtectedRoute requiredPermission="reporte.ventas" element={<Reportes />} />} />
         <Route path="/traslados" element={<ProtectedRoute requiredPermission="traslado.index" element={<Traslados />} />} />
 

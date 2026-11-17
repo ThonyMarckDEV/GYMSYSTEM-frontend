@@ -21,6 +21,7 @@ import {
     CubeTransparentIcon,
     ShoppingBagIcon,
     ArrowsRightLeftIcon,
+    ShieldCheckIcon,
     DocumentArrowDownIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
@@ -120,6 +121,7 @@ const MENU_GROUPS = [
     {
         groupName: 'Configuracion',
         items: [
+            { section: 'Bitácora', link: '/bitacora', icon: ShieldCheckIcon, requiredPermission: 'auditoria.index' },
             {
                 section: 'Sucursales', icon: BuildingStorefrontIcon,
                 subs: [
