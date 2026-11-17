@@ -1,9 +1,18 @@
-import React from 'react';
-import { UserIcon, KeyIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import React, { useEffect } from 'react';
+import { UserIcon, KeyIcon, LockClosedIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 import RolSearchSelect from 'components/Shared/Comboboxes/RolSearchSelect';
 import SucursalSelect from 'components/Shared/Comboboxes/SucursalSelect';
+import { useAuth } from 'context/AuthContext';
 
 const UsuarioForm = ({ form, setForm, handleNestedChange, isEditing = false }) => {
+  // Sede fija de quien registra (o superadmin en modo sucursal)
+  const { sucursal: sedePropia } = useAuth();
+
+  useEffect(() => {
+    if (sedePropia && String(form.sucursal_id) !== String(sedePropia.id)) {
+      setForm(prev => ({ ...prev, sucursal_id: sedePropia.id }));
+    }
+  }, [sedePropia, form.sucursal_id, setForm]);
   
   const pass = form.usuario.password || '';
   const confirm = form.usuario.password_confirmation || '';
@@ -25,14 +34,24 @@ const UsuarioForm = ({ form, setForm, handleNestedChange, isEditing = false }) =
             />
         </div>
 
-        {/* SUCURSAL (opcional: vacío = trabaja en todas las sedes) */}
+        {/* SUCURSAL: quien tiene una sede fija solo registra en su sede; si trabaja en todas, elige */}
         <div className="md:col-span-2">
-            <SucursalSelect
-                value={form.sucursal_id}
-                onChange={(val) => setForm(prev => ({ ...prev, sucursal_id: val }))}
-                emptyLabel="Todas las sucursales"
-                help="Déjalo en Todas para administradores. Un recepcionista suele tener una sucursal fija."
-            />
+            {sedePropia ? (
+                <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Sucursal</label>
+                    <div className="flex items-center gap-2 p-2.5 text-sm rounded-lg bg-slate-50 border border-slate-200 text-slate-700">
+                        <BuildingStorefrontIcon className="w-4 h-4 text-slate-400" /> {sedePropia.nombre}
+                    </div>
+                    <p className="mt-1 text-[11px] text-slate-400">Estás a cargo de esta sede: el empleado se registra aquí.</p>
+                </div>
+            ) : (
+                <SucursalSelect
+                    value={form.sucursal_id}
+                    onChange={(val) => setForm(prev => ({ ...prev, sucursal_id: val }))}
+                    emptyLabel="Todas las sucursales"
+                    help="Déjalo en Todas para administradores. Un recepcionista suele tener una sucursal fija."
+                />
+            )}
         </div>
 
         {/* Username */}
