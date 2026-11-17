@@ -54,6 +54,7 @@ const MENU_GROUPS = [
                 requiredPermission: 'dashboard.index',
             },
             { section: 'Mi Panel', link: '/mi-panel', icon: Squares2X2Icon, requiredPermission: 'perfil.index' },
+            { section: 'Mi Panel', link: '/panel-instructor', icon: Squares2X2Icon, requiredPermission: 'clase.panel' },
             { section: 'Reportes', link: '/reportes', icon: DocumentArrowDownIcon, requiredPermission: 'reporte.ventas' },
         ]
     },

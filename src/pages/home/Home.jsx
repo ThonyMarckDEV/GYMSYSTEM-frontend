@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import jwtUtils from "utilities/Token/jwtUtils";
 import { useAuth } from "context/AuthContext";
 import { Link } from "react-router-dom";
-import MisClasesCard from "components/Clases/MisClasesCard";
 import { 
   User, 
   ShieldCheck, 
@@ -13,7 +12,7 @@ import {
 
 const Home = () => {
   const token = jwtUtils.getAccessTokenFromCookie();
-  const { empresa, sucursal, can, role } = useAuth();
+  const { empresa, sucursal, can } = useAuth();
   
   const userData = useMemo(() => {
     if (!token) return null;
@@ -68,11 +67,15 @@ const Home = () => {
           </Link>
         )}
 
-        {/* PRÓXIMAS CLASES QUE DICTA (instructor) */}
-        {can("clase.misClases") && role === "instructor" && (
-          <div className="mb-6">
-            <MisClasesCard esInstructor />
-          </div>
+        {/* Instructor: sus clases de hoy, asistencias pendientes y su mes están en su panel */}
+        {can("clase.panel") && (
+          <Link to="/panel-instructor" className="mb-6 flex items-center justify-between gap-4 p-5 rounded-2xl bg-primary text-secondary shadow-lg hover:bg-primary-hover transition-colors">
+            <div>
+              <p className="text-lg font-black uppercase">Ir a mi panel</p>
+              <p className="text-sm font-semibold text-secondary/70">Tus clases de hoy, asistencias por tomar, próximas clases y cómo te va en el mes.</p>
+            </div>
+            <span className="text-2xl font-black" aria-hidden>→</span>
+          </Link>
         )}
 
         {/* 2. GRID DE INFORMACIÓN Y SOPORTE */}

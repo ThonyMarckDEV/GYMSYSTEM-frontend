@@ -17,6 +17,8 @@ export const calendario = async (desde, hasta, filtros = {}) => {
 };
 
 export const show = async (id) => handleResponse(await fetchWithAuth(`${BASE_URL}/show/${id}`, { method: 'GET' }));
+/** Panel del instructor: hoy, asistencias pendientes, su mes y equipos con problemas */
+export const panel = async () => handleResponse(await fetchWithAuth(`${BASE_URL}/panel`, { method: 'GET' }));
 export const misClases = async () => handleResponse(await fetchWithAuth(`${BASE_URL}/misClases`, { method: 'GET' }));
 export const instructores = async () => handleResponse(await fetchWithAuth(`${BASE_URL}/instructores`, { method: 'GET' }));
 

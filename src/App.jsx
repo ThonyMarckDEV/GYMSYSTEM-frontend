@@ -53,6 +53,7 @@ import Reportes from 'pages/reporte/Index';
 import Bitacora from 'pages/auditoria/Index';
 import MisRutinas from 'pages/rutina/Index';
 import MiPanel from 'pages/panel/Index';
+import PanelInstructor from 'pages/panel-instructor/Index';
 import MisPagos from 'pages/mis-pagos/Index';
 import Entrenar from 'pages/rutina/Entrenar';
 import Traslados from 'pages/traslado/Index';
@@ -131,6 +132,7 @@ function AppContent() {
         <Route path="/reportes" element={<ProtectedRoute requiredPermission="reporte.ventas" element={<Reportes />} />} />
         <Route path="/bitacora" element={<ProtectedRoute requiredPermission="auditoria.index" element={<Bitacora />} />} />
         <Route path="/mis-pagos" element={<ProtectedRoute requiredPermission="perfil.pagos" element={<MisPagos />} />} />
+        <Route path="/panel-instructor" element={<ProtectedRoute requiredPermission="clase.panel" element={<PanelInstructor />} />} />
         <Route path="/mi-panel" element={<ProtectedRoute requiredPermission="perfil.index" element={<MiPanel />} />} />
         <Route path="/mis-rutinas" element={<ProtectedRoute requiredPermission="rutina.mias" element={<MisRutinas />} />} />
         <Route path="/mis-rutinas/entrenar/:id/:dia" element={<ProtectedRoute requiredPermission="rutina.mias" element={<Entrenar />} />} />
