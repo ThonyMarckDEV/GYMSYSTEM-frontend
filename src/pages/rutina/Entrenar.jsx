@@ -4,6 +4,7 @@ import { show, guardarSesion } from 'services/rutinaService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
+import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { ArrowLeftIcon, CheckIcon, ClockIcon, FireIcon, ForwardIcon, TrophyIcon } from '@heroicons/react/24/outline';
 
 const CLAVE = (id, dia) => `gym:entreno:${id}:${dia}`;
@@ -39,6 +40,7 @@ const Entrenar = () => {
     const [ahora, setAhora] = useState(Date.now());
     const [descanso, setDescanso] = useState(null);   // { hasta, ejercicio }
     const [guardando, setGuardando] = useState(false);
+    const [descartando, setDescartando] = useState(false);
     const [alert, setAlert] = useState(null);
     const cargado = useRef(false);
 
@@ -115,7 +117,6 @@ const Entrenar = () => {
     };
 
     const descartar = () => {
-        if (!window.confirm('¿Descartar este entrenamiento? Se perderá lo que marcaste.')) return;
         borrar(clave);
         navigate('/mis-rutinas');
     };
@@ -199,7 +200,7 @@ const Entrenar = () => {
                                 </>
                             ) : (
                                 <>
-                                    <button onClick={descartar} className="px-4 py-3 rounded-lg border border-slate-300 text-sm font-bold text-slate-600">Descartar</button>
+                                    <button onClick={() => setDescartando(true)} className="px-4 py-3 rounded-lg border border-slate-300 text-sm font-bold text-slate-600">Descartar</button>
                                     <button onClick={terminar} disabled={guardando || hechas === 0}
                                         className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-primary text-secondary font-black uppercase shadow disabled:opacity-40">
                                         {hechas === todas.length && todas.length > 0 ? <TrophyIcon className="w-5 h-5" /> : <FireIcon className="w-5 h-5" />}
@@ -210,6 +211,17 @@ const Entrenar = () => {
                         </div>
                     </div>
                 </>
+            )}
+
+            {descartando && (
+                <ConfirmModal
+                    title="Descartar entrenamiento"
+                    message="Se perderán las series que marcaste en este entrenamiento."
+                    confirmText="Sí, descartar"
+                    cancelText="Seguir entrenando"
+                    onConfirm={descartar}
+                    onCancel={() => setDescartando(false)}
+                />
             )}
         </div>
     );

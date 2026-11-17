@@ -5,6 +5,7 @@ import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
+import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import { KpiTile } from 'components/Dashboard/Charts';
 import RutinaFormModal, { OBJETIVOS } from 'components/Rutinas/RutinaFormModal';
 import { fechaLarga } from 'utilities/Fechas/fechas';
@@ -57,6 +58,7 @@ const Index = () => {
     const [historial, setHistorial] = useState({ items: [], page: 0, last: 1 });
     const [alert, setAlert] = useState(location.state?.mensaje ? { type: 'success', message: location.state.mensaje } : null);
     const [editando, setEditando] = useState(null);   // 'nueva' | rutina (detalle)
+    const [confirmar, setConfirmar] = useState(null); // { tipo: 'rutina' | 'sesion', item }
 
     const cargar = useCallback(async () => {
         try {
@@ -91,7 +93,7 @@ const Index = () => {
     };
 
     const eliminar = async (r) => {
-        if (!window.confirm(`¿Eliminar la rutina ${r.nombre}? Tu historial de entrenamientos se conserva.`)) return;
+        setConfirmar(null);
         try {
             const res = await destroy(r.id);
             setAlert({ type: 'success', message: res.message });
@@ -102,7 +104,7 @@ const Index = () => {
     };
 
     const quitarSesion = async (s) => {
-        if (!window.confirm('¿Eliminar este entrenamiento del historial?')) return;
+        setConfirmar(null);
         try {
             const res = await eliminarSesion(s.id);
             setAlert({ type: 'success', message: res.message });
@@ -169,7 +171,7 @@ const Index = () => {
                                     </div>
                                     <div className="flex gap-1 shrink-0">
                                         <button onClick={() => editar(r)} title="Editar" className="p-2 text-slate-500 hover:text-secondary hover:bg-primary-light rounded-lg"><PencilSquareIcon className="w-5 h-5" /></button>
-                                        <button onClick={() => eliminar(r)} title="Eliminar" className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg"><TrashIcon className="w-5 h-5" /></button>
+                                        <button onClick={() => setConfirmar({ tipo: 'rutina', item: r })} title="Eliminar" className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg"><TrashIcon className="w-5 h-5" /></button>
                                     </div>
                                 </div>
                                 <p className="mt-3 mb-2 text-[10px] font-black uppercase tracking-widest text-slate-400">¿Qué entrenas hoy?</p>
@@ -212,13 +214,25 @@ const Index = () => {
                             <p className="text-sm text-slate-400 text-center py-10 bg-white rounded-2xl border border-dashed border-slate-300">Todavía no registras entrenamientos. Elige un día de tu rutina y dale play.</p>
                         ) : (
                             <ul className="space-y-2.5 max-w-3xl">
-                                {historial.items.map(s => <SesionItem key={s.id} s={s} onEliminar={quitarSesion} />)}
+                                {historial.items.map(s => <SesionItem key={s.id} s={s} onEliminar={(x) => setConfirmar({ tipo: 'sesion', item: x })} />)}
                             </ul>
                         )}
                     {historial.page > 0 && historial.page < historial.last && (
                         <button onClick={() => cargarHistorial(historial.page + 1)} className="mt-4 px-5 py-2.5 rounded-lg border border-slate-300 bg-white text-sm font-bold text-slate-600 hover:border-slate-500">Ver más</button>
                     )}
                 </div>
+            )}
+
+            {confirmar && (
+                <ConfirmModal
+                    title={confirmar.tipo === 'rutina' ? 'Eliminar rutina' : 'Eliminar entrenamiento'}
+                    message={confirmar.tipo === 'rutina'
+                        ? `¿Eliminar la rutina ${confirmar.item.nombre}? Tu historial de entrenamientos se conserva.`
+                        : `¿Eliminar el entrenamiento del ${fechaLarga(confirmar.item.fecha)} de tu historial?`}
+                    confirmText="Sí, eliminar"
+                    onConfirm={() => confirmar.tipo === 'rutina' ? eliminar(confirmar.item) : quitarSesion(confirmar.item)}
+                    onCancel={() => setConfirmar(null)}
+                />
             )}
 
             {editando && (
