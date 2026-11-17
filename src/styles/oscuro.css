@@ -1,0 +1,182 @@
+/*
+ * MODO OSCURO de toda la app.
+ * Se activa con la clase `dark` en <html> (ver utilities/Tema/tema.js).
+ * En vez de agregar `dark:` en cada componente, aquí se reasignan los colores
+ * de las utilidades de Tailwind que usa el sistema. Para casos puntuales
+ * también se puede usar `dark:` (tailwind.config: darkMode 'class').
+ */
+
+html.dark {
+    --fondo: #0f1218;        /* página */
+    --sup-1: #171b24;        /* tarjetas (bg-white) */
+    --sup-2: #1d2230;        /* bg-slate-50 */
+    --sup-3: #252b3a;        /* bg-slate-100 / hover */
+    --sup-4: #2e3546;        /* bg-slate-200 */
+    --linea-1: #262c3a;      /* bordes suaves */
+    --linea-2: #364055;      /* bordes de campos */
+    --linea-3: #4b5469;
+    --txt-1: #eef0f4;        /* títulos */
+    --txt-2: #cbd1db;        /* texto */
+    --txt-3: #a0a8b6;        /* secundario */
+    --txt-4: #7f8898;        /* ayuda */
+    --txt-5: #5c6577;
+    --color-barra: #FFC700;  /* barras de los gráficos */
+    color-scheme: dark;
+}
+
+html.dark body,
+html.dark .app-root { background-color: var(--fondo); }
+
+/* ---------------- Superficies ---------------- */
+.dark .bg-white,
+.dark .hover\:bg-white:hover { background-color: var(--sup-1); }
+.dark .bg-white\/95 { background-color: rgba(23, 27, 36, .95); }
+.dark .bg-white\/80 { background-color: rgba(23, 27, 36, .8); }
+.dark .bg-slate-50,
+.dark .bg-gray-50,
+.dark .disabled\:bg-gray-50:disabled { background-color: var(--sup-2); }
+.dark .bg-slate-50\/60 { background-color: rgba(29, 34, 48, .6); }
+.dark .bg-slate-100,
+.dark .bg-gray-100,
+.dark .disabled\:bg-slate-100:disabled,
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-50\/50:hover,
+.dark .hover\:bg-gray-50:hover { background-color: var(--sup-3); }
+.dark .bg-slate-200,
+.dark .hover\:bg-slate-100:hover { background-color: var(--sup-4); }
+.dark .hover\:bg-slate-200:hover { background-color: #384055; }
+.dark .bg-black\/5,
+.dark .hover\:bg-black\/5:hover { background-color: rgba(255, 255, 255, .06); }
+.dark .bg-secondary\/5 { background-color: rgba(255, 255, 255, .04); }
+.dark .bg-secondary\/10 { background-color: rgba(255, 255, 255, .07); }
+.dark .from-white,
+.dark .to-white { --tw-gradient-to: var(--sup-1); }
+
+/* Amarillo pálido → tinte amarillo translúcido */
+.dark .bg-primary-light,
+.dark .hover\:bg-primary-light:hover { background-color: rgba(255, 199, 0, .14); }
+.dark .bg-primary-light\/50 { background-color: rgba(255, 199, 0, .1); }
+.dark .bg-primary-light\/40,
+.dark .hover\:bg-primary-light\/40:hover { background-color: rgba(255, 199, 0, .08); }
+.dark .border-primary-light { border-color: rgba(255, 199, 0, .25); }
+
+/* ---------------- Textos ---------------- */
+.dark .text-slate-900, .dark .text-slate-800, .dark .text-gray-800, .dark .text-black,
+.dark .text-secondary, .dark .text-secondary-text,
+.dark .hover\:text-slate-900:hover, .dark .hover\:text-slate-800:hover,
+.dark .hover\:text-black:hover, .dark .hover\:text-secondary:hover { color: var(--txt-1); }
+.dark .text-slate-700, .dark .text-gray-700, .dark .text-slate-600, .dark .text-gray-600,
+.dark .hover\:text-slate-700:hover { color: var(--txt-2); }
+.dark .text-slate-500, .dark .text-gray-500, .dark .text-secondary-muted,
+.dark .disabled\:text-slate-500:disabled { color: var(--txt-3); }
+.dark .text-slate-400, .dark .text-gray-400 { color: var(--txt-4); }
+.dark .text-slate-300 { color: var(--txt-5); }
+.dark .text-secondary\/80 { color: rgba(238, 240, 244, .8); }
+.dark .text-secondary\/70 { color: rgba(238, 240, 244, .7); }
+.dark .text-secondary\/60 { color: rgba(238, 240, 244, .6); }
+.dark .text-secondary\/50 { color: rgba(238, 240, 244, .5); }
+.dark .text-secondary\/40 { color: rgba(238, 240, 244, .4); }
+.dark .placeholder-secondary\/50::placeholder { color: rgba(238, 240, 244, .4); }
+
+/* Sobre amarillo el texto sigue siendo negro (botones, chips, accesos) */
+.dark .bg-primary.text-secondary, .dark .bg-primary .text-secondary,
+.dark .bg-primary-hover.text-secondary, .dark .hover\:bg-primary-hover:hover.text-secondary,
+.dark .bg-amber-400 .text-secondary, .dark .bg-amber-400.text-secondary { color: #0A0A0A; }
+.dark .bg-primary .text-secondary\/70, .dark .bg-primary.text-secondary\/70 { color: rgba(10, 10, 10, .7); }
+.dark .bg-primary .text-secondary\/60 { color: rgba(10, 10, 10, .6); }
+.dark .bg-primary .text-secondary\/50 { color: rgba(10, 10, 10, .5); }
+
+/* ---------------- Bordes y divisores ---------------- */
+.dark .border-slate-50, .dark .border-slate-100, .dark .border-slate-200,
+.dark .border-gray-100, .dark .border-gray-200,
+.dark .disabled\:border-slate-200:disabled,
+.dark .hover\:border-slate-100:hover { border-color: var(--linea-1); }
+.dark .border-slate-300, .dark .border-gray-300,
+.dark .hover\:border-slate-300:hover { border-color: var(--linea-2); }
+.dark .border-slate-400, .dark .hover\:border-slate-400:hover { border-color: var(--linea-3); }
+.dark .border-slate-500, .dark .hover\:border-slate-500:hover { border-color: #5d677e; }
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--linea-1); }
+.dark .border-black\/10 { border-color: rgba(255, 255, 255, .08); }
+/* Lo seleccionado (negro sobre negro) se marca con borde amarillo */
+.dark .border-secondary, .dark .hover\:border-secondary:hover { border-color: rgba(255, 199, 0, .55); }
+.dark .border-secondary\/10, .dark .border-secondary\/15, .dark .border-secondary\/20 { border-color: rgba(255, 255, 255, .1); }
+.dark .ring-secondary { --tw-ring-color: #FFC700; }
+.dark .focus\:ring-black:focus { --tw-ring-color: #FFC700; }
+.dark .focus\:border-black:focus { border-color: #FFC700; }
+
+/* ---------------- Colores de estado ---------------- */
+.dark .bg-red-50, .dark .hover\:bg-red-50:hover { background-color: rgba(248, 113, 113, .12); }
+.dark .bg-red-100, .dark .hover\:bg-red-100:hover { background-color: rgba(248, 113, 113, .2); }
+.dark .text-red-500, .dark .text-red-600, .dark .hover\:text-red-600:hover, .dark .hover\:text-red-500:hover { color: #f87171; }
+.dark .text-red-700, .dark .text-red-800, .dark .text-red-900, .dark .hover\:text-red-700:hover, .dark .hover\:text-red-900:hover { color: #fca5a5; }
+.dark .border-red-200 { border-color: rgba(248, 113, 113, .35); }
+
+.dark .bg-green-50 { background-color: rgba(74, 222, 128, .12); }
+.dark .bg-green-100, .dark .hover\:bg-green-100:hover { background-color: rgba(74, 222, 128, .2); }
+.dark .text-green-600, .dark .text-green-700, .dark .hover\:text-green-600:hover { color: #4ade80; }
+.dark .text-green-800, .dark .text-green-900 { color: #86efac; }
+.dark .border-green-200, .dark .border-green-300 { border-color: rgba(74, 222, 128, .35); }
+.dark .ring-green-200 { --tw-ring-color: rgba(74, 222, 128, .35); }
+
+.dark .bg-amber-50 { background-color: rgba(251, 191, 36, .12); }
+.dark .bg-amber-100 { background-color: rgba(251, 191, 36, .2); }
+.dark .text-amber-700 { color: #fbbf24; }
+.dark .text-amber-800, .dark .text-amber-900 { color: #fcd34d; }
+.dark .border-amber-200 { border-color: rgba(251, 191, 36, .35); }
+
+.dark .bg-blue-50, .dark .hover\:bg-blue-50:hover { background-color: rgba(96, 165, 250, .12); }
+.dark .bg-blue-100, .dark .hover\:bg-blue-100:hover { background-color: rgba(96, 165, 250, .2); }
+.dark .text-blue-500 { color: #60a5fa; }
+.dark .text-blue-700, .dark .hover\:text-blue-700:hover { color: #93c5fd; }
+.dark .border-blue-200 { border-color: rgba(96, 165, 250, .35); }
+
+.dark .bg-violet-50 { background-color: rgba(167, 139, 250, .12); }
+.dark .text-violet-700 { color: #c4b5fd; }
+.dark .border-violet-200 { border-color: rgba(167, 139, 250, .35); }
+
+.dark .bg-indigo-50, .dark .hover\:bg-indigo-50:hover { background-color: rgba(129, 140, 248, .12); }
+.dark .bg-indigo-100 { background-color: rgba(129, 140, 248, .2); }
+.dark .text-indigo-500, .dark .text-indigo-600, .dark .text-indigo-700 { color: #a5b4fc; }
+.dark .border-indigo-100, .dark .border-indigo-200 { border-color: rgba(129, 140, 248, .35); }
+
+.dark .bg-emerald-100 { background-color: rgba(52, 211, 153, .2); }
+.dark .text-emerald-700 { color: #6ee7b7; }
+.dark .border-emerald-200 { border-color: rgba(52, 211, 153, .35); }
+
+/* ---------------- Formularios ---------------- */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+.dark select,
+.dark textarea {
+    background-color: #11151d !important;
+    color: var(--txt-1);
+    border-color: var(--linea-2);
+}
+.dark input:disabled, .dark select:disabled, .dark textarea:disabled { background-color: var(--sup-3) !important; color: var(--txt-4); }
+.dark ::placeholder { color: #69728a; opacity: 1; }
+.dark option, .dark optgroup { background-color: var(--sup-1); color: var(--txt-1); }
+.dark input[type="checkbox"], .dark input[type="radio"] { accent-color: #FFC700; }
+
+/* Tablas y código */
+.dark pre.bg-slate-900 { background-color: #0a0c10; }
+
+/* Sombras más profundas para separar capas */
+.dark .shadow-sm { --tw-shadow: 0 1px 2px 0 rgba(0, 0, 0, .5); }
+.dark .shadow, .dark .shadow-md { --tw-shadow: 0 4px 10px -2px rgba(0, 0, 0, .55); }
+.dark .shadow-lg, .dark .shadow-xl, .dark .shadow-2xl { --tw-shadow: 0 12px 30px -8px rgba(0, 0, 0, .7); }
+
+/* ---------------- Menú lateral (amarillo → negro con acentos amarillos) ---------------- */
+.dark .app-sidebar,
+.dark .app-sidebar .bg-primary { background-color: #0a0c10; }
+.dark .app-sidebar { border-color: rgba(255, 255, 255, .06); }
+.dark .app-sidebar .text-secondary { color: var(--txt-1); }
+.dark .app-sidebar .text-secondary\/70 { color: var(--txt-3); }
+.dark .app-sidebar .text-secondary\/50 { color: var(--txt-5); }
+.dark .app-sidebar .hover\:text-secondary:hover { color: #FFC700; }
+/* Ítem activo: amarillo sobre negro → negro sobre amarillo */
+.dark .app-sidebar .bg-secondary.text-primary { background-color: #FFC700; color: #0A0A0A; }
+.dark .app-sidebar .hover\:bg-red-900\/10:hover { background-color: rgba(248, 113, 113, .12); }
+.dark .app-sidebar .hover\:text-red-900:hover { color: #fca5a5; }
+
+/* Notificaciones (react-toastify) */
+.dark .Toastify__toast--default, .dark .Toastify__toast-theme--light { background: var(--sup-1); color: var(--txt-1); }

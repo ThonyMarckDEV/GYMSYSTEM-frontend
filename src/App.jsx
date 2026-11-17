@@ -167,7 +167,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-white text-primary">
+        <div className="app-root min-h-screen bg-white text-primary">
           <AppContent />
           <ToastContainer position="top-right" autoClose={3000} />
         </div>

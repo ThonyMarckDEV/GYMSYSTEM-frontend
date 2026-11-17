@@ -47,7 +47,7 @@ export const Cupos = ({ clase, compacto = false }) => {
                 {!compacto && <span>{clase.disponibles} {clase.disponibles === 1 ? 'cupo libre' : 'cupos libres'}</span>}
             </div>
             <div className="h-1 mt-0.5 rounded-full bg-slate-100 overflow-hidden" aria-hidden>
-                <div className="h-full rounded-full bg-slate-700" style={{ width: `${pct}%` }} />
+                <div className="h-full rounded-full bg-slate-700 dark:bg-primary" style={{ width: `${pct}%` }} />
             </div>
         </div>
     );
