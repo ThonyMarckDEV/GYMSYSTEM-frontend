@@ -9,6 +9,10 @@ export const index = async () => {
     return handleResponse(response);
 };
 
+/** Panel del cliente: membresía, avisos, clases, entrenamiento y últimos pagos */
+export const dashboard = async () =>
+    handleResponse(await fetchWithAuth(`${BASE_URL}/dashboard`, { method: 'GET' }));
+
 /** Planes, Yape/Plin del gimnasio y estado del último pago en línea */
 export const opcionesPago = async () =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/opcionesPago`, { method: 'GET' }));

@@ -24,6 +24,7 @@ import {
     DocumentArrowDownIcon,
     ShieldCheckIcon,
     ClipboardDocumentListIcon,
+    Squares2X2Icon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
@@ -52,6 +53,7 @@ const MENU_GROUPS = [
                 icon: ChartBarIcon,
                 requiredPermission: 'dashboard.index',
             },
+            { section: 'Mi Panel', link: '/mi-panel', icon: Squares2X2Icon, requiredPermission: 'perfil.index' },
             { section: 'Reportes', link: '/reportes', icon: DocumentArrowDownIcon, requiredPermission: 'reporte.ventas' },
         ]
     },

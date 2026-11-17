@@ -54,6 +54,7 @@ const MisClasesCard = ({ esInstructor }) => {
                     <div className="mx-6 mt-4 rounded-xl p-4 text-white" style={{ background: `linear-gradient(135deg, ${colorClase(siguiente.nombre)}, #0a0a0a)` }}>
                         <p className="text-[10px] font-black uppercase tracking-widest text-white/70">{etiquetaDia(siguiente.fecha)}</p>
                         <p className="text-2xl font-black leading-tight">{siguiente.nombre}</p>
+                        {!esInstructor && siguiente.pago_pendiente && <p className="text-xs font-bold text-amber-300">Pago en revisión · tu cupo está reservado</p>}
                         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-white/90">
                             <span className="inline-flex items-center gap-1 tabular-nums"><ClockIcon className="w-4 h-4" /> {siguiente.hora_inicio} – {siguiente.hora_fin}</span>
                             <span className="inline-flex items-center gap-1"><MapPinIcon className="w-4 h-4" /> {siguiente.sucursal?.nombre}{siguiente.lugar ? ` · ${siguiente.lugar}` : ''}</span>
@@ -70,6 +71,7 @@ const MisClasesCard = ({ esInstructor }) => {
                                 <div className="min-w-0 flex-1">
                                     <p className="text-sm font-bold text-slate-800 truncate">{c.nombre}</p>
                                     <p className="text-[11px] text-slate-500 truncate">{etiquetaDia(c.fecha)} · {c.hora_inicio} · {c.sucursal?.nombre}</p>
+                                    {!esInstructor && c.pago_pendiente && <p className="text-[10px] font-bold text-amber-700">Pago en revisión</p>}
                                 </div>
                                 {esInstructor && <span className="text-xs font-bold text-slate-500 tabular-nums">{c.inscritos}/{c.cupo}</span>}
                             </li>
