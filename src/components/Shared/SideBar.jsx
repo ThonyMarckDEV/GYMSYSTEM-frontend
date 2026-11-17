@@ -25,6 +25,7 @@ import {
     ShieldCheckIcon,
     ClipboardDocumentListIcon,
     Squares2X2Icon,
+    ScaleIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
@@ -69,6 +70,7 @@ const MENU_GROUPS = [
             },
             { section: 'Mis Pagos', link: '/mis-pagos', icon: CreditCardIcon, requiredPermission: 'perfil.pagos' },
             { section: 'Mis Rutinas', link: '/mis-rutinas', icon: ClipboardDocumentListIcon, requiredPermission: 'rutina.mias' },
+            { section: 'Mi Progreso', link: '/mi-progreso', icon: ScaleIcon, requiredPermission: 'progreso.mio' },
         ]
     },
     {
