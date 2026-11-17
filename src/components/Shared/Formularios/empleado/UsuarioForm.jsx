@@ -65,7 +65,7 @@ const UsuarioForm = ({ form, setForm, handleNestedChange, isEditing = false }) =
                     type="text"
                     value={form.usuario.username || ''}
                     onChange={(e) => handleNestedChange('usuario', 'username', e.target.value)}
-                    className="w-full pl-9 p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                    className="w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
                     placeholder="Ej: jperez"
                     required
                 />
@@ -84,7 +84,7 @@ const UsuarioForm = ({ form, setForm, handleNestedChange, isEditing = false }) =
                   type="password"
                   value={form.usuario.password || ''}
                   onChange={(e) => handleNestedChange('usuario', 'password', e.target.value)}
-                  className="w-full pl-9 p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
+                  className="w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-black outline-none"
                   placeholder={isEditing ? "Dejar vacío para mantener" : "Mínimo 8 caracteres"}
                   required={!isEditing}
                   minLength={8}
@@ -104,7 +104,7 @@ const UsuarioForm = ({ form, setForm, handleNestedChange, isEditing = false }) =
                   type="password"
                   value={form.usuario.password_confirmation || ''}
                   onChange={(e) => handleNestedChange('usuario', 'password_confirmation', e.target.value)}
-                  className={`w-full pl-9 p-2.5 text-sm border rounded-lg focus:ring-1 outline-none ${
+                  className={`w-full pl-9 p-2.5 text-sm text-secondary border rounded-lg focus:ring-1 outline-none ${
                       noCoinciden 
                       ? 'border-red-500 focus:ring-red-500 bg-red-50' 
                       : 'border-slate-300 focus:ring-black'
