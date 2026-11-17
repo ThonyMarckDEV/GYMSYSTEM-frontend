@@ -8,6 +8,7 @@ import authService from 'services/authService';
 import { useAuth } from 'context/AuthContext';
 import background from 'assets/img/background.jpg';
 import logo from 'assets/img/logo.png';
+import { APP_NAME } from 'config/app';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -68,7 +69,7 @@ const Login = () => {
         {/* Header */}
         <div className="flex flex-col items-center mb-10 pb-8 border-b border-secondary/15">
           <h2 className="text-[10px] font-bold text-secondary tracking-[0.4em] uppercase mb-6">
-             38 GYM
+             {APP_NAME}
           </h2>
           
           {/* Isotipo */}
