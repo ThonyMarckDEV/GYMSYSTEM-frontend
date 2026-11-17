@@ -61,15 +61,16 @@ const CampanaNotificaciones = () => {
     const etiqueta = noLeidas ? `Notificaciones: ${noLeidas} sin leer` : 'Notificaciones';
 
     return (
-        <div ref={ref} className="fixed top-3 right-[3.75rem] md:top-4 md:right-[4.5rem] z-[45]">
+        <div ref={ref} className="fixed top-3 right-[3.25rem] md:top-4 md:right-[3.75rem] z-[45]">
             <button type="button" onClick={() => setAbierto(a => !a)} title={etiqueta} aria-label={etiqueta} aria-expanded={abierto}
-                className="relative w-11 h-11 rounded-full flex items-center justify-center bg-secondary text-primary border border-primary/40 shadow-lg
-                    transition-transform duration-200 hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
+                className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors duration-200
+                    active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary
+                    ${abierto ? 'bg-slate-100 text-secondary' : 'bg-transparent text-slate-500 hover:text-secondary hover:bg-slate-100'}`}>
                 <span className={sacudir ? 'campana-sacude' : ''} aria-hidden>
-                    {noLeidas ? <BellAlertIcon className="w-6 h-6" /> : <BellIcon className="w-6 h-6" />}
+                    {noLeidas ? <BellAlertIcon className="w-5 h-5 text-secondary" /> : <BellIcon className="w-5 h-5" />}
                 </span>
                 {noLeidas > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-red-600 text-white text-[11px] font-black leading-5 text-center ring-2 ring-white tabular-nums">
+                    <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-red-600 text-white text-[10px] font-black leading-4 text-center tabular-nums">
                         {noLeidas > 99 ? '99+' : noLeidas}
                     </span>
                 )}
