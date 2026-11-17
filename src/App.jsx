@@ -48,6 +48,8 @@ import ConfiguracionInicial from 'pages/empresa/ConfiguracionInicial';
 // UI CLASES E INVENTARIO
 import Clases from 'pages/clase/Index';
 import Inventario from 'pages/inventario/Index';
+import Productos from 'pages/producto/Index';
+import Traslados from 'pages/traslado/Index';
 
 // UI CAJA Y PAGOS
 import Caja from 'pages/caja/Index';
@@ -119,6 +121,8 @@ function AppContent() {
         {/* CLASES E INVENTARIO */}
         <Route path="/clases" element={<ProtectedRoute requiredPermission="clase.index" element={<Clases />} />} />
         <Route path="/inventario" element={<ProtectedRoute requiredPermission="inventario.index" element={<Inventario />} />} />
+        <Route path="/productos" element={<ProtectedRoute requiredPermission="producto.index" element={<Productos />} />} />
+        <Route path="/traslados" element={<ProtectedRoute requiredPermission="traslado.index" element={<Traslados />} />} />
 
         {/* CAJA Y PAGOS */}
         <Route path="/caja" element={<ProtectedRoute requiredPermission="cajaSesion.actual" element={<Caja />} />} />

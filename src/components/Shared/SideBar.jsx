@@ -19,6 +19,8 @@ import {
     InboxStackIcon,
     CalendarDaysIcon,
     CubeTransparentIcon,
+    ShoppingBagIcon,
+    ArrowsRightLeftIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
@@ -95,6 +97,8 @@ const MENU_GROUPS = [
         items: [
             { section: 'Clases', link: '/clases', icon: CalendarDaysIcon, requiredPermission: 'clase.index' },
             { section: 'Inventario', link: '/inventario', icon: CubeTransparentIcon, requiredPermission: 'inventario.index' },
+            { section: 'Productos', link: '/productos', icon: ShoppingBagIcon, requiredPermission: 'producto.index' },
+            { section: 'Traslados', link: '/traslados', icon: ArrowsRightLeftIcon, requiredPermission: 'traslado.index' },
             { 
                 section: 'Planes', icon: TagIcon,
                 subs: [
