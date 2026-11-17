@@ -135,18 +135,32 @@ export const QrPago = ({ tipo, datos }) => {
 // ---------------------------------------------------------------------------
 // Modal base
 // ---------------------------------------------------------------------------
-export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max-w-lg', error }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div className={`bg-white rounded-xl shadow-elegant-gold w-full ${ancho} max-h-[92vh] flex flex-col overflow-hidden border border-primary/20`}>
-            <div className="flex justify-between items-center px-6 py-4 border-b border-primary/20 bg-secondary">
-                <h3 className="text-lg font-bold text-primary flex items-center gap-2">
-                    {Icon && <Icon className="w-5 h-5" />} {titulo}
+/**
+ * En celular se abre como hoja desde abajo (todo el ancho); desde sm, centrado.
+ * Escape cierra y el fondo no se desplaza mientras está abierto.
+ */
+export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max-w-lg', error }) => {
+    useEffect(() => {
+        const previo = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        const tecla = (e) => { if (e.key === 'Escape') onClose?.(); };
+        window.addEventListener('keydown', tecla);
+        return () => { document.body.style.overflow = previo; window.removeEventListener('keydown', tecla); };
+    }, [onClose]);
+
+    return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm"
+        role="dialog" aria-modal="true" aria-label={typeof titulo === 'string' ? titulo : undefined}>
+        <div className={`bg-white rounded-t-2xl sm:rounded-xl shadow-elegant-gold w-full ${ancho} max-h-[94dvh] sm:max-h-[92vh] flex flex-col overflow-hidden border border-primary/20 hoja-subir`}>
+            <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-primary/20 bg-secondary flex-shrink-0">
+                <h3 className="text-base sm:text-lg font-bold text-primary flex items-center gap-2 min-w-0">
+                    {Icon && <Icon className="w-5 h-5 flex-shrink-0" />} <span className="truncate">{titulo}</span>
                 </h3>
-                <button onClick={onClose} className="text-primary/60 hover:text-primary transition-colors" aria-label="Cerrar">
+                <button onClick={onClose} className="p-1 -mr-1 text-primary/60 hover:text-primary transition-colors" aria-label="Cerrar">
                     <XMarkIcon className="w-6 h-6" />
                 </button>
             </div>
-            <div className="p-6 overflow-y-auto">
+            <div className="p-4 sm:p-6 overflow-y-auto overscroll-contain">
                 {error && (
                     <p role="alert" className="mb-4 text-sm font-bold text-red-800 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
                         <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0" /> {error}
@@ -154,10 +168,11 @@ export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max
                 )}
                 {children}
             </div>
-            {pie && <div className="px-6 py-4 bg-primary-light/40 border-t border-primary/20 flex justify-end gap-3">{pie}</div>}
+            {pie && <div className="px-4 sm:px-6 py-3 sm:py-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-primary-light/40 border-t border-primary/20 flex justify-end gap-3 flex-shrink-0">{pie}</div>}
         </div>
     </div>
-);
+    );
+};
 
 const btn = 'px-4 py-2 rounded-lg font-bold uppercase text-sm transition-colors disabled:opacity-50';
 
