@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { XMarkIcon, TagIcon, CreditCardIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, TagIcon, CreditCardIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
+import SucursalSelect from 'components/Shared/Comboboxes/SucursalSelect';
+import { useAuth } from 'context/AuthContext';
 
 const AsignarMembresiaModal = ({ isOpen, onClose, onConfirm, planes, descuentos, loading = false }) => {
+    // Si el usuario tiene sucursal fija, la venta se registra ahí; si no, debe elegirla
+    const { sucursal } = useAuth();
+
     const [form, setForm] = useState({
+        sucursal_id: '',
         plan_id: '',
         descuento_id: '',
         metodo_pago: 'efectivo',
@@ -11,7 +17,7 @@ const AsignarMembresiaModal = ({ isOpen, onClose, onConfirm, planes, descuentos,
 
     useEffect(() => {
         if (isOpen) {
-            setForm({ plan_id: '', descuento_id: '', metodo_pago: 'efectivo', numero_operacion: '' });
+            setForm({ sucursal_id: '', plan_id: '', descuento_id: '', metodo_pago: 'efectivo', numero_operacion: '' });
         }
     }, [isOpen]);
 
@@ -47,6 +53,19 @@ const AsignarMembresiaModal = ({ isOpen, onClose, onConfirm, planes, descuentos,
                 </div>
 
                 <div className="p-6 space-y-4">
+
+                    {sucursal ? (
+                        <div className="flex items-center gap-2 p-2.5 text-sm rounded-lg bg-slate-50 border border-slate-200 text-slate-600">
+                            <BuildingStorefrontIcon className="w-4 h-4" /> Venta en sede: <b>{sucursal.nombre}</b>
+                        </div>
+                    ) : (
+                        <SucursalSelect
+                            label="Sucursal de la venta"
+                            required
+                            value={form.sucursal_id}
+                            onChange={(val) => setForm(prev => ({ ...prev, sucursal_id: val }))}
+                        />
+                    )}
 
                     <div>
                         <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
@@ -150,7 +169,7 @@ const AsignarMembresiaModal = ({ isOpen, onClose, onConfirm, planes, descuentos,
                     </button>
                     <button
                         onClick={() => onConfirm(form)}
-                        disabled={loading || !form.plan_id}
+                        disabled={loading || !form.plan_id || (!sucursal && !form.sucursal_id)}
                         className="px-4 py-2 bg-secondary text-primary rounded-lg hover:bg-secondary/90 font-bold uppercase tracking-wide text-sm transition-colors disabled:opacity-50"
                     >
                         {loading ? 'Asignando...' : 'Asignar'}

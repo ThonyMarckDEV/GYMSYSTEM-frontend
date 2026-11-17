@@ -2,6 +2,8 @@ import React from 'react';
 import { useMiPerfil } from 'hooks/perfil/useMiPerfil';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
+import PagarMembresia from 'components/Perfil/PagarMembresia';
+import { useAuth } from 'context/AuthContext';
 import {
     IdentificationIcon, PhoneIcon, EnvelopeIcon,
     CalendarDaysIcon, SparklesIcon, ArrowDownTrayIcon
@@ -12,14 +14,18 @@ const ESTADO_BADGES = {
     vencida:   'bg-slate-100 text-slate-600 border-slate-200',
     cancelada: 'bg-red-100 text-red-600 border-red-200',
     congelada: 'bg-blue-100 text-blue-700 border-blue-200',
+    pendiente: 'bg-amber-50 text-amber-800 border-amber-200',
+    rechazada: 'bg-red-50 text-red-700 border-red-200',
 };
 
 const ESTADO_LABEL = {
     activa: 'Activa', vencida: 'Vencida', cancelada: 'Cancelada', congelada: 'Congelada',
+    pendiente: 'En revisión', rechazada: 'Pago rechazado',
 };
 
 const MiPerfil = () => {
-    const { loading, data, alert, setAlert } = useMiPerfil();
+    const { loading, data, alert, setAlert, fetchMiPerfil } = useMiPerfil();
+    const { can } = useAuth();
 
     if (loading) return <LoadingScreen />;
     if (!data) return null;
@@ -135,9 +141,12 @@ const MiPerfil = () => {
                 ) : (
                     <div className="bg-white rounded-2xl border-2 border-dashed border-slate-200 p-6 text-center">
                         <p className="text-slate-400 text-sm">Aún no tienes una membresía activa.</p>
-                        <p className="text-slate-400 text-xs mt-1">Acércate a recepción para adquirir una.</p>
+                        <p className="text-slate-400 text-xs mt-1">Págala en línea aquí abajo o acércate a recepción.</p>
                     </div>
                 )}
+
+                {/* Pago en línea: QR Yape/Plin + comprobante */}
+                {can('perfil.pagar') && <PagarMembresia onPagoEnviado={fetchMiPerfil} />}
 
                 {/* Historial — timeline simple, discreto */}
                 {historial.length > 0 && (

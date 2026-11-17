@@ -7,6 +7,7 @@ import LoadingScreen from 'components/Shared/LoadingScreen';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import CongelarModal from 'components/Shared/Modals/CongelarModal';
 import AsignarMembresiaModal from 'components/Shared/Modals/AsignarMembresiaModal';
+import { useAuth } from 'context/AuthContext';
 import {
     IdentificationIcon, PhoneIcon, EnvelopeIcon,
     CalendarDaysIcon, TagIcon, CreditCardIcon, ClipboardDocumentListIcon
@@ -36,6 +37,7 @@ const Index = () => {
         confirmAction, setConfirmAction, handleAskConfirm, handleConfirmAction,
         actionLoading,
     } = useIndex(id);
+    const { can } = useAuth();
 
     if (loading) return <LoadingScreen />;
     if (!data) return null;
@@ -73,7 +75,7 @@ const Index = () => {
                             {cliente.correo && <span className="flex items-center gap-1"><EnvelopeIcon className="w-3.5 h-3.5"/> {cliente.correo}</span>}
                         </div>
                     </div>
-                    {puedeAsignar && (
+                    {puedeAsignar && can('membresia.asignar') && (
                         <button onClick={() => setIsAsignarOpen(true)}
                             className="bg-primary text-secondary px-4 py-2 rounded-md font-black uppercase text-xs hover:bg-primary-hover transition-colors shrink-0">
                             + Asignar Membresía
@@ -97,6 +99,9 @@ const Index = () => {
                             <div>
                                 <p className="text-[10px] uppercase text-slate-400 font-bold">Plan</p>
                                 <p className="text-sm font-bold text-secondary flex items-center gap-1"><TagIcon className="w-3.5 h-3.5"/> {membresia_actual.plan?.nombre}</p>
+                                {membresia_actual.sucursal && (
+                                    <p className="text-[10px] text-slate-400 font-bold uppercase mt-0.5">Vendida en: {membresia_actual.sucursal}</p>
+                                )}
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase text-slate-400 font-bold">Vigencia</p>
@@ -123,17 +128,17 @@ const Index = () => {
                         <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center gap-2">
                             {membresia_actual.estado === 'activa' && (
                                 <>
-                                    <button onClick={() => setIsCongelarOpen(true)}
+                                    {can('membresia.congelar') && <button onClick={() => setIsCongelarOpen(true)}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded text-xs font-bold hover:bg-blue-100 transition-colors">
                                         <Snowflake className="w-3.5 h-3.5" /> Congelar
-                                    </button>
-                                    <button onClick={() => handleAskConfirm('cancelar')}
+                                    </button>}
+                                    {can('membresia.cancelar') && <button onClick={() => handleAskConfirm('cancelar')}
                                         className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded text-xs font-bold hover:bg-red-100 transition-colors">
                                         <Ban className="w-3.5 h-3.5" /> Cancelar
-                                    </button>
+                                    </button>}
                                 </>
                             )}
-                            {membresia_actual.estado === 'congelada' && (
+                            {membresia_actual.estado === 'congelada' && can('membresia.reanudar') && (
                                 <button onClick={() => handleAskConfirm('reanudar')}
                                     className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 border border-green-200 rounded text-xs font-bold hover:bg-green-100 transition-colors">
                                     <PlayCircle className="w-3.5 h-3.5" /> Reanudar
@@ -158,6 +163,7 @@ const Index = () => {
                             <thead>
                                 <tr className="text-[10px] uppercase text-slate-400 font-bold border-b border-slate-100">
                                     <td className="px-5 py-2">Plan</td>
+                                    <td className="px-5 py-2">Sede</td>
                                     <td className="px-5 py-2">Vigencia</td>
                                     <td className="px-5 py-2">Descuento</td>
                                     <td className="px-5 py-2 text-right">Precio</td>
@@ -168,6 +174,7 @@ const Index = () => {
                                 {historial.map(m => (
                                     <tr key={m.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50">
                                         <td className="px-5 py-2.5 font-bold text-slate-700">{m.plan?.nombre}</td>
+                                        <td className="px-5 py-2.5 text-slate-500 text-xs">{m.sucursal || '—'}</td>
                                         <td className="px-5 py-2.5 text-slate-500 text-xs">{m.fecha_inicio || 'Sin definir'} → {m.fecha_fin || 'Sin definir'}</td>
                                         <td className="px-5 py-2.5 text-green-700 text-xs font-bold">
                                             {m.descuento ? `${m.descuento.nombre} (-S/ ${Number(m.monto_descuento).toFixed(2)})` : '—'}
