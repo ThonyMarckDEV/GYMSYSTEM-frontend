@@ -17,6 +17,9 @@ const NotificacionesContext = createContext(null);
 const RECARGA_SIN_CONEXION_MS = 45000;
 const TOAST_TIPO = { exito: 'success', error: 'error', alerta: 'warning', info: 'info' };
 
+// Estos avisos ya los muestra la tarjeta animada de PagoEnVivo (abajo a la derecha): sin toast duplicado
+const SIN_TOAST = ['pago_verificado', 'pago_rechazado'];
+
 const AvisoToast = ({ n }) => (
     <div>
         <p className="font-black text-sm leading-tight">{n.titulo}</p>
@@ -66,7 +69,9 @@ export const NotificacionesProvider = ({ children }) => {
             setItems(prev => [n, ...prev]);
             setNoLeidas(c => c + 1);
             setNueva(x => x + 1);
-            toast(<AvisoToast n={n} />, { type: TOAST_TIPO[n.nivel] || 'info', autoClose: 6000 });
+            if (!SIN_TOAST.includes(n.tipo)) {
+                toast(<AvisoToast n={n} />, { type: TOAST_TIPO[n.nivel] || 'info', autoClose: 6000 });
+            }
             window.dispatchEvent(new CustomEvent('gym:notificacion', { detail: n }));
         });
         canal.listen('.pago.revisando', (d) => {
