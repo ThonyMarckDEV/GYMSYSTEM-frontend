@@ -83,10 +83,6 @@ const Login = () => {
                className="h-12 w-12 relative z-10 object-contain"
              />
           </div>
-
-          <h1 className="text-xs font-semibold text-secondary/90 tracking-[0.3em] uppercase">
-            BY Emily Diaz
-          </h1>
         </div>
 
         <div>
