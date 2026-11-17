@@ -126,6 +126,11 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
                     {clase.mi_asistencia === 'asistio' ? '✔ Registraron tu asistencia a esta clase.' : '✖ Figuras como ausente en esta clase.'}
                 </p>
             )}
+            {esCliente && clase.reserva_liberada && !clase.inscrito && (
+                <p className="mt-4 text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    Tenías esta clase reservada, pero se liberó tu cupo: {clase.reserva_liberada}
+                </p>
+            )}
             {esCliente && !cancelada && !clase.ya_empezo && !clase.inscrito && (
                 <p className="mt-4 text-xs text-slate-500">Necesitas una membresía activa ese día. No puedes estar en dos clases a la misma hora.</p>
             )}
