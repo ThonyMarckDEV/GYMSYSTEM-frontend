@@ -189,7 +189,7 @@ export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loadi
                 </div>
                 <dl className="text-sm space-y-3 lg:col-span-2">
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Cliente</dt><dd className="font-bold text-slate-800">{pago.cliente}</dd><dd className="text-xs text-slate-500">DNI {pago.dni}</dd></div>
-                    <div><dt className="text-[10px] uppercase font-bold text-slate-400">Plan</dt><dd className="font-bold text-slate-800">{pago.plan}</dd></div>
+                    <div><dt className="text-[10px] uppercase font-bold text-slate-400">{pago.concepto === 'clase' ? 'Clase / evento' : pago.concepto === 'producto' ? 'Productos' : 'Plan'}</dt><dd className="font-bold text-slate-800">{pago.plan}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Monto a verificar</dt><dd className="text-2xl font-black text-secondary tabular-nums">{soles(pago.monto)}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Método · N° operación</dt><dd className="font-bold text-slate-800">{METODOS[pago.metodo_pago]} · {pago.numero_operacion || '—'}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Estado</dt><dd><EstadoPago estado={pago.estado} /></dd></div>

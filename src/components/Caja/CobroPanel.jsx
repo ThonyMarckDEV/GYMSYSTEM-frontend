@@ -1,20 +1,10 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    MagnifyingGlassIcon, UserIcon, ExclamationTriangleIcon, BanknotesIcon,
-    DevicePhoneMobileIcon, CreditCardIcon, CheckCircleIcon, PhotoIcon, NoSymbolIcon
+    MagnifyingGlassIcon, UserIcon, ExclamationTriangleIcon, CheckCircleIcon, PhotoIcon, NoSymbolIcon
 } from '@heroicons/react/24/outline';
-import { QrPago, ComprobanteModal, BotonTicket, soles, METODOS } from 'components/Pagos/PagoUI';
-
-const METODOS_CAJA = [
-    { key: 'efectivo', label: 'Efectivo', icon: BanknotesIcon },
-    { key: 'yape',     label: 'Yape',     icon: DevicePhoneMobileIcon },
-    { key: 'plin',     label: 'Plin',     icon: DevicePhoneMobileIcon },
-    { key: 'tarjeta',  label: 'Tarjeta',  icon: CreditCardIcon },
-];
-
-const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-white';
-const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
+import { ComprobanteModal, BotonTicket, soles, METODOS } from 'components/Pagos/PagoUI';
+import MetodoCobro, { TotalCobro, inputCls, labelCls } from 'components/Caja/MetodoCobro';
 
 /**
  * Cobro en caja: buscar al cliente por DNI → si ya subió comprobante se verifica,
@@ -52,7 +42,6 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
     }, [plan, descuento]);
 
     const recibido = form.monto_recibido === '' ? null : Number(form.monto_recibido);
-    const vuelto = recibido !== null ? Math.round((recibido - total) * 100) / 100 : null;
     const esDigital = form.metodo_pago === 'yape' || form.metodo_pago === 'plin';
 
     const puedeCobrar = plan && !procesando
@@ -74,8 +63,6 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
 
     return (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide mb-4">Cobrar membresía</h3>
-
             {/* 1. BUSCAR POR DNI */}
             <form onSubmit={buscar} className="flex gap-2">
                 <div className="relative flex-1">
@@ -166,59 +153,10 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
                                 </div>
                             </div>
 
-                            <div>
-                                <label className={labelCls}>Método de pago</label>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup">
-                                    {METODOS_CAJA.map(m => {
-                                        const Icon = m.icon;
-                                        const activo = form.metodo_pago === m.key;
-                                        return (
-                                            <button key={m.key} type="button" role="radio" aria-checked={activo}
-                                                onClick={() => setForm(f => ({ ...f, metodo_pago: m.key }))}
-                                                className={`flex items-center justify-center gap-1.5 p-2.5 rounded-lg border text-sm font-bold transition-colors
-                                                    ${activo ? 'bg-secondary text-primary border-secondary' : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'}`}>
-                                                <Icon className="w-4 h-4" /> {m.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {form.metodo_pago === 'efectivo' && (
-                                <div className="grid grid-cols-2 gap-4 items-end">
-                                    <div>
-                                        <label className={labelCls}>Recibido (S/)</label>
-                                        <input type="number" min="0" step="0.10" value={form.monto_recibido}
-                                            onChange={(e) => setForm(f => ({ ...f, monto_recibido: e.target.value }))}
-                                            className={`${inputCls} text-lg font-bold tabular-nums`} placeholder={total ? total.toFixed(2) : '0.00'} />
-                                    </div>
-                                    <div className={`p-2.5 rounded-lg border text-center ${vuelto !== null && vuelto < 0 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-slate-50 border-slate-200 text-slate-800'}`}>
-                                        <p className="text-[10px] uppercase font-bold opacity-70">{vuelto !== null && vuelto < 0 ? 'Falta' : 'Vuelto'}</p>
-                                        <p className="text-xl font-black tabular-nums">{soles(Math.abs(vuelto ?? 0))}</p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {esDigital && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-xl bg-slate-50 border border-slate-200">
-                                    <QrPago tipo={form.metodo_pago} datos={metodos?.[form.metodo_pago]} />
-                                    <div>
-                                        <p className="text-sm text-slate-600 mb-3">Muestra el QR al cliente. Cuando te enseñe la confirmación, escribe el N° de operación.</p>
-                                        <label className={labelCls}>N° de operación *</label>
-                                        <input value={form.numero_operacion} onChange={(e) => setForm(f => ({ ...f, numero_operacion: e.target.value }))}
-                                            className={inputCls} placeholder="Ej: 12345678" />
-                                    </div>
-                                </div>
-                            )}
+                            <MetodoCobro cobro={form} onChange={setForm} total={total} metodos={metodos} />
 
                             {plan && (
-                                <div className="flex items-center justify-between p-4 rounded-xl bg-secondary text-white">
-                                    <div className="text-sm">
-                                        <p className="text-white/70">{plan.nombre}{montoDescuento > 0 && ` · desc. -${soles(montoDescuento)}`}</p>
-                                        <p className="text-[10px] uppercase font-bold text-primary">Total a cobrar</p>
-                                    </div>
-                                    <p className="text-3xl font-black tabular-nums">{soles(total)}</p>
-                                </div>
+                                <TotalCobro detalle={`${plan.nombre}${montoDescuento > 0 ? ` · desc. -${soles(montoDescuento)}` : ''}`} total={total} />
                             )}
 
                             <div className="flex justify-end">

@@ -9,7 +9,8 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { ComprobanteModal, AnularPagoModal, EstadoPago, BotonTicket, useTicket, soles, METODOS, errorDeAlerta } from 'components/Pagos/PagoUI';
 import { CreditCardIcon, PhotoIcon, NoSymbolIcon, GlobeAltIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 
-const FILTROS_INICIALES = { search: '', estado: '', metodo_pago: '', origen: '', fecha_desde: '', fecha_hasta: '' };
+const FILTROS_INICIALES = { search: '', estado: '', metodo_pago: '', origen: '', concepto: '', fecha_desde: '', fecha_hasta: '' };
+const CONCEPTOS = { membresia: 'Membresía', clase: 'Clase / evento', producto: 'Productos' };
 
 const Index = () => {
     const { can } = useAuth();
@@ -57,6 +58,8 @@ const Index = () => {
 
     const filterConfig = useMemo(() => [
         { name: 'search', type: 'text', label: 'Cliente (nombre / DNI) o N° operación', placeholder: 'Ej: 45781989', colSpan: 'col-span-12 md:col-span-4' },
+        { name: 'concepto', type: 'select', label: 'Concepto', colSpan: 'col-span-6 md:col-span-2',
+            options: [{ value: '', label: 'Todos' }, ...Object.entries(CONCEPTOS).map(([value, label]) => ({ value, label }))] },
         { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-6 md:col-span-2',
             options: [{ value: '', label: 'Todos' }, { value: 'pendiente', label: 'Pendientes' }, { value: 'verificado', label: 'Verificados' }, { value: 'rechazado', label: 'Rechazados' }, { value: 'anulado', label: 'Anulados' }] },
         { name: 'metodo_pago', type: 'select', label: 'Método', colSpan: 'col-span-6 md:col-span-2',
@@ -76,8 +79,12 @@ const Index = () => {
         ) },
         { header: 'Cliente', render: (r) => (
             <div>
-                <Link to={`/membresia/${r.cliente_id}`} className="font-bold text-slate-800 text-sm hover:underline">{r.cliente}</Link>
-                <p className="text-xs text-slate-500">DNI {r.dni} · {r.plan}</p>
+                {r.cliente_id
+                    ? <Link to={`/membresia/${r.cliente_id}`} className="font-bold text-slate-800 text-sm hover:underline">{r.cliente}</Link>
+                    : <p className="font-bold text-slate-800 text-sm">{r.cliente}</p>}
+                <p className="text-xs text-slate-500 max-w-[260px] truncate" title={r.descripcion}>
+                    {r.dni ? `DNI ${r.dni} · ` : ''}<span className="font-bold text-slate-600">{CONCEPTOS[r.concepto] || 'Membresía'}:</span> {r.descripcion}
+                </p>
             </div>
         ) },
         { header: 'Monto', render: (r) => (

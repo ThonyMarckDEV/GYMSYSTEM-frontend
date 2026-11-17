@@ -11,6 +11,7 @@ export const index = async (page = 1, filters = {}) => {
         estado:      filters.estado || '',
         metodo_pago: filters.metodo_pago || '',
         origen:      filters.origen || '',
+        concepto:    filters.concepto || '',
         fecha_desde: filters.fecha_desde || '',
         fecha_hasta: filters.fecha_hasta || '',
     });

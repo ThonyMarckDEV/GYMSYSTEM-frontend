@@ -20,6 +20,21 @@ export const buscarCliente = async (dni) =>
 export const cobrar = async (clienteId, data) =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/cobrar/${clienteId}`, { method: 'POST', body: JSON.stringify(data) }));
 
+/** Clases y eventos con costo de la sede (con clienteId indica si ya está inscrito) */
+export const clasesDePago = async (clienteId = '') =>
+    handleResponse(await fetchWithAuth(`${BASE_URL}/clases?cliente_id=${clienteId || ''}`, { method: 'GET' }));
+
+/** data: { clase_id, metodo_pago, monto_recibido?, numero_operacion? } */
+export const cobrarClase = async (clienteId, data) =>
+    handleResponse(await fetchWithAuth(`${BASE_URL}/cobrarClase/${clienteId}`, { method: 'POST', body: JSON.stringify(data) }));
+
+/** Productos activos con el stock de la sede de la caja */
+export const productos = async () => handleResponse(await fetchWithAuth(`${BASE_URL}/productos`, { method: 'GET' }));
+
+/** data: { items: [{ producto_id, cantidad }], cliente_id?, cliente_nombre?, metodo_pago, monto_recibido?, numero_operacion? } */
+export const venderProductos = async (data) =>
+    handleResponse(await fetchWithAuth(`${BASE_URL}/venderProductos`, { method: 'POST', body: JSON.stringify(data) }));
+
 export const index = async (page = 1, filters = {}) => {
     const params = new URLSearchParams({
         page,
