@@ -3,7 +3,7 @@ import authService from 'services/authService';
 import jwtUtils from 'utilities/Token/jwtUtils'; 
 import { logout as logoutAction } from 'js/logout';
 import LoadingScreen from 'components/Shared/LoadingScreen';
-import { getEmpresaActiva, setEmpresaActiva, clearEmpresaActiva } from 'js/empresaActiva';
+import { getSucursalActiva, setSucursalActiva, clearSucursalActiva } from 'js/sucursalActiva';
 
 const AuthContext = createContext();
 
@@ -12,10 +12,10 @@ export const AuthProvider = ({ children }) => {
     const [role, setRole] = useState(null);
     const [permissions, setPermissions] = useState([]);
     // Multitenant
-    const [empresa, setEmpresa] = useState(null);             // Empresa del usuario (null = superadmin)
+    const [empresa, setEmpresa] = useState(null);             // La empresa (edición empresa única)
     const [esSuperAdmin, setEsSuperAdmin] = useState(false);
     const [sucursal, setSucursal] = useState(null);           // Sucursal fija del usuario (null = todas)
-    const [empresaActiva, setEmpresaActivaState] = useState(getEmpresaActiva()); // Empresa elegida por el superadmin
+    const [sucursalActiva, setSucursalActivaState] = useState(getSucursalActiva()); // Modo sucursal del superadmin
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -32,10 +32,10 @@ export const AuthProvider = ({ children }) => {
             try {
                 response = await authService.verifySession();
             } catch (error) {
-                // Si la empresa guardada ya no existe, la limpiamos y reintentamos una vez
-                if (!getEmpresaActiva()) throw error;
-                clearEmpresaActiva();
-                setEmpresaActivaState(null);
+                // Si la sucursal guardada ya no existe, la limpiamos y reintentamos una vez
+                if (!getSucursalActiva()) throw error;
+                clearSucursalActiva();
+                setSucursalActivaState(null);
                 response = await authService.verifySession();
             }
             const userData = response.data || response;
@@ -47,10 +47,10 @@ export const AuthProvider = ({ children }) => {
             setEsSuperAdmin(!!userData.es_superadmin);
             setSucursal(userData.sucursal || null);
 
-            // Solo el superadmin puede elegir empresa: al resto se le limpia
-            if (!userData.es_superadmin && getEmpresaActiva()) {
-                clearEmpresaActiva();
-                setEmpresaActivaState(null);
+            // Solo el superadmin puede elegir sucursal: al resto se le limpia
+            if (!userData.es_superadmin && getSucursalActiva()) {
+                clearSucursalActiva();
+                setSucursalActivaState(null);
             }
 
             setIsAuthenticated(true);
@@ -86,17 +86,15 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     /**
-     * Superadmin: cambia la empresa en la que está trabajando (null = modo global).
-     * Recarga la app para que todas las vistas vuelvan a pedir datos de esa empresa.
+     * Superadmin: modo global (null) o modo sucursal.
+     * Recarga la app para que todas las vistas vuelvan a pedir datos de esa sede.
      */
-    const cambiarEmpresa = (nuevaEmpresa) => {
-        setEmpresaActiva(nuevaEmpresa);
-        setEmpresaActivaState(getEmpresaActiva());
+    const cambiarSucursal = (nuevaSucursal) => {
+        setSucursalActiva(nuevaSucursal);
+        setSucursalActivaState(getSucursalActiva());
         window.location.reload();
     };
 
-    // Nombre de la empresa con la que se está trabajando ahora mismo
-    const empresaActual = esSuperAdmin ? empresaActiva : empresa;
 
     const login = async () => {
         setLoading(true);
@@ -117,9 +115,8 @@ export const AuthProvider = ({ children }) => {
             empresa,
             esSuperAdmin,
             sucursal,
-            empresaActiva,
-            empresaActual,
-            cambiarEmpresa,
+            sucursalActiva,
+            cambiarSucursal,
             isAuthenticated, 
             loading, 
             login, 

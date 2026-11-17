@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useIndex } from 'hooks/empleado/useIndex';
-import { useColumnasConEmpresa } from 'hooks/useColumnasConEmpresa';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
@@ -163,8 +162,6 @@ const Index = () => {
         }
     ], [handleAskToggle, handleView]); // Dependencias para que no hayan renders innecesarios
 
-    // Multitenant: columna Empresa para el superadmin en modo global
-    const columnasTabla = useColumnasConEmpresa(columns);
 
     return (
         <div className="container mx-auto p-6">
@@ -178,7 +175,7 @@ const Index = () => {
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             <Table
-                columns={columnasTabla}
+                columns={columns}
                 data={empleados}
                 loading={loading}
                 filterConfig={filterConfig} 

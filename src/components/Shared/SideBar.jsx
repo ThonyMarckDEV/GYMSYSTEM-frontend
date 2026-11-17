@@ -11,7 +11,6 @@ import {
     BuildingOffice2Icon,
     BuildingStorefrontIcon,
     ChartBarIcon,
-    RocketLaunchIcon,
     BanknotesIcon,
     CreditCardIcon,
     KeyIcon,
@@ -20,7 +19,7 @@ import {
     InboxStackIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
-import EmpresaSelector from 'components/Shared/Comboboxes/EmpresaSelector';
+import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
 import { APP_NAME } from 'config/app';
 import {Settings,TagIcon,User2Icon, UserCircleIcon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
@@ -119,18 +118,8 @@ const MENU_GROUPS = [
                 ],
             },
             {
-                section: 'Planes del Sistema', icon: RocketLaunchIcon,
-                subs: [
-                    { name: 'Listar', link: '/suscripcion/listar', requiredPermission: 'suscripcion.index' },
-                    { name: 'Agregar', link: '/suscripcion/agregar', requiredPermission: 'suscripcion.store' },
-                ],
-            },
-            {
-                section: 'Empresas', icon: BuildingOffice2Icon,
-                subs: [
-                    { name: 'Listar', link: '/empresa/listar', requiredPermission: 'empresa.index' },
-                    { name: 'Agregar', link: '/empresa/agregar', requiredPermission: 'empresa.store' },
-                ],
+                section: 'Datos de la Empresa', icon: BuildingOffice2Icon,
+                link: '/empresa/datos', requiredPermission: 'empresa.update',
             },
             { 
                 section: 'Roles y Permisos', icon: Settings,
@@ -258,7 +247,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 </div>
 
                 {/* EMPRESA ACTIVA (multitenant) */}
-                <EmpresaSelector isCollapsed={isCollapsed} />
+                <SucursalSelector isCollapsed={isCollapsed} />
 
                 {/* BODY (Mapeo por Grupos) */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-4 hide-scrollbar px-3 relative">

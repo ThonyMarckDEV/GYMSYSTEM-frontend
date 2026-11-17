@@ -42,9 +42,7 @@ import MiPerfil from 'pages/perfil/MiPerfil';
 import ListarRoles from 'pages/rol/Index';
 
 // UI EMPRESAS (multitenant — solo superadmin)
-import AgregarEmpresa from 'pages/empresa/Store';
-import EditarEmpresa from 'pages/empresa/Update';
-import ListarEmpresas from 'pages/empresa/Index';
+import MiEmpresa from 'pages/empresa/MiEmpresa';
 
 // UI CAJA Y PAGOS
 import Caja from 'pages/caja/Index';
@@ -57,9 +55,6 @@ import MetodosPago from 'pages/metodoPago/Index';
 // UI DASHBOARD
 import Dashboard from 'pages/dashboard/Index';
 
-// UI PLANES DEL SISTEMA (suscripción SaaS — solo superadmin)
-import ListarPlanesSistema from 'pages/suscripcion/Index';
-import FormPlanSistema from 'pages/suscripcion/Form';
 
 // UI SUCURSALES (sedes de la empresa)
 import AgregarSucursal from 'pages/sucursal/Store';
@@ -124,10 +119,6 @@ function AppContent() {
         {/* DASHBOARD */}
         <Route path="/dashboard" element={<ProtectedRoute requiredPermission="dashboard.index" element={<Dashboard />} />} />
 
-        {/* PLANES DEL SISTEMA */}
-        <Route path="/suscripcion/agregar" element={<ProtectedRoute requiredPermission="suscripcion.store" element={<FormPlanSistema />} />} />
-        <Route path="/suscripcion/editar/:id" element={<ProtectedRoute requiredPermission="suscripcion.update" element={<FormPlanSistema />} />} />
-        <Route path="/suscripcion/listar" element={<ProtectedRoute requiredPermission="suscripcion.index" element={<ListarPlanesSistema />} />} />
 
         {/* SUCURSALES */}
         <Route path="/sucursal/agregar" element={<ProtectedRoute requiredPermission="sucursal.store" element={<AgregarSucursal />} />} />
@@ -135,9 +126,7 @@ function AppContent() {
         <Route path="/sucursal/listar" element={<ProtectedRoute requiredPermission="sucursal.index" element={<ListarSucursales />} />} />
 
         {/* EMPRESAS */}
-        <Route path="/empresa/agregar" element={<ProtectedRoute requiredPermission="empresa.store" element={<AgregarEmpresa />} />} />
-        <Route path="/empresa/editar/:id" element={<ProtectedRoute requiredPermission="empresa.update" element={<EditarEmpresa />} />} />
-        <Route path="/empresa/listar" element={<ProtectedRoute requiredPermission="empresa.index" element={<ListarEmpresas />} />} />
+        <Route path="/empresa/datos" element={<ProtectedRoute requiredPermission="empresa.update" element={<MiEmpresa />} />} />
 
       </Route>
 

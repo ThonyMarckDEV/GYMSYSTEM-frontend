@@ -6,7 +6,7 @@ import { useAuth } from "context/AuthContext";
 const SidebarLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const { esSuperAdmin, empresaActiva } = useAuth();
+  const { esSuperAdmin, sucursalActiva } = useAuth();
 
   return (
     <div className="min-h-screen flex overflow-hidden">
@@ -28,9 +28,9 @@ const SidebarLayout = () => {
       >
         {/* mt-12 en móvil para el botón hamburguesa fijo */}
         <div className="mt-12 md:mt-0 min-w-0">
-          {esSuperAdmin && !empresaActiva && (
-            <div className="mx-6 mt-4 px-4 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
-              Modo global: estás viendo la información de todas las empresas. Selecciona una empresa en el menú lateral para registrar o editar información.
+          {esSuperAdmin && sucursalActiva && (
+            <div className="mx-6 mt-4 px-4 py-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold">
+              Modo sucursal: estás viendo solo la sede {sucursalActiva.nombre}. Cámbialo a "Todas" en el menú lateral para el modo global.
             </div>
           )}
           <Outlet />

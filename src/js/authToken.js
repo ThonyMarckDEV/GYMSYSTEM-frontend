@@ -1,7 +1,7 @@
 import API_BASE_URL from './urlHelper';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { logout } from 'js/logout';
-import { getEmpresaActiva } from 'js/empresaActiva';
+import { getSucursalActiva } from 'js/sucursalActiva';
 
 export async function fetchWithAuth(url, options = {}) {
   // -----------------------------------------------------------------------
@@ -24,10 +24,10 @@ export async function fetchWithAuth(url, options = {}) {
     headers['Authorization'] = `Bearer ${access_token}`;
   }
 
-  // Multitenant: empresa seleccionada por el superadmin
-  const empresaActiva = getEmpresaActiva();
-  if (empresaActiva?.id) {
-    headers['X-Empresa-Id'] = String(empresaActiva.id);
+  // Superadmin en modo sucursal (si no hay, trabaja en modo global)
+  const sucursalActiva = getSucursalActiva();
+  if (sucursalActiva?.id) {
+    headers['X-Sucursal-Id'] = String(sucursalActiva.id);
   }
 
   // -----------------------------------------------------------------------

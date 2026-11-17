@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDashboard } from 'hooks/dashboard/useDashboard';
+import { useAuth } from 'context/AuthContext';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
-import MiPlanCard from 'components/Dashboard/MiPlanCard';
 import { BarrasVerticales, BarrasHorizontales, KpiTile, Panel, formatSoles } from 'components/Dashboard/Charts';
 import {
     ChartBarIcon, UsersIcon, CheckBadgeIcon, ClockIcon, BanknotesIcon,
-    ShoppingCartIcon, BuildingStorefrontIcon, BuildingOffice2Icon, TableCellsIcon
+    ShoppingCartIcon, BuildingStorefrontIcon, TableCellsIcon
 } from '@heroicons/react/24/outline';
 import { Snowflake } from 'lucide-react';
 
 const TITULO_MODO = {
-    global:   'Todas las empresas',
-    empresa:  'Todas las sucursales',
+    global:   'Todas las sucursales',
     sucursal: 'Sucursal',
 };
 
@@ -39,6 +38,7 @@ const TablaIngresos = ({ data }) => (
 
 const Index = () => {
     const { loading, data, alert, setAlert, sucursalId, cambiarSucursal } = useDashboard();
+    const { esSuperAdmin } = useAuth();
     const [verTabla, setVerTabla] = useState(false);
 
     if (!data && loading) {
@@ -61,7 +61,7 @@ const Index = () => {
         );
     }
 
-    const { contexto, kpis, ingresos_mensuales, planes_top, proximos_vencimientos, por_sucursal, por_empresa } = data;
+    const { contexto, kpis, ingresos_mensuales, planes_top, proximos_vencimientos, por_sucursal } = data;
     const modo = contexto.modo;
     const puedeFiltrarSucursal = !contexto.sucursal_fija && contexto.sucursales?.length > 0;
 
@@ -95,12 +95,10 @@ const Index = () => {
                 )}
                 {contexto.sucursal_fija && (
                     <span className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">
-                        <BuildingStorefrontIcon className="w-4 h-4" /> Estás viendo solo tu sede: {contexto.sucursal?.nombre}
-                    </span>
-                )}
-                {modo === 'global' && (
-                    <span className="text-xs text-slate-500">
-                        Para ver el detalle de una empresa y sus sucursales, selecciónala en el menú lateral.
+                        <BuildingStorefrontIcon className="w-4 h-4" />
+                        {esSuperAdmin
+                            ? `Modo sucursal: ${contexto.sucursal?.nombre} (cámbialo en el menú lateral)`
+                            : `Estás viendo solo tu sede: ${contexto.sucursal?.nombre}`}
                     </span>
                 )}
             </div>
@@ -111,7 +109,7 @@ const Index = () => {
                 <KpiTile label="Ventas del mes" valor={kpis.ventas_mes} icon={ShoppingCartIcon} ayuda="Membresías vendidas" />
                 <KpiTile label="Membresías activas" valor={kpis.membresias_activas} icon={CheckBadgeIcon} />
                 <KpiTile label={modo === 'sucursal' ? 'Clientes atendidos' : 'Clientes'} valor={kpis.clientes} icon={UsersIcon}
-                    ayuda={modo === 'sucursal' ? 'Compraron en esta sede' : modo === 'global' ? `${kpis.empresas_activas} empresas activas` : 'Registrados en la empresa'} />
+                    ayuda={modo === 'sucursal' ? 'Compraron en esta sede' : 'Registrados en la empresa'} />
                 <KpiTile label="Por vencer (7 días)" valor={kpis.por_vencer_7_dias} icon={ClockIcon} ayuda="Oportunidad de renovación" />
                 <KpiTile label="Congeladas" valor={kpis.membresias_congeladas} icon={Snowflake} />
             </div>
@@ -167,11 +165,7 @@ const Index = () => {
                                     {proximos_vencimientos.map(v => (
                                         <tr key={v.id} className="border-b border-slate-50 last:border-0">
                                             <td className="py-2 pr-3">
-                                                {modo === 'global' ? (
-                                                    <span className="font-bold text-slate-700">{v.cliente}</span>
-                                                ) : (
-                                                    <Link to={`/membresia/${v.cliente_id}`} className="font-bold text-slate-700 hover:underline">{v.cliente}</Link>
-                                                )}
+                                                <Link to={`/membresia/${v.cliente_id}`} className="font-bold text-slate-700 hover:underline">{v.cliente}</Link>
                                                 <div className="text-[11px] text-slate-400">DNI {v.dni}</div>
                                             </td>
                                             <td className="py-2 pr-3 text-slate-600">{v.plan}</td>
@@ -191,59 +185,6 @@ const Index = () => {
                 </Panel>
             </div>
 
-            {/* MODO GLOBAL: una fila por empresa */}
-            {por_empresa && (
-                <Panel titulo="Empresas" subtitulo="Plan contratado, consumo e ingresos del mes" className="mb-6">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                            <thead>
-                                <tr className="text-[10px] uppercase text-slate-400 font-bold border-b border-slate-100">
-                                    <th className="text-left py-2 pr-3">Empresa</th>
-                                    <th className="text-left py-2 pr-3">Plan</th>
-                                    <th className="text-right py-2 pr-3">Sucursales</th>
-                                    <th className="text-right py-2 pr-3">Clientes</th>
-                                    <th className="text-right py-2 pr-3">Activas</th>
-                                    <th className="text-right py-2">Ingresos mes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {por_empresa.map(e => {
-                                    const uso = (r) => `${r.usado} / ${r.limite ?? '∞'}`;
-                                    return (
-                                        <tr key={e.id} className="border-b border-slate-50 last:border-0">
-                                            <td className="py-2 pr-3">
-                                                <span className="font-bold text-slate-800 flex items-center gap-1.5">
-                                                    <BuildingOffice2Icon className="w-4 h-4 text-slate-400" /> {e.nombre_comercial}
-                                                </span>
-                                                {!e.estado && <span className="text-[10px] font-bold text-red-700 uppercase">Inactiva</span>}
-                                            </td>
-                                            <td className="py-2 pr-3">
-                                                <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-slate-900 text-white">{e.plan || 'Sin plan'}</span>
-                                                {e.dias_restantes !== null && (
-                                                    <div className={`text-[11px] mt-0.5 font-bold ${e.dias_restantes <= 7 ? 'text-red-700' : 'text-slate-400'}`}>
-                                                        {e.dias_restantes >= 0 ? `Vence en ${e.dias_restantes} días` : 'Suscripción vencida'}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className={`py-2 pr-3 text-right tabular-nums ${e.recursos.sucursales.excedido ? 'text-red-700 font-bold' : 'text-slate-600'}`}>{uso(e.recursos.sucursales)}</td>
-                                            <td className={`py-2 pr-3 text-right tabular-nums ${e.recursos.clientes.excedido ? 'text-red-700 font-bold' : 'text-slate-600'}`}>{uso(e.recursos.clientes)}</td>
-                                            <td className="py-2 pr-3 text-right tabular-nums text-slate-600">{e.membresias_activas}</td>
-                                            <td className="py-2 text-right tabular-nums font-black text-slate-900">{formatSoles(e.ingresos_mes)}</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                </Panel>
-            )}
-
-            {/* PLAN DE LA EMPRESA (cuando hay empresa en contexto) */}
-            {contexto.suscripcion && modo !== 'sucursal' && (
-                <div className="max-w-xl">
-                    <MiPlanCard data={contexto.suscripcion} />
-                </div>
-            )}
         </div>
     );
 };

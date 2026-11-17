@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import API_BASE_URL from 'js/urlHelper';
 import LoadingScreen from 'components/Shared/LoadingScreen';
-import { clearEmpresaActiva } from 'js/empresaActiva';
+import { clearSucursalActiva } from 'js/sucursalActiva';
 
 export async function logout() {
   // Crear el contenedor
@@ -33,7 +33,7 @@ export async function logout() {
     console.warn('[Logout] Error notificando al backend (igual cerramos localmente):', error);
   } finally {
     jwtUtils.removeTokensFromCookie();
-    clearEmpresaActiva();
+    clearSucursalActiva();
 
     setTimeout(() => {
         root.unmount();
