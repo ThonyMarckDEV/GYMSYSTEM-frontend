@@ -5,7 +5,7 @@ import {
     PhotoIcon, ExclamationTriangleIcon, ClockIcon, NoSymbolIcon, MagnifyingGlassPlusIcon
 } from '@heroicons/react/24/outline';
 import { obtenerArchivoUrl } from 'js/archivoAutenticado';
-import { comprobanteUrl, ticketUrl } from 'services/pagoService';
+import { comprobanteUrl, ticketUrl, revisando } from 'services/pagoService';
 import { qrUrl } from 'services/metodoPagoService';
 // El visor de PDF es pesado: se descarga solo al abrir un ticket
 const PdfModal = lazy(() => import('components/Shared/Modals/PdfModal'));
@@ -163,6 +163,11 @@ export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loadi
     const [motivo, setMotivo] = useState('');
     const [ampliada, setAmpliada] = useState(null); // URL de la imagen a pantalla completa
     const puedeRevisar = pago.estado === 'pendiente' && (onVerificar || onRechazar);
+
+    // El cliente ve en vivo que su pago está siendo revisado (no bloquea si falla)
+    useEffect(() => {
+        if (puedeRevisar) revisando(pago.id).catch(() => {});
+    }, [pago.id, puedeRevisar]);
 
     return (
         <Modal titulo={`Comprobante del pago #${pago.id}`} icon={PhotoIcon} onClose={onClose} ancho="max-w-2xl lg:max-w-5xl" error={error}

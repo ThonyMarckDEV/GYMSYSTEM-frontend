@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { misPagos, comprobanteUrl, ticketUrl } from 'services/perfilService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+import { useEventoEnVivo } from 'context/NotificacionesContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -56,6 +57,7 @@ const Index = () => {
     }, []);
 
     useEffect(() => { fetchPagos(1); }, [fetchPagos]);
+    useEventoEnVivo('gym:notificacion', (n) => { if (n.tipo?.startsWith('pago_')) fetchPagos(pagination.currentPage); });
 
     const filterConfig = useMemo(() => [
         { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-6 md:col-span-4',

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { index, verificar, rechazar, anular } from 'services/pagoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { useAuth } from 'context/AuthContext';
+import { useEventoEnVivo } from 'context/NotificacionesContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -39,6 +40,8 @@ const Index = () => {
     }, []);
 
     useEffect(() => { fetchPagos(1); }, [fetchPagos]);
+    // Llegó un comprobante en línea: la lista se actualiza sola
+    useEventoEnVivo('gym:notificacion', (n) => { if (n.tipo === 'pago_por_verificar') fetchPagos(pagination.currentPage); });
 
     const accion = useCallback(async (fn, mensaje, errorMsg) => {
         setProcesando(true);

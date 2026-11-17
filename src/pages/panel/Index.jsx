@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { dashboard } from 'services/perfilService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
+import { useEventoEnVivo } from 'context/NotificacionesContext';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import MisClasesCard from 'components/Clases/MisClasesCard';
@@ -113,6 +114,10 @@ const Index = () => {
     useEffect(() => {
         dashboard().then(r => setDatos(r.data)).catch(err => setAlert(handleApiError(err, 'No se pudo cargar tu panel')));
     }, []);
+    // Pagos, membresía o clases cambiaron: el panel se actualiza solo
+    useEventoEnVivo('gym:notificacion', (n) => {
+        if (/^(pago_|membresia_|clase_|reserva_)/.test(n.tipo || '')) dashboard().then(r => setDatos(r.data)).catch(() => {});
+    });
 
     if (!datos) return alert ? <div className="container mx-auto p-6"><AlertMessage type={alert.type} message={alert.message} details={alert.details} /></div> : <LoadingScreen />;
 

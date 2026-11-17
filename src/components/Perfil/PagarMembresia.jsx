@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { opcionesPago, pagar } from 'services/perfilService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
+import { useEventoEnVivo } from 'context/NotificacionesContext';
 import { QrPago, soles, METODOS } from 'components/Pagos/PagoUI';
 import { CreditCardIcon, ClockIcon, XCircleIcon, ArrowUpTrayIcon, CheckCircleIcon, PhotoIcon } from '@heroicons/react/24/outline';
 
@@ -27,6 +28,8 @@ const PagarMembresia = ({ onPagoEnviado }) => {
     }, []);
 
     useEffect(() => { cargar(); }, [cargar]);
+    // Verificaron o rechazaron su pago: se actualiza el estado sin recargar
+    useEventoEnVivo('gym:notificacion', (n) => { if (n.tipo?.startsWith('pago_')) { cargar(); onPagoEnviado?.(); } });
 
     useEffect(() => {
         if (!archivo) { setPreview(null); return; }

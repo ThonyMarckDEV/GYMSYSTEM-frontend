@@ -23,6 +23,10 @@ export const index = async (page = 1, filters = {}) => {
 
 export const show = async (id) => handleResponse(await fetchWithAuth(`${BASE_URL}/show/${id}`, { method: 'GET' }));
 
+/** Avisa en vivo al cliente que su comprobante está siendo revisado */
+export const revisando = async (id) =>
+    handleResponse(await fetchWithAuth(`${BASE_URL}/revisando/${id}`, { method: 'POST' }));
+
 export const verificar = async (id) =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/verificar/${id}`, { method: 'PATCH' }));
 

@@ -3,6 +3,7 @@ import { calendario } from 'services/claseService';
 import { combobox as sucursalesCombobox } from 'services/sucursalService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { useAuth } from 'context/AuthContext';
+import { useEventoEnVivo } from 'context/NotificacionesContext';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { ClaseCard, ClaseFila } from 'components/Clases/ClaseUI';
@@ -65,6 +66,8 @@ const Index = () => {
     }, [lunes, filtros]);
 
     useEffect(() => { cargar(); }, [cargar]);
+    // Clase cancelada, reserva liberada o pago de clase verificado: el calendario se actualiza solo
+    useEventoEnVivo('gym:notificacion', (n) => { if (/^(clase_|reserva_|pago_)/.test(n.tipo || '')) cargar(); });
 
     const porDia = useMemo(() => {
         const m = {};

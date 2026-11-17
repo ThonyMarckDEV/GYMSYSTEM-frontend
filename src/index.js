@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import './styles/oscuro.css';
+import './styles/animaciones.css';
 import { aplicarTema, obtenerTema } from 'utilities/Tema/tema';
 import App from './App'; // <-- Tu import original
 import reportWebVitals from './reportWebVitals';
