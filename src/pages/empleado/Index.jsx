@@ -4,23 +4,26 @@ import { useIndex } from 'hooks/empleado/useIndex';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
+import { useAuth } from 'context/AuthContext';
+import EstadoToggle, { SinAcciones } from 'components/Shared/Tables/EstadoToggle';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import ViewModal from 'components/Shared/Modals/ViewModal';
 import RolSearchSelect from 'components/Shared/Comboboxes/RolSearchSelect';
 
-import { 
-    UserIcon, 
-    PencilSquareIcon, 
-    PhoneIcon, 
-    IdentificationIcon, 
-    BriefcaseIcon, 
+import {
+    UserIcon,
+    PencilSquareIcon,
+    PhoneIcon,
+    IdentificationIcon,
+    BriefcaseIcon,
     EyeIcon,
     MapPinIcon,
     CalendarDaysIcon
 } from '@heroicons/react/24/outline';
 
 const Index = () => {
+    const { can } = useAuth();
     const {
         loading,
         empleados,
@@ -46,12 +49,12 @@ const Index = () => {
     } = useIndex();
 
     const filterConfig = useMemo(() => [
-        { 
-            name: 'search', 
-            type: 'text', 
-            label: 'Buscar (Nombre/DNI)', 
-            placeholder: 'Ej: Juan, 12345678...', 
-            colSpan: 'col-span-12 md:col-span-4' 
+        {
+            name: 'search',
+            type: 'text',
+            label: 'Buscar (Nombre/DNI)',
+            placeholder: 'Ej: Juan, 12345678...',
+            colSpan: 'col-span-12 md:col-span-4'
         },
         {
             name: 'rol_id',
@@ -59,23 +62,23 @@ const Index = () => {
             label: '',
             colSpan: 'col-span-12 md:col-span-4',
             render: () => (
-                <RolSearchSelect 
-                    form={filters} 
-                    setForm={setFilters} 
+                <RolSearchSelect
+                    form={filters}
+                    setForm={setFilters}
                     isFilter={true}
                 />
             )
         },
         {
-            name: 'estado', 
-            type: 'select', 
-            label: 'Estado', 
+            name: 'estado',
+            type: 'select',
+            label: 'Estado',
             colSpan: 'col-span-12 md:col-span-4',
             options: [
-                { value: '', label: 'Todos' }, 
-                { value: '1', label: 'Activos' }, 
+                { value: '', label: 'Todos' },
+                { value: '1', label: 'Activos' },
                 { value: '0', label: 'Inactivos' }
-            ] 
+            ]
         }
     ], [filters, setFilters]);
 
@@ -114,8 +117,8 @@ const Index = () => {
             render: (row) => (
                 <div className="flex flex-col items-start gap-1">
                 <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${
-                    row.rol === 'Administrador' 
-                    ? 'bg-purple-50 text-purple-700 border-purple-200' 
+                    row.rol === 'Administrador'
+                    ? 'bg-purple-50 text-purple-700 border-purple-200'
                     : 'bg-blue-50 text-blue-700 border-blue-200'
                 }`}>
                     <BriefcaseIcon className="w-3 h-3"/>
@@ -128,48 +131,41 @@ const Index = () => {
         {
             header: 'Estado',
             render: (row) => (
-                <button 
-                    onClick={() => handleAskToggle(row.id)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                        ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}
-                    title="Clic para cambiar acceso"
-                >
-                    {row.estado ? 'Activo' : 'Inactivo'}
-                </button>
+                <EstadoToggle activo={row.estado} puede={can('empleado.status')} onClick={() => handleAskToggle(row.id)} title="Clic para cambiar acceso" />
             )
         },
         {
             header: 'Acciones',
-            render: (row) => (
+            render: (row) => !['empleado.show', 'empleado.update'].some(can) ? <SinAcciones /> : (
                 <div className="flex items-center gap-2">
-                    <button 
+                    {can('empleado.show') && <button
                         onClick={() => handleView(row.id)}
                         className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all"
                         title="Ver Detalle"
                     >
                         <EyeIcon className="w-5 h-5" />
-                    </button>
+                    </button>}
 
-                    <Link 
-                        to={`/empleado/editar/${row.id}`} 
-                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all" 
+                    {can('empleado.update') && <Link
+                        to={`/empleado/editar/${row.id}`}
+                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all"
                         title="Editar Empleado"
                     >
                         <PencilSquareIcon className="w-5 h-5" />
-                    </Link>
+                    </Link>}
                 </div>
             )
         }
-    ], [handleAskToggle, handleView]); // Dependencias para que no hayan renders innecesarios
+    ], [handleAskToggle, handleView, can]); // Dependencias para que no hayan renders innecesarios
 
 
     return (
         <div className="container mx-auto p-6">
-            <PageHeader 
-                title="Gestión de Empleados" 
-                icon={UserIcon} 
-                buttonText="+ Nuevo Empleado" 
-                buttonLink="/empleado/agregar" 
+            <PageHeader
+                title="Gestión de Empleados"
+                icon={UserIcon}
+                buttonText={can('empleado.store') ? '+ Nuevo Empleado' : null}
+                buttonLink="/empleado/agregar"
             />
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
@@ -178,7 +174,7 @@ const Index = () => {
                 columns={columns}
                 data={empleados}
                 loading={loading}
-                filterConfig={filterConfig} 
+                filterConfig={filterConfig}
                 filters={filters}
                 onFilterChange={handleFilterChange}
                 onFilterSubmit={handleFilterSubmit}
@@ -190,7 +186,7 @@ const Index = () => {
             />
 
             {showConfirm && (
-                <ConfirmModal 
+                <ConfirmModal
                     message="¿Estás seguro de cambiar el acceso al sistema de este empleado? Si lo desactivas, no podrá iniciar sesión."
                     confirmText="Sí, cambiar"
                     cancelText="Cancelar"
@@ -199,9 +195,9 @@ const Index = () => {
                 />
             )}
 
-            <ViewModal 
-                isOpen={isViewOpen} 
-                onClose={() => setIsViewOpen(false)} 
+            <ViewModal
+                isOpen={isViewOpen}
+                onClose={() => setIsViewOpen(false)}
                 title="Ficha del Empleado"
                 isLoading={viewLoading}
             >
@@ -261,7 +257,7 @@ const Index = () => {
                                         {viewData.usuario.estado ? 'Activo' : 'Inactivo'}
                                     </span>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <p className="text-xs text-slate-500 mb-0.5">Usuario</p>

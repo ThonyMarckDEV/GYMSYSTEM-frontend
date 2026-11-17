@@ -6,6 +6,8 @@ import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { Modal, EstadoPago, BotonTicket, useTicket, soles, METODOS } from 'components/Pagos/PagoUI';
 import { ArchiveBoxIcon, EyeIcon } from '@heroicons/react/24/outline';
+import { useAuth } from 'context/AuthContext';
+import { SinAcciones } from 'components/Shared/Tables/EstadoToggle';
 
 const FILTROS_INICIALES = { estado: '', fecha_desde: '', fecha_hasta: '' };
 
@@ -17,6 +19,7 @@ const Diferencia = ({ valor }) => {
 };
 
 const Historial = () => {
+    const { can } = useAuth();
     const [loading, setLoading] = useState(true);
     const [cajas, setCajas] = useState([]);
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
@@ -84,12 +87,12 @@ const Historial = () => {
         { header: 'Estado', render: (r) => (
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase border ${r.estado === 'abierta' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>{r.estado}</span>
         ) },
-        { header: 'Acciones', render: (r) => (
+        { header: 'Acciones', render: (r) => !can('cajaSesion.show') ? <SinAcciones /> : (
             <button onClick={() => verDetalle(r.id)} className="p-2 text-slate-500 hover:text-secondary hover:bg-primary-light rounded-lg" title="Ver detalle">
                 <EyeIcon className="w-5 h-5" />
             </button>
         ) },
-    ], []);
+    ], [can]);
 
     return (
         <div className="container mx-auto p-6">

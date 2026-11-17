@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { index, store, update, toggleStatus } from 'services/cajaService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { useAuth } from 'context/AuthContext';
+import EstadoToggle, { SinAcciones } from 'components/Shared/Tables/EstadoToggle';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -73,6 +74,7 @@ const CajaFormModal = ({ caja, onClose, onGuardado }) => {
 
 /** CRUD de cajas físicas: una sucursal puede tener una o varias. */
 const Listar = () => {
+    const { can } = useAuth();
     const [loading, setLoading] = useState(true);
     const [cajas, setCajas] = useState([]);
     const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, total: 0 });
@@ -133,27 +135,25 @@ const Listar = () => {
         ) : <span className="text-xs text-slate-400">Cerrada</span> },
         { header: 'Turnos', render: (r) => <span className="text-sm tabular-nums text-slate-600">{r.turnos}</span> },
         { header: 'Estado', render: (r) => (
-            <button onClick={() => setACambiar(r.id)}
-                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                    ${r.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}>
-                {r.estado ? 'Activa' : 'Inactiva'}
-            </button>
+            <EstadoToggle activo={r.estado} si="Activa" no="Inactiva" puede={can('caja.status')} onClick={() => setACambiar(r.id)} />
         ) },
-        { header: 'Acciones', render: (r) => (
+        { header: 'Acciones', render: (r) => !can('caja.update') ? <SinAcciones /> : (
             <button onClick={() => setEditando(r)} title="Editar" className="p-2 text-slate-500 hover:text-secondary hover:bg-primary-light rounded-lg">
                 <PencilSquareIcon className="w-5 h-5" />
             </button>
         ) },
-    ], []);
+    ], [can]);
 
     return (
         <div className="container mx-auto p-6">
             <PageHeader title="Cajas" subtitle="Cajas de cada sucursal (una sede puede tener varias)" icon={InboxStackIcon} />
-            <div className="flex justify-end -mt-4 mb-6">
-                <button onClick={() => setEditando('nueva')} className="bg-primary text-secondary px-6 py-3 rounded-lg font-black uppercase shadow-lg hover:bg-primary-hover">
-                    + Nueva caja
-                </button>
-            </div>
+            {can('caja.store') && (
+                <div className="flex justify-end -mt-4 mb-6">
+                    <button onClick={() => setEditando('nueva')} className="bg-primary text-secondary px-6 py-3 rounded-lg font-black uppercase shadow-lg hover:bg-primary-hover">
+                        + Nueva caja
+                    </button>
+                </div>
+            )}
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 

@@ -4,12 +4,15 @@ import { useIndex } from 'hooks/sucursal/useIndex';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
+import { useAuth } from 'context/AuthContext';
+import EstadoToggle, { SinAcciones } from 'components/Shared/Tables/EstadoToggle';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
 import { BuildingStorefrontIcon, PencilSquareIcon, MapPinIcon, UsersIcon } from '@heroicons/react/24/outline';
 
 const Index = () => {
+    const { can } = useAuth();
     const {
         loading, sucursales, paginationInfo, filters, alert, setAlert,
         showConfirm, setShowConfirm, setIdToToggle,
@@ -55,25 +58,19 @@ const Index = () => {
         {
             header: 'Estado',
             render: (row) => (
-                <button
-                    onClick={() => handleAskToggle(row.id)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                        ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}
-                >
-                    {row.estado ? 'Activa' : 'Inactiva'}
-                </button>
+                <EstadoToggle activo={row.estado} si="Activa" no="Inactiva" puede={can('sucursal.status')} onClick={() => handleAskToggle(row.id)} />
             )
         },
         {
             header: 'Acciones',
-            render: (row) => (
-                <Link to={`/sucursal/editar/${row.id}`}
+            render: (row) => !can('sucursal.update') ? <SinAcciones /> : (
+                <Link to={`/sucursal/editar/${row.id}`} title="Editar"
                     className="inline-flex p-2 text-slate-500 hover:text-secondary hover:bg-primary-light rounded-lg transition-all">
                     <PencilSquareIcon className="w-5 h-5" />
                 </Link>
             )
         }
-    ], [handleAskToggle]);
+    ], [handleAskToggle, can]);
 
 
     return (
@@ -81,7 +78,7 @@ const Index = () => {
             <PageHeader
                 title="Gestión de Sucursales"
                 icon={BuildingStorefrontIcon}
-                buttonText="+ Nueva Sucursal"
+                buttonText={can('sucursal.store') ? '+ Nueva Sucursal' : null}
                 buttonLink="/sucursal/agregar"
             />
 

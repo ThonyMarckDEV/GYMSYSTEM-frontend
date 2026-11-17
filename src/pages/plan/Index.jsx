@@ -4,6 +4,8 @@ import { useIndex } from 'hooks/plan/useIndex';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
+import { useAuth } from 'context/AuthContext';
+import EstadoToggle, { SinAcciones } from 'components/Shared/Tables/EstadoToggle';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
@@ -14,6 +16,7 @@ import {
 import { ThermometerSnowflakeIcon } from 'lucide-react';
 
 const Index = () => {
+    const { can } = useAuth();
     const {
         loading, planes, paginationInfo, filters, alert, setAlert,
         showConfirm, setShowConfirm, setIdToToggle,
@@ -69,34 +72,28 @@ const Index = () => {
        {
             header: 'Estado',
             render: (row) => (
-                <button
-                    onClick={() => handleAskToggle(row.id)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                        ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}
-                >
-                    {row.estado ? 'Activo' : 'Inactivo'}
-                </button>
+                <EstadoToggle activo={row.estado} si="Activo" no="Inactivo" puede={can('plan.status')} onClick={() => handleAskToggle(row.id)} />
             )
         },
         {
             header: 'Acciones',
-            render: (row) => (
+            render: (row) => !can('plan.update') ? <SinAcciones /> : (
                 <div className="flex items-center gap-2">
-                    <Link to={`/plan/editar/${row.id}`}
+                    <Link to={`/plan/editar/${row.id}`} title="Editar"
                         className="p-2 text-slate-500 hover:text-secondary hover:bg-primary-light rounded-lg transition-all">
                         <PencilSquareIcon className="w-5 h-5" />
                     </Link>
                 </div>
             )
         }
-    ], [handleAskToggle]);
+    ], [handleAskToggle, can]);
 
     return (
         <div className="container mx-auto p-6">
             <PageHeader
                 title="Gestión de Planes"
                 icon={TagIcon}
-                buttonText="+ Nuevo Plan"
+                buttonText={can('plan.store') ? '+ Nuevo Plan' : null}
                 buttonLink="/plan/agregar"
             />
 
