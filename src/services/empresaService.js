@@ -10,7 +10,7 @@ export const show = async () => handleResponse(await fetchWithAuth(`${BASE_URL}/
 export const update = async (data) =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/update`, { method: 'PUT', body: JSON.stringify(data) }));
 
-/** URL protegida del logo (se abre con obtenerArchivoUrl / ImagenProtegida) */
+/** Endpoint del logo: devuelve una URL temporal firmada (se muestra con ImagenProtegida) */
 export const logoUrl = (version = '') => `${BASE_URL}/logo${version ? `?v=${version}` : ''}`;
 
 /** Subir o cambiar el logo (PNG/JPG, máx. 2 MB) */

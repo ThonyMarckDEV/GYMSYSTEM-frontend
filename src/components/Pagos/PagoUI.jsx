@@ -4,7 +4,7 @@ import {
     XMarkIcon, CheckCircleIcon, XCircleIcon, KeyIcon, PrinterIcon,
     PhotoIcon, ExclamationTriangleIcon, ClockIcon, NoSymbolIcon, MagnifyingGlassPlusIcon
 } from '@heroicons/react/24/outline';
-import { obtenerArchivoUrl } from 'js/archivoAutenticado';
+import { obtenerArchivoUrl, obtenerUrlFirmada } from 'js/archivoAutenticado';
 import { comprobanteUrl, ticketUrl, revisando } from 'services/pagoService';
 import { qrUrl } from 'services/metodoPagoService';
 // El visor de PDF es pesado: se descarga solo al abrir un ticket
@@ -38,21 +38,27 @@ export const EstadoPago = ({ estado }) => {
 };
 
 // ---------------------------------------------------------------------------
-// Imagen protegida (se pide con token y se muestra como blob)
+// Imagen protegida de MinIO: el endpoint (con token) entrega una URL temporal
+// firmada que solo sirve para esta imagen; nunca la URL real del bucket.
 // ---------------------------------------------------------------------------
 export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no disponible', onAbrir }) => {
     const [src, setSrc] = useState(null);
     const [error, setError] = useState(null);
+    const [intento, setIntento] = useState(0); // si la URL firmada venció, se pide otra (una vez)
 
     useEffect(() => {
-        let objectUrl = null;
         let activo = true;
         setSrc(null); setError(null);
-        obtenerArchivoUrl(url)
-            .then(u => { objectUrl = u; if (activo) setSrc(u); else URL.revokeObjectURL(u); })
+        obtenerUrlFirmada(url)
+            .then(u => activo && setSrc(u))
             .catch(e => activo && setError(e.message));
-        return () => { activo = false; if (objectUrl) URL.revokeObjectURL(objectUrl); };
-    }, [url]);
+        return () => { activo = false; };
+    }, [url, intento]);
+
+    const alFallar = () => {
+        if (intento < 1) setIntento(i => i + 1);
+        else setError('No se pudo cargar la imagen');
+    };
 
     if (error) {
         return (
@@ -62,12 +68,12 @@ export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no d
         );
     }
     if (!src) return <div className={`bg-slate-100 animate-pulse rounded-lg ${className}`} />;
-    if (!onAbrir) return <img src={src} alt={alt} className={`object-contain ${className}`} />;
+    if (!onAbrir) return <img src={src} alt={alt} onError={alFallar} referrerPolicy="no-referrer" className={`object-contain ${className}`} />;
 
     return (
         <button type="button" onClick={() => onAbrir(src)} title="Ver imagen completa"
             className={`group relative block cursor-zoom-in overflow-hidden ${className}`}>
-            <img src={src} alt={alt} className="w-full h-full object-contain" />
+            <img src={src} alt={alt} onError={alFallar} referrerPolicy="no-referrer" className="w-full h-full object-contain" />
             <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/70 text-white text-[11px] font-bold opacity-80 group-hover:opacity-100">
                 <MagnifyingGlassPlusIcon className="w-4 h-4" /> Ver completa
             </span>

@@ -36,6 +36,6 @@ export const rechazar = async (id, motivo) =>
 export const anular = async (id, pin, motivo) =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/anular/${id}`, { method: 'PATCH', body: JSON.stringify({ pin, motivo }) }));
 
-/** URLs de archivos protegidos (se abren con obtenerArchivoUrl) */
+/** Comprobante: URL temporal firmada (ImagenProtegida) · ticket: PDF con token (useTicket) */
 export const comprobanteUrl = (id) => `${BASE_URL}/comprobante/${id}`;
 export const ticketUrl = (id) => `${BASE_URL}/ticket/${id}`;
