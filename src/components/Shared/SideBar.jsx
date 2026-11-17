@@ -21,6 +21,7 @@ import {
     CubeTransparentIcon,
     ShoppingBagIcon,
     ArrowsRightLeftIcon,
+    DocumentArrowDownIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
@@ -48,7 +49,8 @@ const MENU_GROUPS = [
                 link: '/dashboard',
                 icon: ChartBarIcon,
                 requiredPermission: 'dashboard.index',
-            }
+            },
+            { section: 'Reportes', link: '/reportes', icon: DocumentArrowDownIcon, requiredPermission: 'reporte.ventas' },
         ]
     },
     {
