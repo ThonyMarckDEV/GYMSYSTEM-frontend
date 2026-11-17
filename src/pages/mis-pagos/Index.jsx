@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { misPagos, comprobanteUrl } from 'services/perfilService';
+import { misPagos, comprobanteUrl, ticketUrl } from 'services/perfilService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { KpiTile } from 'components/Dashboard/Charts';
-import { Modal, ImagenProtegida, VisorImagen, EstadoPago, soles, METODOS } from 'components/Pagos/PagoUI';
+import { Modal, ImagenProtegida, VisorImagen, EstadoPago, BotonTicket, useTicket, soles, METODOS } from 'components/Pagos/PagoUI';
 import { ReceiptPercentIcon, BanknotesIcon, ClockIcon, PhotoIcon, GlobeAltIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 
 const CONCEPTOS = { membresia: 'Membresía', clase: 'Clase / evento', producto: 'Compra' };
@@ -39,6 +39,7 @@ const Index = () => {
     const filtersRef = useRef(filters);
     const [alert, setAlert] = useState(null);
     const [viendo, setViendo] = useState(null);
+    const { abrirTicket, TicketModal, errorTicket } = useTicket(ticketUrl);
 
     const fetchPagos = useCallback(async (page = 1) => {
         setLoading(true);
@@ -94,17 +95,25 @@ const Index = () => {
                 {r.motivo && <p className="text-[11px] text-slate-500 max-w-[200px]" title={r.motivo}>Motivo: {r.motivo}</p>}
             </div>
         ) },
-        { header: 'Comprobante', render: (r) => r.tiene_comprobante ? (
-            <button onClick={() => setViendo(r)} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-600 hover:border-slate-500 hover:text-secondary">
-                <PhotoIcon className="w-4 h-4" /> Ver captura
-            </button>
-        ) : <span className="text-xs text-slate-300">—</span> },
-    ], []);
+        // Ticket PDF (como el de recepción) y, si pagó en línea con Yape/Plin, la captura que subió
+        { header: 'Comprobante', render: (r) => (!r.tiene_ticket && !r.tiene_comprobante) ? <span className="text-xs text-slate-300">—</span> : (
+            <div className="flex flex-wrap items-center gap-1.5">
+                {r.tiene_ticket && <BotonTicket onClick={() => abrirTicket(r.id)} />}
+                {r.tiene_comprobante && (
+                    <button onClick={() => setViendo(r)} title="Ver la captura de tu Yape/Plin"
+                        className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:text-secondary hover:bg-primary-light">
+                        <PhotoIcon className="w-5 h-5" /> Captura
+                    </button>
+                )}
+            </div>
+        ) },
+    ], [abrirTicket]);
 
     return (
         <div className="container mx-auto p-4 sm:p-6">
             <PageHeader title="Mis pagos" subtitle="Tus pagos de membresías, clases y compras" icon={ReceiptPercentIcon} />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
+            {errorTicket && <AlertMessage type="error" message={errorTicket} />}
 
             {resumen && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -122,6 +131,7 @@ const Index = () => {
                 pagination={{ clave: 'mispagos', ...pagination, onPageChange: fetchPagos }} />
 
             {viendo && <ComprobanteModal pago={viendo} onClose={() => setViendo(null)} />}
+            <TicketModal />
         </div>
     );
 };

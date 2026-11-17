@@ -24,6 +24,9 @@ export const misPagos = async (page = 1, filtros = {}) => {
 /** URL protegida de la captura del comprobante (se abre con ImagenProtegida) */
 export const comprobanteUrl = (pagoId) => `${BASE_URL}/comprobante/${pagoId}`;
 
+/** URL protegida del ticket PDF de un pago del cliente */
+export const ticketUrl = (pagoId) => `${BASE_URL}/ticket/${pagoId}`;
+
 /** Panel del cliente: membresía, avisos, clases, entrenamiento y últimos pagos */
 export const dashboard = async () =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/dashboard`, { method: 'GET' }));

@@ -256,14 +256,15 @@ export const errorDeAlerta = (alert) =>
 // ---------------------------------------------------------------------------
 // Ticket PDF (Blade en el backend)
 // ---------------------------------------------------------------------------
-export const useTicket = () => {
+/** urlDe(id): de dónde sale el PDF (por defecto el endpoint del personal) */
+export const useTicket = (urlDe = ticketUrl) => {
     const [ticket, setTicket] = useState(null); // { id, url }
     const [error, setError] = useState(null);
 
     const abrirTicket = async (id) => {
         setError(null);
         try {
-            const url = await obtenerArchivoUrl(ticketUrl(id));
+            const url = await obtenerArchivoUrl(urlDe(id));
             setTicket({ id, url });
         } catch (e) {
             setError(e.message);
