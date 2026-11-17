@@ -79,6 +79,7 @@ html.dark .app-root { background-color: var(--fondo); }
 .dark .placeholder-secondary\/50::placeholder { color: rgba(238, 240, 244, .4); }
 
 /* Sobre amarillo el texto sigue siendo negro (botones, chips, accesos) */
+/* (el menú lateral tiene bg-primary pero en oscuro es negro: sus reglas, más abajo, ganan) */
 .dark .bg-primary.text-secondary, .dark .bg-primary .text-secondary,
 .dark .bg-primary-hover.text-secondary, .dark .hover\:bg-primary-hover:hover.text-secondary,
 .dark .bg-amber-400 .text-secondary, .dark .bg-amber-400.text-secondary { color: #0A0A0A; }
@@ -169,14 +170,19 @@ html.dark .app-root { background-color: var(--fondo); }
 .dark .app-sidebar,
 .dark .app-sidebar .bg-primary { background-color: #0a0c10; }
 .dark .app-sidebar { border-color: rgba(255, 255, 255, .06); }
-.dark .app-sidebar .text-secondary { color: var(--txt-1); }
-.dark .app-sidebar .text-secondary\/70 { color: var(--txt-3); }
-.dark .app-sidebar .text-secondary\/50 { color: var(--txt-5); }
-.dark .app-sidebar .hover\:text-secondary:hover { color: #FFC700; }
+/* html.dark (más específico) para ganarle a "texto negro sobre amarillo",
+   porque el menú y su pie tienen bg-primary aunque en oscuro se vean negros */
+html.dark .app-sidebar .text-secondary { color: var(--txt-1); }
+html.dark .app-sidebar .text-secondary\/80 { color: var(--txt-2); }
+html.dark .app-sidebar .text-secondary\/70,
+html.dark .app-sidebar .text-secondary\/60 { color: var(--txt-3); }
+html.dark .app-sidebar .text-secondary\/50,
+html.dark .app-sidebar .text-secondary\/40 { color: var(--txt-4); }
+html.dark .app-sidebar .hover\:text-secondary:hover { color: #FFC700; }
 /* Ítem activo: amarillo sobre negro → negro sobre amarillo */
-.dark .app-sidebar .bg-secondary.text-primary { background-color: #FFC700; color: #0A0A0A; }
-.dark .app-sidebar .hover\:bg-red-900\/10:hover { background-color: rgba(248, 113, 113, .12); }
-.dark .app-sidebar .hover\:text-red-900:hover { color: #fca5a5; }
+html.dark .app-sidebar .bg-secondary.text-primary { background-color: #FFC700; color: #0A0A0A; }
+html.dark .app-sidebar .hover\:bg-red-900\/10:hover { background-color: rgba(248, 113, 113, .12); }
+html.dark .app-sidebar .hover\:text-red-900:hover { color: #fca5a5; }
 
 /* Notificaciones (react-toastify) */
 .dark .Toastify__toast--default, .dark .Toastify__toast-theme--light { background: var(--sup-1); color: var(--txt-1); }
