@@ -122,8 +122,9 @@ const Index = () => {
                 )}
                 {r.estado !== 'pendiente' && can('pago.ticket') && <BotonTicket compacto onClick={() => abrirTicket(r.id)} />}
                 {r.estado === 'verificado' && can('pago.anular') && (
-                    <button onClick={() => { setAlert(null); setAnulando(r); }} title="Anular (requiere PIN)"
-                        className="p-2 text-slate-500 hover:text-red-700 hover:bg-red-50 rounded-lg">
+                    <button onClick={() => { if (r.no_anulable) return; setAlert(null); setAnulando(r); }}
+                        disabled={!!r.no_anulable} title={r.no_anulable || 'Anular (requiere PIN)'}
+                        className={`p-2 rounded-lg ${r.no_anulable ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:text-red-700 hover:bg-red-50'}`}>
                         <NoSymbolIcon className="w-5 h-5" />
                     </button>
                 )}
