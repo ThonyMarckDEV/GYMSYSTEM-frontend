@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     resumen as cargarResumen, guardarPerfil, guardarMedicion, eliminarMedicion,
-    comidas as cargarComidas, agregarComida, eliminarComida, frecuentes as cargarFrecuentes,
+    comidas as cargarComidas, agregarComida, actualizarComida, eliminarComida, frecuentes as cargarFrecuentes,
 } from 'services/progresoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import PageHeader from 'components/Shared/Headers/PageHeader';
@@ -12,7 +12,7 @@ import { GraficoLinea, GraficoCalorias } from 'components/Progreso/Graficos';
 import { aISO, sumarDias, deISO, fechaLarga } from 'utilities/Fechas/fechas';
 import {
     ScaleIcon, FireIcon, CheckCircleIcon, ExclamationTriangleIcon, XCircleIcon, TrashIcon,
-    ChevronLeftIcon, ChevronRightIcon, PlusIcon, Cog6ToothIcon, ArrowTrendingDownIcon, ArrowTrendingUpIcon, MinusIcon,
+    ChevronLeftIcon, ChevronRightIcon, PlusIcon, PencilSquareIcon, CheckIcon, Cog6ToothIcon, ArrowTrendingDownIcon, ArrowTrendingUpIcon, MinusIcon,
 } from '@heroicons/react/24/outline';
 
 const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none bg-white tabular-nums';
@@ -148,7 +148,23 @@ const DiarioCalorias = ({ plan, semana, onCambio, onError }) => {
     const [frec, setFrec] = useState([]);
     const [f, setF] = useState({ tipo: 'desayuno', nombre: '', porcion: '', calorias: '', proteina_g: '', carbos_g: '', grasas_g: '' });
     const [guardando, setGuardando] = useState(false);
+    const [editando, setEditando] = useState(null); // comida que se está corrigiendo
+    const formRef = useRef(null);
     const set = (k, v) => setF(p => ({ ...p, [k]: v }));
+    const limpiar = () => setF(p => ({ ...p, nombre: '', porcion: '', calorias: '', proteina_g: '', carbos_g: '', grasas_g: '' }));
+
+    // Al cambiar de día se cancela la edición
+    useEffect(() => { setEditando(null); }, [fecha]);
+
+    const editar = (c) => {
+        setEditando(c);
+        setF({
+            tipo: c.tipo, nombre: c.nombre, porcion: c.porcion || '', calorias: String(c.calorias),
+            proteina_g: c.proteina_g ? String(c.proteina_g) : '', carbos_g: c.carbos_g ? String(c.carbos_g) : '', grasas_g: c.grasas_g ? String(c.grasas_g) : '',
+        });
+        formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+    const cancelarEdicion = () => { setEditando(null); limpiar(); };
 
     const cargar = useCallback(async () => {
         try {
@@ -161,10 +177,15 @@ const DiarioCalorias = ({ plan, semana, onCambio, onError }) => {
     const agregar = async (datos) => {
         setGuardando(true);
         try {
-            await agregarComida({ fecha, ...datos });
-            setF(p => ({ ...p, nombre: '', porcion: '', calorias: '', proteina_g: '', carbos_g: '', grasas_g: '' }));
+            if (editando) {
+                await actualizarComida(editando.id, datos);
+                setEditando(null);
+            } else {
+                await agregarComida({ fecha, ...datos });
+            }
+            limpiar();
             await cargar(); onCambio();
-        } catch (err) { onError(handleApiError(err, 'No se pudo agregar')); } finally { setGuardando(false); }
+        } catch (err) { onError(handleApiError(err, editando ? 'No se pudo guardar el cambio' : 'No se pudo agregar')); } finally { setGuardando(false); }
     };
     const quitar = async (id) => {
         try { await eliminarComida(id); await cargar(); onCambio(); } catch (err) { onError(handleApiError(err, 'No se pudo quitar')); }
@@ -210,9 +231,12 @@ const DiarioCalorias = ({ plan, semana, onCambio, onError }) => {
                 </div>
 
                 {/* Agregar */}
-                <form onSubmit={(e) => { e.preventDefault(); agregar({ tipo: f.tipo, nombre: f.nombre.trim(), porcion: f.porcion.trim() || null, calorias: Number(f.calorias), proteina_g: num(f.proteina_g), carbos_g: num(f.carbos_g), grasas_g: num(f.grasas_g) }); }}
-                    className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
-                    <h3 className="font-black text-secondary uppercase text-sm">Agregar comida</h3>
+                <form ref={formRef} onSubmit={(e) => { e.preventDefault(); agregar({ tipo: f.tipo, nombre: f.nombre.trim(), porcion: f.porcion.trim() || null, calorias: Number(f.calorias), proteina_g: num(f.proteina_g), carbos_g: num(f.carbos_g), grasas_g: num(f.grasas_g) }); }}
+                    className={`bg-white rounded-2xl border shadow-sm p-5 space-y-3 ${editando ? 'border-primary ring-2 ring-primary/40' : 'border-slate-200'}`}>
+                    <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-black text-secondary uppercase text-sm">{editando ? 'Editar comida' : 'Agregar comida'}</h3>
+                        {editando && <button type="button" onClick={cancelarEdicion} className="text-xs font-bold text-slate-500 hover:text-secondary">Cancelar edición</button>}
+                    </div>
                     <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                         <div className="col-span-2 md:col-span-1"><label className={labelCls}>Comida</label>
                             <select value={f.tipo} onChange={e => set('tipo', e.target.value)} className={inputCls}>{TIPOS_COMIDA.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></div>
@@ -224,11 +248,11 @@ const DiarioCalorias = ({ plan, semana, onCambio, onError }) => {
                         <div><label className={labelCls}>Grasa (g)</label><input type="number" min="0" step="0.1" value={f.grasas_g} onChange={e => set('grasas_g', e.target.value)} className={inputCls} /></div>
                         <div className="col-span-2 flex items-end">
                             <button disabled={guardando || !f.nombre.trim() || f.calorias === ''} className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 bg-primary text-secondary rounded-lg font-black uppercase text-sm disabled:opacity-40">
-                                <PlusIcon className="w-4 h-4" /> Agregar
+                                {editando ? <><CheckIcon className="w-4 h-4" /> Guardar cambios</> : <><PlusIcon className="w-4 h-4" /> Agregar</>}
                             </button>
                         </div>
                     </div>
-                    {frec.length > 0 && (
+                    {frec.length > 0 && !editando && (
                         <div>
                             <p className="text-[11px] font-bold text-slate-500 uppercase mb-1.5">Tus frecuentes (un clic para agregar a {TIPOS_COMIDA.find(([k]) => k === f.tipo)?.[1].toLowerCase()})</p>
                             <div className="flex flex-wrap gap-1.5">
@@ -263,7 +287,8 @@ const DiarioCalorias = ({ plan, semana, onCambio, onError }) => {
                                                 <span className="flex items-center gap-2 shrink-0">
                                                     <span className="text-xs text-slate-400 tabular-nums hidden sm:inline">P {fmt(c.proteina_g, 0)} · C {fmt(c.carbos_g, 0)} · G {fmt(c.grasas_g, 0)}</span>
                                                     <b className="tabular-nums text-slate-900">{c.calorias}</b>
-                                                    <button onClick={() => quitar(c.id)} className="p-1 text-slate-400 hover:text-red-600" aria-label={`Quitar ${c.nombre}`}><TrashIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => editar(c)} className={`p-1 hover:text-secondary ${editando?.id === c.id ? 'text-secondary' : 'text-slate-400'}`} aria-label={`Editar ${c.nombre}`} title="Editar"><PencilSquareIcon className="w-4 h-4" /></button>
+                                                    <button onClick={() => quitar(c.id)} className="p-1 text-slate-400 hover:text-red-600" aria-label={`Quitar ${c.nombre}`} title="Quitar"><TrashIcon className="w-4 h-4" /></button>
                                                 </span>
                                             </li>
                                         ))}

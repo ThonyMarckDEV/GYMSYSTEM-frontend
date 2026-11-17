@@ -16,5 +16,7 @@ export const eliminarMedicion = async (id) => handleResponse(await fetchWithAuth
 export const comidas = async (fecha) => handleResponse(await fetchWithAuth(`${BASE_URL}/comidas?fecha=${fecha}`, { method: 'GET' }));
 /** data: { fecha, tipo, nombre, porcion?, calorias, proteina_g?, carbos_g?, grasas_g? } */
 export const agregarComida = async (data) => handleResponse(await fetchWithAuth(`${BASE_URL}/comida`, json('POST', data)));
+/** Corregir una comida (el día no cambia) */
+export const actualizarComida = async (id, data) => handleResponse(await fetchWithAuth(`${BASE_URL}/comida/${id}`, json('PUT', data)));
 export const eliminarComida = async (id) => handleResponse(await fetchWithAuth(`${BASE_URL}/comida/${id}`, { method: 'DELETE' }));
 export const frecuentes = async () => handleResponse(await fetchWithAuth(`${BASE_URL}/frecuentes`, { method: 'GET' }));
