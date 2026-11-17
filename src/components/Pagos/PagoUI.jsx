@@ -1,7 +1,8 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     XMarkIcon, CheckCircleIcon, XCircleIcon, KeyIcon, PrinterIcon,
-    PhotoIcon, ExclamationTriangleIcon, ClockIcon, NoSymbolIcon
+    PhotoIcon, ExclamationTriangleIcon, ClockIcon, NoSymbolIcon, MagnifyingGlassPlusIcon
 } from '@heroicons/react/24/outline';
 import { obtenerArchivoUrl } from 'js/archivoAutenticado';
 import { comprobanteUrl, ticketUrl } from 'services/pagoService';
@@ -39,7 +40,7 @@ export const EstadoPago = ({ estado }) => {
 // ---------------------------------------------------------------------------
 // Imagen protegida (se pide con token y se muestra como blob)
 // ---------------------------------------------------------------------------
-export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no disponible' }) => {
+export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no disponible', onAbrir }) => {
     const [src, setSrc] = useState(null);
     const [error, setError] = useState(null);
 
@@ -61,7 +62,39 @@ export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no d
         );
     }
     if (!src) return <div className={`bg-slate-100 animate-pulse rounded-lg ${className}`} />;
-    return <img src={src} alt={alt} className={`object-contain ${className}`} />;
+    if (!onAbrir) return <img src={src} alt={alt} className={`object-contain ${className}`} />;
+
+    return (
+        <button type="button" onClick={() => onAbrir(src)} title="Ver imagen completa"
+            className={`group relative block cursor-zoom-in overflow-hidden ${className}`}>
+            <img src={src} alt={alt} className="w-full h-full object-contain" />
+            <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/70 text-white text-[11px] font-bold opacity-80 group-hover:opacity-100">
+                <MagnifyingGlassPlusIcon className="w-4 h-4" /> Ver completa
+            </span>
+        </button>
+    );
+};
+
+/** Imagen a pantalla completa. Se cierra con clic, con la X o con Esc. */
+export const VisorImagen = ({ src, alt, onClose }) => {
+    useEffect(() => {
+        const alPresionar = (e) => { if (e.key === 'Escape') onClose(); };
+        window.addEventListener('keydown', alPresionar);
+        return () => window.removeEventListener('keydown', alPresionar);
+    }, [onClose]);
+
+    // Portal al <body>: así ningún contenedor del modal lo recorta
+    return createPortal(
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 cursor-zoom-out"
+            onClick={onClose} role="dialog" aria-label={alt}>
+            <button onClick={onClose} aria-label="Cerrar"
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20">
+                <XMarkIcon className="w-7 h-7" />
+            </button>
+            <img src={src} alt={alt} className="max-w-full max-h-full object-contain" onClick={(e) => e.stopPropagation()} />
+        </div>,
+        document.body
+    );
 };
 
 // ---------------------------------------------------------------------------
@@ -128,10 +161,11 @@ const btn = 'px-4 py-2 rounded-lg font-bold uppercase text-sm transition-colors 
 export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loading = false, error }) => {
     const [rechazando, setRechazando] = useState(false);
     const [motivo, setMotivo] = useState('');
+    const [ampliada, setAmpliada] = useState(null); // URL de la imagen a pantalla completa
     const puedeRevisar = pago.estado === 'pendiente' && (onVerificar || onRechazar);
 
     return (
-        <Modal titulo={`Comprobante del pago #${pago.id}`} icon={PhotoIcon} onClose={onClose} ancho="max-w-2xl" error={error}
+        <Modal titulo={`Comprobante del pago #${pago.id}`} icon={PhotoIcon} onClose={onClose} ancho="max-w-2xl lg:max-w-5xl" error={error}
             pie={puedeRevisar && (rechazando ? (
                 <>
                     <button className={`${btn} bg-slate-100 text-slate-600 hover:bg-slate-200`} onClick={() => setRechazando(false)} disabled={loading}>Volver</button>
@@ -147,9 +181,13 @@ export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loadi
                 </>
             ))}
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ImagenProtegida url={comprobanteUrl(pago.id)} alt="Comprobante de pago" className="w-full h-80 rounded-lg bg-slate-50" vacio="Sin comprobante" />
-                <dl className="text-sm space-y-2">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div className="lg:col-span-3">
+                    <ImagenProtegida url={comprobanteUrl(pago.id)} alt="Comprobante de pago" onAbrir={setAmpliada}
+                        className="w-full h-80 lg:h-[62vh] rounded-lg bg-slate-50 border border-slate-200" vacio="Sin comprobante" />
+                    <p className="mt-1.5 text-[11px] text-slate-400 text-center">Haz clic en la imagen para verla completa</p>
+                </div>
+                <dl className="text-sm space-y-3 lg:col-span-2">
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Cliente</dt><dd className="font-bold text-slate-800">{pago.cliente}</dd><dd className="text-xs text-slate-500">DNI {pago.dni}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Plan</dt><dd className="font-bold text-slate-800">{pago.plan}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Monto a verificar</dt><dd className="text-2xl font-black text-secondary tabular-nums">{soles(pago.monto)}</dd></div>
@@ -172,6 +210,7 @@ export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loadi
                     )}
                 </dl>
             </div>
+            {ampliada && <VisorImagen src={ampliada} alt="Comprobante de pago" onClose={() => setAmpliada(null)} />}
         </Modal>
     );
 };
