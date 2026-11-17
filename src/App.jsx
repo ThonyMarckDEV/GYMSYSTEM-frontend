@@ -41,6 +41,31 @@ import MiPerfil from 'pages/perfil/MiPerfil';
 // SETTINGS
 import ListarRoles from 'pages/rol/Index';
 
+// UI EMPRESAS (multitenant — solo superadmin)
+import AgregarEmpresa from 'pages/empresa/Store';
+import EditarEmpresa from 'pages/empresa/Update';
+import ListarEmpresas from 'pages/empresa/Index';
+
+// UI CAJA Y PAGOS
+import Caja from 'pages/caja/Index';
+import HistorialCajas from 'pages/caja/Historial';
+import ListarCajas from 'pages/caja/Listar';
+import ListarPagos from 'pages/pago/Index';
+import ListarPines from 'pages/pin/Index';
+import MetodosPago from 'pages/metodoPago/Index';
+
+// UI DASHBOARD
+import Dashboard from 'pages/dashboard/Index';
+
+// UI PLANES DEL SISTEMA (suscripción SaaS — solo superadmin)
+import ListarPlanesSistema from 'pages/suscripcion/Index';
+import FormPlanSistema from 'pages/suscripcion/Form';
+
+// UI SUCURSALES (sedes de la empresa)
+import AgregarSucursal from 'pages/sucursal/Store';
+import EditarSucursal from 'pages/sucursal/Update';
+import ListarSucursales from 'pages/sucursal/Index';
+
 // Utilities
 import ProtectedRouteHome from 'utilities/ProtectedRoutes/ProtectedRouteHome';
 import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
@@ -87,6 +112,32 @@ function AppContent() {
 
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
+
+        {/* CAJA Y PAGOS */}
+        <Route path="/caja" element={<ProtectedRoute requiredPermission="cajaSesion.actual" element={<Caja />} />} />
+        <Route path="/caja/historial" element={<ProtectedRoute requiredPermission="cajaSesion.index" element={<HistorialCajas />} />} />
+        <Route path="/caja/listar" element={<ProtectedRoute requiredPermission="caja.index" element={<ListarCajas />} />} />
+        <Route path="/pago/listar" element={<ProtectedRoute requiredPermission="pago.index" element={<ListarPagos />} />} />
+        <Route path="/pin/listar" element={<ProtectedRoute requiredPermission="pin.index" element={<ListarPines />} />} />
+        <Route path="/metodo-pago" element={<ProtectedRoute requiredPermission="metodoPago.update" element={<MetodosPago />} />} />
+
+        {/* DASHBOARD */}
+        <Route path="/dashboard" element={<ProtectedRoute requiredPermission="dashboard.index" element={<Dashboard />} />} />
+
+        {/* PLANES DEL SISTEMA */}
+        <Route path="/suscripcion/agregar" element={<ProtectedRoute requiredPermission="suscripcion.store" element={<FormPlanSistema />} />} />
+        <Route path="/suscripcion/editar/:id" element={<ProtectedRoute requiredPermission="suscripcion.update" element={<FormPlanSistema />} />} />
+        <Route path="/suscripcion/listar" element={<ProtectedRoute requiredPermission="suscripcion.index" element={<ListarPlanesSistema />} />} />
+
+        {/* SUCURSALES */}
+        <Route path="/sucursal/agregar" element={<ProtectedRoute requiredPermission="sucursal.store" element={<AgregarSucursal />} />} />
+        <Route path="/sucursal/editar/:id" element={<ProtectedRoute requiredPermission="sucursal.update" element={<EditarSucursal />} />} />
+        <Route path="/sucursal/listar" element={<ProtectedRoute requiredPermission="sucursal.index" element={<ListarSucursales />} />} />
+
+        {/* EMPRESAS */}
+        <Route path="/empresa/agregar" element={<ProtectedRoute requiredPermission="empresa.store" element={<AgregarEmpresa />} />} />
+        <Route path="/empresa/editar/:id" element={<ProtectedRoute requiredPermission="empresa.update" element={<EditarEmpresa />} />} />
+        <Route path="/empresa/listar" element={<ProtectedRoute requiredPermission="empresa.index" element={<ListarEmpresas />} />} />
 
       </Route>
 

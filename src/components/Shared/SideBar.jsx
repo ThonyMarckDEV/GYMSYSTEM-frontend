@@ -8,8 +8,20 @@ import {
     HomeIcon,
     CubeIcon,
     PercentBadgeIcon,
-} from '@heroicons/react/24/outline'; 
+    BuildingOffice2Icon,
+    BuildingStorefrontIcon,
+    ChartBarIcon,
+    RocketLaunchIcon,
+    BanknotesIcon,
+    CreditCardIcon,
+    KeyIcon,
+    DevicePhoneMobileIcon,
+    ArchiveBoxIcon,
+    InboxStackIcon,
+} from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
+import EmpresaSelector from 'components/Shared/Comboboxes/EmpresaSelector';
+import { APP_NAME } from 'config/app';
 import {Settings,TagIcon,User2Icon, UserCircleIcon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
 
@@ -27,6 +39,12 @@ const MENU_GROUPS = [
                 section: 'Home',
                 link: '/home',
                 icon: HomeIcon,
+            },
+            {
+                section: 'Dashboard',
+                link: '/dashboard',
+                icon: ChartBarIcon,
+                requiredPermission: 'dashboard.index',
             }
         ]
     },
@@ -61,6 +79,17 @@ const MENU_GROUPS = [
         ]
     },
     {
+        groupName: 'Caja y Pagos',
+        items: [
+            { section: 'Mi Caja', link: '/caja', icon: BanknotesIcon, requiredPermission: 'cajaSesion.actual' },
+            { section: 'Pagos', link: '/pago/listar', icon: CreditCardIcon, requiredPermission: 'pago.index' },
+            { section: 'Historial de Cajas', link: '/caja/historial', icon: ArchiveBoxIcon, requiredPermission: 'cajaSesion.index' },
+            { section: 'Cajas', link: '/caja/listar', icon: InboxStackIcon, requiredPermission: 'caja.index' },
+            { section: 'PINs de Autorización', link: '/pin/listar', icon: KeyIcon, requiredPermission: 'pin.index' },
+            { section: 'Métodos de Pago', link: '/metodo-pago', icon: DevicePhoneMobileIcon, requiredPermission: 'metodoPago.update' },
+        ]
+    },
+    {
         groupName: 'Gimnasio',
         items: [
             { 
@@ -82,6 +111,27 @@ const MENU_GROUPS = [
     {
         groupName: 'Configuracion',
         items: [
+            {
+                section: 'Sucursales', icon: BuildingStorefrontIcon,
+                subs: [
+                    { name: 'Listar', link: '/sucursal/listar', requiredPermission: 'sucursal.index' },
+                    { name: 'Agregar', link: '/sucursal/agregar', requiredPermission: 'sucursal.store' },
+                ],
+            },
+            {
+                section: 'Planes del Sistema', icon: RocketLaunchIcon,
+                subs: [
+                    { name: 'Listar', link: '/suscripcion/listar', requiredPermission: 'suscripcion.index' },
+                    { name: 'Agregar', link: '/suscripcion/agregar', requiredPermission: 'suscripcion.store' },
+                ],
+            },
+            {
+                section: 'Empresas', icon: BuildingOffice2Icon,
+                subs: [
+                    { name: 'Listar', link: '/empresa/listar', requiredPermission: 'empresa.index' },
+                    { name: 'Agregar', link: '/empresa/agregar', requiredPermission: 'empresa.store' },
+                ],
+            },
             { 
                 section: 'Roles y Permisos', icon: Settings,
                 link: '/rol/listar', requiredPermission: 'rol.index'
@@ -203,9 +253,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
 
                     <div className={`font-semibold text-lg tracking-tight overflow-hidden transition-all duration-300 whitespace-nowrap text-secondary
                         ${isCollapsed ? 'md:w-0 md:opacity-0' : 'w-auto opacity-100'}`}>
-                        38 <span className="text-secondary/60">GYM</span>
+                        {APP_NAME}
                     </div>
                 </div>
+
+                {/* EMPRESA ACTIVA (multitenant) */}
+                <EmpresaSelector isCollapsed={isCollapsed} />
 
                 {/* BODY (Mapeo por Grupos) */}
                 <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-4 hide-scrollbar px-3 relative">
