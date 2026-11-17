@@ -1,6 +1,7 @@
 import API_BASE_URL from './urlHelper';
 import jwtUtils from 'utilities/Token/jwtUtils';
 import { logout } from 'js/logout';
+import { getEmpresaActiva } from 'js/empresaActiva';
 
 export async function fetchWithAuth(url, options = {}) {
   // -----------------------------------------------------------------------
@@ -21,6 +22,12 @@ export async function fetchWithAuth(url, options = {}) {
 
   if (access_token) {
     headers['Authorization'] = `Bearer ${access_token}`;
+  }
+
+  // Multitenant: empresa seleccionada por el superadmin
+  const empresaActiva = getEmpresaActiva();
+  if (empresaActiva?.id) {
+    headers['X-Empresa-Id'] = String(empresaActiva.id);
   }
 
   // -----------------------------------------------------------------------

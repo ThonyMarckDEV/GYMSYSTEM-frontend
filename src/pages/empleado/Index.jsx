@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useIndex } from 'hooks/empleado/useIndex';
+import { useColumnasConEmpresa } from 'hooks/useColumnasConEmpresa';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
@@ -110,8 +111,9 @@ const Index = () => {
             )
         },
         {
-            header: 'Rol',
+            header: 'Rol / Sede',
             render: (row) => (
+                <div className="flex flex-col items-start gap-1">
                 <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold border ${
                     row.rol === 'Administrador' 
                     ? 'bg-purple-50 text-purple-700 border-purple-200' 
@@ -120,6 +122,8 @@ const Index = () => {
                     <BriefcaseIcon className="w-3 h-3"/>
                     {row.rol || 'Sin Rol'}
                 </span>
+                <span className="text-[10px] font-bold uppercase text-slate-400">Sede: {row.sucursal || 'Todas'}</span>
+                </div>
             )
         },
         {
@@ -159,6 +163,9 @@ const Index = () => {
         }
     ], [handleAskToggle, handleView]); // Dependencias para que no hayan renders innecesarios
 
+    // Multitenant: columna Empresa para el superadmin en modo global
+    const columnasTabla = useColumnasConEmpresa(columns);
+
     return (
         <div className="container mx-auto p-6">
             <PageHeader 
@@ -171,7 +178,7 @@ const Index = () => {
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             <Table
-                columns={columns}
+                columns={columnasTabla}
                 data={empleados}
                 loading={loading}
                 filterConfig={filterConfig} 

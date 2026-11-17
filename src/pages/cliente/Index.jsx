@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useIndex } from 'hooks/cliente/useIndex';
+import { useColumnasConEmpresa } from 'hooks/useColumnasConEmpresa';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
@@ -67,7 +68,14 @@ const Index = () => {
         },
         {
             header: 'Acceso Sistema',
-            render: (row) => (
+            render: (row) => !row.tiene_usuario ? (
+                // Sin usuario todavía: se le da acceso desde Editar (usuario + contraseña)
+                <span
+                    title="Este cliente aún no tiene usuario. Asígnale uno desde Editar."
+                    className="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-slate-100 text-slate-500 border border-slate-200">
+                    Sin acceso
+                </span>
+            ) : (
                 <button
                     onClick={() => handleAskToggle(row.id)}
                     className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
@@ -98,6 +106,9 @@ const Index = () => {
         }
     ], [handleAskToggle, handleView, navigate]);
 
+    // Multitenant: columna Empresa para el superadmin en modo global
+    const columnasTabla = useColumnasConEmpresa(columns);
+
     return (
         <div className="container mx-auto p-6">
             <PageHeader
@@ -110,7 +121,7 @@ const Index = () => {
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
             <Table
-                columns={columns} data={clientes} loading={loading}
+                columns={columnasTabla} data={clientes} loading={loading}
                 filterConfig={filterConfig} filters={filters}
                 onFilterChange={handleFilterChange}
                 onFilterSubmit={handleFilterSubmit}
