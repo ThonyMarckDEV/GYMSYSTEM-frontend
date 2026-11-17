@@ -1,5 +1,6 @@
-import React from 'react';
-import Pagination from '../Pagination';
+import React, { useState } from 'react';
+import Pagination, { PorPaginaSelect } from '../Pagination';
+import { porPagina, setPorPagina } from 'utilities/Paginacion/porPagina';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const Table = ({ 
@@ -14,6 +15,18 @@ const Table = ({
     onFilterClear,     
     searchPlaceholder = "Buscar..."
 }) => {
+
+    // Filas por página: se recuerda por tabla (pagination.clave) y recarga desde la página 1
+    const [filasPorPagina, setFilasPorPagina] = useState(() => porPagina(pagination?.clave));
+    const cambiarPorPagina = (n) => {
+        setPorPagina(pagination.clave, n);
+        setFilasPorPagina(n);
+        pagination.onPageChange(1);
+    };
+    const total = pagination?.total ?? data.length ?? 0;
+    const pagina = pagination?.currentPage || 1;
+    const desde = total === 0 ? 0 : (pagina - 1) * filasPorPagina + 1;
+    const hasta = Math.min(pagina * filasPorPagina, total);
 
     const handleKeyDown = (e) => {
         if (e.key === 'Enter') {
@@ -170,24 +183,27 @@ const Table = ({
                 </table>
             </div>
 
-            {/* --- FOOTER: TOTAL REGISTROS Y PAGINACIÓN JUNTOS --- */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mt-2">
-                
-                {/* Total de registros a la izquierda (o arriba en móvil) */}
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white border border-primary/30 shadow-sm text-xs font-medium text-secondary/60 w-full md:w-auto justify-center md:justify-start">
-                    <div className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(255,199,0,0.6)]"></div>
-                    <p>Total de registros: <span className="font-black text-secondary">{pagination?.total || data.length || 0}</span></p>
+            {/* --- PIE: FILAS POR PÁGINA, RANGO MOSTRADO Y PÁGINAS --- */}
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-3 mt-1">
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+                    {pagination?.clave && (
+                        <PorPaginaSelect value={filasPorPagina} onChange={cambiarPorPagina} disabled={loading} />
+                    )}
+                    <p className="inline-flex items-center gap-2 text-xs font-medium text-secondary/60">
+                        <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(255,199,0,0.6)]" aria-hidden />
+                        {pagination?.clave && total > 0
+                            ? <>Mostrando <b className="text-secondary tabular-nums">{desde}–{hasta}</b> de <b className="text-secondary tabular-nums">{total}</b></>
+                            : <>Total de registros: <b className="text-secondary tabular-nums">{total}</b></>}
+                    </p>
                 </div>
 
-                {/* Paginación a la derecha */}
                 {pagination && (
-                    <div className="w-full md:w-auto flex justify-center md:justify-end">
-                        <Pagination
-                            currentPage={pagination.currentPage}
-                            totalPages={pagination.totalPages}
-                            onPageChange={pagination.onPageChange}
-                        />
-                    </div>
+                    <Pagination
+                        currentPage={pagination.currentPage}
+                        totalPages={pagination.totalPages}
+                        onPageChange={pagination.onPageChange}
+                        disabled={loading}
+                    />
                 )}
             </div>
 

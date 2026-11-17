@@ -90,7 +90,7 @@ const Index = () => {
                 onFilterChange={handleFilterChange}
                 onFilterSubmit={handleFilterSubmit}
                 onFilterClear={handleFilterClear}
-                pagination={{ ...paginationInfo, onPageChange: fetchSucursales }}
+                pagination={{ clave: 'sucursales', ...paginationInfo, onPageChange: fetchSucursales }}
             />
 
             {showConfirm && (

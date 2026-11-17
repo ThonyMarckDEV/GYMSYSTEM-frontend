@@ -1,11 +1,13 @@
 import { fetchWithAuth } from 'js/authToken';
 import API_BASE_URL from 'js/urlHelper';
 import { handleResponse } from 'utilities/Responses/handleResponse';
+import { porPagina } from 'utilities/Paginacion/porPagina';
 
 const BASE_URL = `${API_BASE_URL}/api/plan`;
 
 export const index = async (page = 1, filters = {}) => {
     const params = new URLSearchParams({
+        per_page: porPagina('planes'),
         page:   page,
         search: filters.search || '',
         estado: filters.estado || '',

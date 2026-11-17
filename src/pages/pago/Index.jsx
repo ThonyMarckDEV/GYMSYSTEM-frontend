@@ -139,7 +139,7 @@ const Index = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchPagos(1); }}
                 onFilterClear={() => { setFilters(FILTROS_INICIALES); filtersRef.current = FILTROS_INICIALES; fetchPagos(1); }}
-                pagination={{ ...pagination, onPageChange: fetchPagos }} />
+                pagination={{ clave: 'pagos', ...pagination, onPageChange: fetchPagos }} />
 
             {comprobante && (
                 <ComprobanteModal pago={comprobante} loading={procesando} error={errorDeAlerta(alert)} onClose={() => { setComprobante(null); setAlert(null); }}

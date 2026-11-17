@@ -403,7 +403,7 @@ const Index = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchProductos(1); }}
                 onFilterClear={() => { const f = { ...FILTROS_INICIALES, sucursal_id: filters.sucursal_id }; setFilters(f); filtersRef.current = f; fetchProductos(1); }}
-                pagination={{ ...pagination, onPageChange: fetchProductos }} />
+                pagination={{ clave: 'productos', ...pagination, onPageChange: fetchProductos }} />
 
             {editando && (
                 <ProductoFormModal producto={editando === 'nuevo' ? null : editando} categorias={categorias}

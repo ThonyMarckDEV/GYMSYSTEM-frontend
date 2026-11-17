@@ -1,12 +1,14 @@
 import { fetchWithAuth } from 'js/authToken';
 import API_BASE_URL from 'js/urlHelper';
 import { handleResponse } from 'utilities/Responses/handleResponse';
+import { porPagina } from 'utilities/Paginacion/porPagina';
 
 const BASE_URL = `${API_BASE_URL}/api/inventario`;
 
 /** filtros: { search, categoria, estado, mantenimiento } — la respuesta incluye `resumen` */
 export const index = async (page = 1, filtros = {}) => {
     const params = new URLSearchParams({
+        per_page: porPagina('inventario'),
         page,
         search: filtros.search || '',
         categoria: filtros.categoria || '',

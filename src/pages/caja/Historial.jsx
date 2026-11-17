@@ -104,7 +104,7 @@ const Historial = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchCajas(1); }}
                 onFilterClear={() => { setFilters(FILTROS_INICIALES); filtersRef.current = FILTROS_INICIALES; fetchCajas(1); }}
-                pagination={{ ...pagination, onPageChange: fetchCajas }} />
+                pagination={{ clave: 'turnos', ...pagination, onPageChange: fetchCajas }} />
 
             {detalle && (
                 <Modal titulo={`${detalle.caja.caja_nombre} · ${detalle.caja.sucursal} · turno #${detalle.caja.id}`} icon={ArchiveBoxIcon} onClose={() => setDetalle(null)} ancho="max-w-3xl">

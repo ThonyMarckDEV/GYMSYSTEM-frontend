@@ -1,6 +1,7 @@
 import { fetchWithAuth } from 'js/authToken';
 import API_BASE_URL from 'js/urlHelper';
 import { handleResponse } from 'utilities/Responses/handleResponse';
+import { porPagina } from 'utilities/Paginacion/porPagina';
 
 const BASE_URL = `${API_BASE_URL}/api/producto`;
 const json = (method, data) => ({ method, body: JSON.stringify(data ?? {}) });
@@ -8,6 +9,7 @@ const json = (method, data) => ({ method, body: JSON.stringify(data ?? {}) });
 /** filtros: { search, categoria, estado, sucursal_id, bajo_stock } — la respuesta incluye `resumen` */
 export const index = async (page = 1, filtros = {}) => {
     const params = new URLSearchParams({
+        per_page: porPagina('productos'),
         page,
         search: filtros.search || '',
         categoria: filtros.categoria || '',

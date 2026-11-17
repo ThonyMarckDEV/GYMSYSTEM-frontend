@@ -162,7 +162,7 @@ const Listar = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchCajas(1); }}
                 onFilterClear={() => { setFilters(FILTROS_INICIALES); filtersRef.current = FILTROS_INICIALES; fetchCajas(1); }}
-                pagination={{ ...pagination, onPageChange: fetchCajas }} />
+                pagination={{ clave: 'cajas', ...pagination, onPageChange: fetchCajas }} />
 
             {editando && (
                 <CajaFormModal caja={editando === 'nueva' ? null : editando}

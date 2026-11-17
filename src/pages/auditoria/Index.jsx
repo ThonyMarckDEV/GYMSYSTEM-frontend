@@ -4,6 +4,7 @@ import API_BASE_URL from 'js/urlHelper';
 import { handleResponse } from 'utilities/Responses/handleResponse';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { descargarArchivo, query } from 'utilities/Archivos/descargar';
+import { porPagina } from 'utilities/Paginacion/porPagina';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
@@ -99,7 +100,7 @@ const Index = () => {
     const fetchRegistros = useCallback(async (page = 1) => {
         setLoading(true);
         try {
-            const r = await handleResponse(await fetchWithAuth(`${BASE}/index${query({ page, ...filtersRef.current })}`, { method: 'GET' }));
+            const r = await handleResponse(await fetchWithAuth(`${BASE}/index${query({ page, per_page: porPagina('bitacora'), ...filtersRef.current })}`, { method: 'GET' }));
             setRegistros(r.data || []);
             setResumen(r.resumen);
             setPagination({ currentPage: r.current_page, totalPages: r.last_page, total: r.total });
@@ -205,7 +206,7 @@ const Index = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchRegistros(1); }}
                 onFilterClear={() => { setFilters(FILTROS_INICIALES); filtersRef.current = FILTROS_INICIALES; fetchRegistros(1); }}
-                pagination={{ ...pagination, onPageChange: fetchRegistros }} />
+                pagination={{ clave: 'bitacora', ...pagination, onPageChange: fetchRegistros }} />
 
             {detalle && <DetalleModal registro={detalle} onClose={() => setDetalle(null)} />}
         </div>

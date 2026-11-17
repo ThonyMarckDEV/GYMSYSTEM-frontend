@@ -193,7 +193,7 @@ const Index = () => {
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
-            <Table columns={columns} data={traslados} loading={loading} pagination={{ ...pagination, onPageChange: fetchTraslados }} />
+            <Table columns={columns} data={traslados} loading={loading} pagination={{ clave: 'traslados', ...pagination, onPageChange: fetchTraslados }} />
 
             {nuevo && (
                 <TrasladoModal onClose={() => setNuevo(false)}

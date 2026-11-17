@@ -179,7 +179,7 @@ const Index = () => {
                 onFilterChange={handleFilterChange}
                 onFilterSubmit={handleFilterSubmit}
                 onFilterClear={handleFilterClear}
-                pagination={{
+                pagination={{ clave: 'empleados',
                     ...paginationInfo,
                     onPageChange: fetchEmpleados
                 }}

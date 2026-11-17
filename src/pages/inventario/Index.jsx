@@ -275,7 +275,7 @@ const Index = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchEquipos(1); }}
                 onFilterClear={() => { setFilters(FILTROS_INICIALES); filtersRef.current = FILTROS_INICIALES; fetchEquipos(1); }}
-                pagination={{ ...pagination, onPageChange: fetchEquipos }} />
+                pagination={{ clave: 'inventario', ...pagination, onPageChange: fetchEquipos }} />
 
             {editando && (
                 <EquipoFormModal equipo={editando === 'nuevo' ? null : editando} onClose={() => setEditando(null)}

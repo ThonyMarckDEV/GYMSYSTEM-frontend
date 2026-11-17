@@ -195,7 +195,7 @@ const Index = () => {
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
-            <Table columns={columns} data={pines} loading={loading} pagination={{ ...pagination, onPageChange: fetchPines }} />
+            <Table columns={columns} data={pines} loading={loading} pagination={{ clave: 'pines', ...pagination, onPageChange: fetchPines }} />
 
             {generando && <GenerarPinModal onClose={() => setGenerando(false)} onCreado={() => fetchPines(1)} />}
             {aRevocar && (
