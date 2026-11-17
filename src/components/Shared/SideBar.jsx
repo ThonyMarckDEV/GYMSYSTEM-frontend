@@ -25,10 +25,7 @@ import {
     ShieldCheckIcon,
     ClipboardDocumentListIcon,
     Squares2X2Icon,
-    MoonIcon,
-    SunIcon,
 } from '@heroicons/react/24/outline';
-import { useTema } from 'hooks/useTema';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
 import { APP_NAME } from 'config/app';
@@ -155,7 +152,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     
     const location = useLocation();
     const { can, logout } = useAuth();
-    const { oscuro, alternar: alternarTema } = useTema();
 
     const handleLogout = () => { logout(); setShowConfirm(false); };
     
@@ -356,16 +352,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 </div>
 
                 {/* FOOTER */}
-                <div className="p-4 border-t border-black/10 flex-shrink-0 bg-primary space-y-1">
-                    <button onClick={alternarTema} aria-pressed={oscuro}
-                        className={`flex items-center w-full p-3 rounded-lg text-secondary/70 hover:bg-black/5 hover:text-secondary transition-all duration-200 ${isCollapsed ? 'md:justify-center' : ''}`}
-                        title={oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
-                        {oscuro ? <SunIcon className="h-6 w-6 flex-shrink-0 min-w-[24px]" /> : <MoonIcon className="h-6 w-6 flex-shrink-0 min-w-[24px]" />}
-                        <span className={`whitespace-nowrap overflow-hidden transition-all duration-300 font-medium
-                             ${isCollapsed ? 'md:w-0 md:opacity-0 md:ml-0' : 'md:w-auto md:opacity-100 ml-3'}`}>
-                            {oscuro ? 'Modo claro' : 'Modo oscuro'}
-                        </span>
-                    </button>
+                <div className="p-4 border-t border-black/10 flex-shrink-0 bg-primary">
                     <button onClick={() => setShowConfirm(true)} 
                         className={`flex items-center w-full p-3 rounded-lg text-secondary/70 hover:bg-red-900/10 hover:text-red-900 transition-all duration-200 group ${isCollapsed ? 'md:justify-center' : ''}`} 
                         title="Cerrar Sesión">
