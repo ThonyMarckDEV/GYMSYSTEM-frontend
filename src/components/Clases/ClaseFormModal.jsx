@@ -27,6 +27,10 @@ const ClaseFormModal = ({ clase, fechaInicial, onClose, onGuardado }) => {
         instructor_id: clase?.instructor?.id || '',
         sucursal_id: clase?.sucursal?.id || '',
         repetir_semanas: 0,
+        // Con costo (evento, taller...): se paga aparte en caja o en línea
+        de_pago: Number(clase?.precio || 0) > 0,
+        precio: Number(clase?.precio || 0) > 0 ? clase.precio : '',
+        requiere_membresia: clase?.requiere_membresia ?? true,
     });
     const [instructores, setInstructores] = useState([]);
     const [guardando, setGuardando] = useState(false);
@@ -47,6 +51,9 @@ const ClaseFormModal = ({ clase, fechaInicial, onClose, onGuardado }) => {
         setAlert(null);
         try {
             const data = { ...form, nombre: form.nombre.trim().toUpperCase(), cupo: Number(form.cupo) };
+            data.precio = form.de_pago ? Number(form.precio || 0) : 0;
+            data.requiere_membresia = form.de_pago ? form.requiere_membresia : true;
+            delete data.de_pago;
             if (esInstructor) delete data.instructor_id;
             const res = editando ? await update(clase.id, data) : await store(data);
             onGuardado(res.message);
@@ -61,7 +68,7 @@ const ClaseFormModal = ({ clase, fechaInicial, onClose, onGuardado }) => {
         <Modal titulo={editando ? `Editar ${clase.nombre}` : 'Nueva clase'} icon={CalendarDaysIcon} onClose={onClose} ancho="max-w-2xl" error={errorDeAlerta(alert)}
             pie={<>
                 <button onClick={onClose} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg font-bold uppercase text-sm">Cancelar</button>
-                <button onClick={guardar} disabled={guardando || !form.nombre.trim() || (!esInstructor && !form.instructor_id)}
+                <button onClick={guardar} disabled={guardando || !form.nombre.trim() || (!esInstructor && !form.instructor_id) || (form.de_pago && !(Number(form.precio) > 0))}
                     className="px-4 py-2 bg-secondary text-primary rounded-lg font-bold uppercase text-sm disabled:opacity-40">
                     {guardando ? 'Guardando...' : editando ? 'Guardar cambios' : 'Crear clase'}
                 </button>
@@ -126,6 +133,35 @@ const ClaseFormModal = ({ clase, fechaInicial, onClose, onGuardado }) => {
                 <div className="md:col-span-6">
                     <label className={labelCls}>Descripción</label>
                     <input value={form.descripcion} onChange={e => set('descripcion', e.target.value)} className={inputCls} placeholder="Qué se trabaja, nivel, qué traer..." maxLength={255} />
+                </div>
+
+                {/* COSTO: clase incluida en la membresía o evento/taller que se paga aparte */}
+                <div className="md:col-span-6 rounded-xl border border-slate-200 p-4 space-y-3">
+                    <div className="flex gap-2" role="radiogroup" aria-label="Costo de la clase">
+                        {[[false, 'Incluida en la membresía'], [true, 'Con costo (evento, taller...)']].map(([v, l]) => (
+                            <button key={l} type="button" role="radio" aria-checked={form.de_pago === v} onClick={() => set('de_pago', v)}
+                                className={`flex-1 py-2 px-2 rounded-lg border text-sm font-bold ${form.de_pago === v ? 'bg-secondary text-primary border-secondary' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}>
+                                {l}
+                            </button>
+                        ))}
+                    </div>
+                    {form.de_pago && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                            <div>
+                                <label className={labelCls}>Precio (S/) *</label>
+                                <input type="number" min="0.1" step="0.10" value={form.precio} onChange={e => set('precio', e.target.value)}
+                                    className={`${inputCls} font-bold tabular-nums`} placeholder="Ej: 30.00" />
+                            </div>
+                            <label className="flex items-start gap-2 pt-6 text-sm text-slate-700 cursor-pointer">
+                                <input type="checkbox" checked={form.requiere_membresia} onChange={e => set('requiere_membresia', e.target.checked)} className="mt-0.5 w-4 h-4 accent-black" />
+                                <span><b>Solo socios</b> con membresía activa ese día. Desmárcalo si el evento está abierto a cualquier persona.</span>
+                            </label>
+                            <p className="md:col-span-2 text-[11px] text-slate-500">
+                                Se paga en recepción (Caja → Clases y eventos) o en línea con Yape/Plin. Mientras se verifica el pago, el cupo queda reservado.
+                                {editando && ' Si ya hay inscritos no se puede cambiar el precio.'}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </Modal>

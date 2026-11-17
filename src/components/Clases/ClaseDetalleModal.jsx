@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { CalendarDaysIcon, ClockIcon, MapPinIcon, UserIcon, PencilSquareIcon, NoSymbolIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { show, inscribir, desinscribir, asistencia, cancelar } from 'services/claseService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { Modal, errorDeAlerta } from 'components/Pagos/PagoUI';
-import { Cupos, EstadoClase, colorClase } from 'components/Clases/ClaseUI';
+import { Cupos, EstadoClase, PrecioClase, colorClase } from 'components/Clases/ClaseUI';
+import PagarClaseForm from 'components/Clases/PagarClaseForm';
+import { soles } from 'components/Pagos/PagoUI';
 import { fechaLarga } from 'utilities/Fechas/fechas';
 
 const btn = 'px-4 py-2 rounded-lg font-bold uppercase text-sm transition-colors disabled:opacity-50';
@@ -21,6 +23,8 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
     const [alert, setAlert] = useState(null);
     const [cancelando, setCancelando] = useState(false);
     const [motivo, setMotivo] = useState('');
+    const [pagando, setPagando] = useState(false); // cliente: formulario de pago de una clase con costo
+    const mostrarError = useCallback((a) => setAlert(a), []);
 
     useEffect(() => {
         if (esCliente) return;
@@ -51,21 +55,32 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
 
     const cancelada = clase.estado === 'cancelada';
     const lista = detalle?.lista || [];
+    const confirmados = lista.filter(i => !i.pago_pendiente);
     const presentes = Object.values(marcas).filter(v => v === 'asistio').length;
 
     // ---------------- Pie de acciones ----------------
     let pie = null;
-    if (esCliente && !cancelada && !clase.ya_empezo) {
+    const dePago = Number(clase.precio) > 0;
+    if (esCliente && !cancelada && !clase.ya_empezo && (pagando || clase.pago_pendiente || (clase.inscrito && dePago))) {
+        pie = null;
+    } else if (esCliente && !cancelada && !clase.ya_empezo) {
         pie = clase.inscrito ? (
             <button className={`${btn} bg-red-50 text-red-700 border border-red-200 hover:bg-red-100`} disabled={trabajando}
                 onClick={() => ejecutar(() => desinscribir(clase.id), 'No se pudo cancelar tu inscripción')}>
                 {trabajando ? 'Cancelando...' : 'Cancelar mi inscripción'}
             </button>
         ) : (
-            <button className={`${btn} bg-primary text-secondary hover:bg-primary-hover`} disabled={trabajando || clase.disponibles === 0}
-                onClick={() => ejecutar(() => inscribir(clase.id), 'No se pudo completar la inscripción')}>
-                {clase.disponibles === 0 ? 'Clase llena' : trabajando ? 'Inscribiendo...' : 'Inscribirme'}
-            </button>
+            dePago ? (
+                <button className={`${btn} bg-primary text-secondary hover:bg-primary-hover`} disabled={clase.disponibles === 0}
+                    onClick={() => { setAlert(null); setPagando(true); }}>
+                    {clase.disponibles === 0 ? 'Clase llena' : `Pagar ${soles(clase.precio)} y reservar`}
+                </button>
+            ) : (
+                <button className={`${btn} bg-primary text-secondary hover:bg-primary-hover`} disabled={trabajando || clase.disponibles === 0}
+                    onClick={() => ejecutar(() => inscribir(clase.id), 'No se pudo completar la inscripción')}>
+                    {clase.disponibles === 0 ? 'Clase llena' : trabajando ? 'Inscribiendo...' : 'Inscribirme'}
+                </button>
+            )
         );
     } else if (!esCliente && detalle) {
         pie = (
@@ -80,10 +95,10 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
                         </button>
                     </>
                 )}
-                {detalle.puede_asistencia && lista.length > 0 && (
+                {detalle.puede_asistencia && confirmados.length > 0 && (
                     <button className={`${btn} bg-secondary text-primary hover:bg-secondary/90`} disabled={trabajando}
-                        onClick={() => ejecutar(() => asistencia(clase.id, lista.map(i => ({ inscripcion_id: i.inscripcion_id, asistencia: marcas[i.inscripcion_id] || null }))), 'No se pudo guardar la asistencia', false)}>
-                        {trabajando ? 'Guardando...' : `Guardar asistencia (${presentes}/${lista.length})`}
+                        onClick={() => ejecutar(() => asistencia(clase.id, confirmados.map(i => ({ inscripcion_id: i.inscripcion_id, asistencia: marcas[i.inscripcion_id] || null }))), 'No se pudo guardar la asistencia', false)}>
+                        {trabajando ? 'Guardando...' : `Guardar asistencia (${presentes}/${confirmados.length})`}
                     </button>
                 )}
             </>
@@ -114,7 +129,10 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
                         <p className="flex items-center gap-1.5"><UserIcon className="w-4 h-4 text-slate-400" /> {clase.instructor?.nombre}</p>
                         <p className="flex items-center gap-1.5"><MapPinIcon className="w-4 h-4 text-slate-400" /> {clase.sucursal?.nombre}{clase.lugar ? ` · ${clase.lugar}` : ''}</p>
                     </div>
-                    <EstadoClase clase={clase} />
+                    <div className="flex flex-col items-end gap-1.5">
+                        <PrecioClase clase={clase} className="text-xs px-2 py-0.5" />
+                        <EstadoClase clase={clase} />
+                    </div>
                 </div>
                 {clase.descripcion && <p className="mt-3 text-sm text-slate-500">{clase.descripcion}</p>}
                 {cancelada && clase.motivo_cancelacion && <p className="mt-3 text-sm font-bold text-red-700">Motivo: {clase.motivo_cancelacion}</p>}
@@ -131,8 +149,24 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
                     Tenías esta clase reservada, pero se liberó tu cupo: {clase.reserva_liberada}
                 </p>
             )}
-            {esCliente && !cancelada && !clase.ya_empezo && !clase.inscrito && (
-                <p className="mt-4 text-xs text-slate-500">Necesitas una membresía activa ese día. No puedes estar en dos clases a la misma hora.</p>
+            {esCliente && clase.pago_pendiente && (
+                <p className="mt-4 text-sm font-bold text-amber-900 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    Recibimos tu comprobante. Tu lugar está reservado mientras recepción verifica el pago.
+                </p>
+            )}
+            {esCliente && clase.inscrito && dePago && !cancelada && (
+                <p className="mt-4 text-xs text-slate-500">Clase pagada. Si no puedes asistir, acércate a recepción para cancelarla.</p>
+            )}
+            {esCliente && !cancelada && !clase.ya_empezo && !clase.inscrito && !clase.pago_pendiente && !pagando && (
+                <p className="mt-4 text-xs text-slate-500">
+                    {dePago
+                        ? `Tiene un costo de ${soles(clase.precio)}. ${clase.requiere_membresia ? 'Solo para socios con membresía activa ese día.' : 'Abierto a todos: no necesitas membresía.'} Puedes pagarlo aquí con Yape/Plin o en recepción.`
+                        : 'Necesitas una membresía activa ese día.'} No puedes estar en dos clases a la misma hora.
+                </p>
+            )}
+            {esCliente && pagando && (
+                <PagarClaseForm clase={clase} onError={mostrarError} onCancelar={() => setPagando(false)}
+                    onEnviado={(msg) => { onCambio?.(msg); onClose(); }} />
             )}
 
             {cancelando && (
@@ -162,7 +196,9 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
                                             <p className="text-sm font-bold text-slate-800 truncate">{i.cliente}</p>
                                             <p className="text-[11px] text-slate-400">DNI {i.dni}</p>
                                         </div>
-                                        {detalle.puede_asistencia ? (
+                                        {i.pago_pendiente ? (
+                                            <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">Pago en revisión</span>
+                                        ) : detalle.puede_asistencia ? (
                                             <div className="flex gap-1.5" role="radiogroup" aria-label={`Asistencia de ${i.cliente}`}>
                                                 <button type="button" role="radio" aria-checked={m === 'asistio'}
                                                     onClick={() => setMarcas(p => ({ ...p, [i.inscripcion_id]: m === 'asistio' ? null : 'asistio' }))}

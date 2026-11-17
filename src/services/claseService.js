@@ -30,3 +30,7 @@ export const asistencia = async (id, asistencias) =>
 
 export const inscribir = async (id) => handleResponse(await fetchWithAuth(`${BASE_URL}/inscribir/${id}`, { method: 'POST' }));
 export const desinscribir = async (id) => handleResponse(await fetchWithAuth(`${BASE_URL}/inscribir/${id}`, { method: 'DELETE' }));
+
+/** Clase o evento con costo. formData: metodo_pago (yape|plin), numero_operacion, comprobante (imagen) */
+export const pagar = async (id, formData) =>
+    handleResponse(await fetchWithAuth(`${BASE_URL}/pagar/${id}`, { method: 'POST', body: formData }));

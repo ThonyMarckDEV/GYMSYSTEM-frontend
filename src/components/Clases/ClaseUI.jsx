@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPinIcon, UserIcon, CheckCircleIcon, NoSymbolIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, UserIcon, CheckCircleIcon, NoSymbolIcon, UsersIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 // ---------------------------------------------------------------------------
 // Color por clase: sigue al NOMBRE (no al orden), así SPINNING siempre tiene el
@@ -21,10 +21,21 @@ export const EstadoClase = ({ clase }) => {
     if (clase.inscrito) {
         return <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-green-700 shrink-0"><CheckCircleIcon className="w-3.5 h-3.5" /> Inscrito</span>;
     }
+    if (clase.pago_pendiente) {
+        return <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-amber-700 shrink-0"><ClockIcon className="w-3.5 h-3.5" /> Pago en revisión</span>;
+    }
     if (clase.terminada) return <span className="text-[10px] font-black uppercase text-slate-400 shrink-0">Terminada</span>;
     if (clase.disponibles === 0) return <span className="text-[10px] font-black uppercase text-amber-700 shrink-0">Llena</span>;
     return null;
 };
+
+/** Precio de una clase o evento con costo (nada si está incluida en la membresía). */
+export const PrecioClase = ({ clase, className = '' }) => Number(clase.precio) > 0 ? (
+    <span className={`inline-block px-1.5 py-px rounded-md bg-secondary text-primary text-[10px] font-black tabular-nums shrink-0 ${className}`}
+        title={clase.requiere_membresia ? 'Con costo · solo socios' : 'Con costo · abierto a todos'}>
+        S/ {Number(clase.precio).toFixed(2)}
+    </span>
+) : null;
 
 /** Barra de cupos ocupados. */
 export const Cupos = ({ clase, compacto = false }) => {
@@ -58,7 +69,10 @@ export const ClaseCard = ({ clase, onClick }) => {
         <button type="button" onClick={() => onClick(clase)} title={`${clase.nombre} · ${clase.instructor?.nombre || ''}`}
             className={`w-full min-w-0 text-left rounded-lg border bg-white p-2 shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-primary ${bordeClase(clase)}`}
             style={{ borderLeftWidth: 4, borderLeftColor: colorClase(clase.nombre) }}>
-            <p className="text-[11px] font-bold text-slate-500 tabular-nums">{clase.hora_inicio}–{clase.hora_fin}</p>
+            <div className="flex items-center justify-between gap-1">
+                <p className="text-[11px] font-bold text-slate-500 tabular-nums">{clase.hora_inicio}–{clase.hora_fin}</p>
+                <PrecioClase clase={clase} />
+            </div>
             <p className={`text-sm font-black text-slate-900 truncate ${cancelada ? 'line-through' : ''}`}>{clase.nombre}</p>
             <Linea icon={UserIcon} className="text-[11px] text-slate-500">{clase.instructor?.nombre}</Linea>
             <Linea icon={MapPinIcon} className="text-[11px] text-slate-400">{clase.lugar || clase.sucursal?.nombre}</Linea>
@@ -81,7 +95,10 @@ export const ClaseFila = ({ clase, onClick }) => {
             </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
-                    <p className={`text-base font-black text-slate-900 truncate ${cancelada ? 'line-through' : ''}`}>{clase.nombre}</p>
+                    <div className="flex items-center gap-2 min-w-0">
+                        <p className={`text-base font-black text-slate-900 truncate ${cancelada ? 'line-through' : ''}`}>{clase.nombre}</p>
+                        <PrecioClase clase={clase} />
+                    </div>
                     <EstadoClase clase={clase} />
                 </div>
                 <div className="mt-0.5 flex flex-col sm:flex-row sm:gap-4 min-w-0">
