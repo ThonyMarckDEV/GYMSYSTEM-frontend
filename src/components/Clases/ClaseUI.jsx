@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClockIcon, MapPinIcon, UserIcon, CheckCircleIcon, NoSymbolIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, UserIcon, CheckCircleIcon, NoSymbolIcon, UsersIcon } from '@heroicons/react/24/outline';
 
 // ---------------------------------------------------------------------------
 // Color por clase: sigue al NOMBRE (no al orden), así SPINNING siempre tiene el
@@ -16,13 +16,13 @@ export const colorClase = (nombre = '') => {
 /** Etiqueta de estado de la clase para el usuario (texto + ícono, no solo color). */
 export const EstadoClase = ({ clase }) => {
     if (clase.estado === 'cancelada') {
-        return <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-red-700"><NoSymbolIcon className="w-3.5 h-3.5" /> Cancelada</span>;
+        return <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-red-700 shrink-0"><NoSymbolIcon className="w-3.5 h-3.5" /> Cancelada</span>;
     }
     if (clase.inscrito) {
-        return <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-green-700"><CheckCircleIcon className="w-3.5 h-3.5" /> Inscrito</span>;
+        return <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase text-green-700 shrink-0"><CheckCircleIcon className="w-3.5 h-3.5" /> Inscrito</span>;
     }
-    if (clase.terminada) return <span className="text-[10px] font-black uppercase text-slate-400">Terminada</span>;
-    if (clase.disponibles === 0) return <span className="text-[10px] font-black uppercase text-amber-700">Llena</span>;
+    if (clase.terminada) return <span className="text-[10px] font-black uppercase text-slate-400 shrink-0">Terminada</span>;
+    if (clase.disponibles === 0) return <span className="text-[10px] font-black uppercase text-amber-700 shrink-0">Llena</span>;
     return null;
 };
 
@@ -30,10 +30,10 @@ export const EstadoClase = ({ clase }) => {
 export const Cupos = ({ clase, compacto = false }) => {
     const pct = clase.cupo ? Math.min(100, Math.round((clase.inscritos / clase.cupo) * 100)) : 0;
     return (
-        <div className={compacto ? '' : 'mt-1'}>
+        <div className={compacto ? 'mt-1' : 'mt-1'}>
             <div className="flex items-center justify-between text-[11px] text-slate-500">
                 <span className="inline-flex items-center gap-1"><UsersIcon className="w-3.5 h-3.5" /> {clase.inscritos}/{clase.cupo}</span>
-                {!compacto && <span>{clase.disponibles} {clase.disponibles === 1 ? 'cupo' : 'cupos'}</span>}
+                {!compacto && <span>{clase.disponibles} {clase.disponibles === 1 ? 'cupo libre' : 'cupos libres'}</span>}
             </div>
             <div className="h-1 mt-0.5 rounded-full bg-slate-100 overflow-hidden" aria-hidden>
                 <div className="h-full rounded-full bg-slate-700" style={{ width: `${pct}%` }} />
@@ -42,27 +42,54 @@ export const Cupos = ({ clase, compacto = false }) => {
     );
 };
 
-/** Tarjeta de una clase dentro del calendario. */
+/** Línea ícono + texto que se corta con "…" si no entra. */
+const Linea = ({ icon: Icon, children, className = '' }) => (
+    <p className={`flex items-center gap-1 min-w-0 ${className}`}>
+        <Icon className="w-3 h-3 shrink-0" /> <span className="truncate">{children}</span>
+    </p>
+);
+
+const bordeClase = (clase) => `${clase.inscrito ? 'border-green-300 ring-1 ring-green-200' : 'border-slate-200'} ${clase.estado === 'cancelada' || clase.terminada ? 'opacity-60' : ''}`;
+
+/** Tarjeta compacta: columna del calendario semanal (pantallas anchas). */
 export const ClaseCard = ({ clase, onClick }) => {
     const cancelada = clase.estado === 'cancelada';
-    const acento = colorClase(clase.nombre);
+    return (
+        <button type="button" onClick={() => onClick(clase)} title={`${clase.nombre} · ${clase.instructor?.nombre || ''}`}
+            className={`w-full min-w-0 text-left rounded-lg border bg-white p-2 shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-primary ${bordeClase(clase)}`}
+            style={{ borderLeftWidth: 4, borderLeftColor: colorClase(clase.nombre) }}>
+            <p className="text-[11px] font-bold text-slate-500 tabular-nums">{clase.hora_inicio}–{clase.hora_fin}</p>
+            <p className={`text-sm font-black text-slate-900 truncate ${cancelada ? 'line-through' : ''}`}>{clase.nombre}</p>
+            <Linea icon={UserIcon} className="text-[11px] text-slate-500">{clase.instructor?.nombre}</Linea>
+            <Linea icon={MapPinIcon} className="text-[11px] text-slate-400">{clase.lugar || clase.sucursal?.nombre}</Linea>
+            <EstadoClase clase={clase} />
+            {!cancelada && <Cupos clase={clase} compacto />}
+        </button>
+    );
+};
+
+/** Fila de agenda: vista de un día (pantallas medianas y celular). */
+export const ClaseFila = ({ clase, onClick }) => {
+    const cancelada = clase.estado === 'cancelada';
     return (
         <button type="button" onClick={() => onClick(clase)}
-            className={`w-full text-left rounded-lg border bg-white p-2.5 shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-primary
-                ${clase.inscrito ? 'border-green-300 ring-1 ring-green-200' : 'border-slate-200'} ${cancelada || clase.terminada ? 'opacity-60' : ''}`}
-            style={{ borderLeftWidth: 4, borderLeftColor: acento }}>
-            <div className="flex items-center justify-between gap-1">
-                <span className="text-[11px] font-bold text-slate-500 tabular-nums inline-flex items-center gap-1">
-                    <ClockIcon className="w-3.5 h-3.5" /> {clase.hora_inicio}–{clase.hora_fin}
-                </span>
-                <EstadoClase clase={clase} />
+            className={`w-full text-left flex items-stretch gap-4 rounded-xl border bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-primary ${bordeClase(clase)}`}
+            style={{ borderLeftWidth: 5, borderLeftColor: colorClase(clase.nombre) }}>
+            <div className="w-14 shrink-0 text-center tabular-nums border-r border-slate-100 pr-3">
+                <p className="text-lg font-black text-slate-900 leading-tight">{clase.hora_inicio}</p>
+                <p className="text-xs font-semibold text-slate-400">{clase.hora_fin}</p>
             </div>
-            <p className={`mt-0.5 text-sm font-black text-slate-900 truncate ${cancelada ? 'line-through' : ''}`}>{clase.nombre}</p>
-            <p className="text-[11px] text-slate-500 truncate inline-flex items-center gap-1"><UserIcon className="w-3 h-3" /> {clase.instructor?.nombre}</p>
-            <p className="text-[11px] text-slate-400 truncate inline-flex items-center gap-1">
-                <MapPinIcon className="w-3 h-3" /> {clase.sucursal?.nombre}{clase.lugar ? ` · ${clase.lugar}` : ''}
-            </p>
-            {!cancelada && <Cupos clase={clase} compacto />}
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2">
+                    <p className={`text-base font-black text-slate-900 truncate ${cancelada ? 'line-through' : ''}`}>{clase.nombre}</p>
+                    <EstadoClase clase={clase} />
+                </div>
+                <div className="mt-0.5 flex flex-col sm:flex-row sm:gap-4 min-w-0">
+                    <Linea icon={UserIcon} className="text-xs text-slate-500">{clase.instructor?.nombre}</Linea>
+                    <Linea icon={MapPinIcon} className="text-xs text-slate-500">{clase.sucursal?.nombre}{clase.lugar ? ` · ${clase.lugar}` : ''}</Linea>
+                </div>
+                {!cancelada && <div className="max-w-xs"><Cupos clase={clase} /></div>}
+            </div>
         </button>
     );
 };
