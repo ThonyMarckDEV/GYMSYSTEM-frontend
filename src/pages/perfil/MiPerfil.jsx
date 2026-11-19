@@ -6,7 +6,7 @@ import PagarMembresia from 'components/Perfil/PagarMembresia';
 import { useAuth } from 'context/AuthContext';
 import {
     IdentificationIcon, PhoneIcon, EnvelopeIcon,
-    CalendarDaysIcon, SparklesIcon, ArrowDownTrayIcon
+    CalendarDaysIcon, ArrowDownTrayIcon
 } from '@heroicons/react/24/outline';
 
 const ESTADO_BADGES = {
