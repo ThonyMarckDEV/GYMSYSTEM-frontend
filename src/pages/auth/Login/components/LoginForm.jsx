@@ -18,8 +18,8 @@ const LoginForm = ({
   return (
     <div className="w-full">
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Bienvenido</h2>
-        <p className="text-sm text-slate-500 mt-1.5">Ingresa tus datos para continuar</p>
+        <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Iniciar sesión</h2>
+        <p className="text-sm text-slate-500 mt-1.5">Usa el usuario que te dio tu gimnasio.</p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-4">

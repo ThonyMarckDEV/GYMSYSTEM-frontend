@@ -29,12 +29,11 @@ import {
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
-import { APP_NAME } from 'config/app';
 import {Settings,TagIcon,User2Icon, UserCircleIcon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
 
-// Isotipo del sistema (pesa)
-import { Isotipo } from 'components/Shared/Marca';
+// Marca: logo de la empresa o la pesa
+import { MarcaSidebar } from 'components/Shared/Marca';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ
@@ -223,8 +222,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             `}</style>
 
             {/* 1. Botón Móvil (Hamburguesa) */}
-            <button className="md:hidden fixed top-3 left-3 z-50 p-2 bg-secondary text-white rounded-lg shadow-card" onClick={() => setIsOpen(!isOpen)} aria-label="Abrir menú">
-                <Bars3Icon className="h-6 w-6" />
+            <button className="md:hidden fixed top-3 left-3 z-50 p-2 bg-white text-slate-700 border border-slate-200 rounded-lg shadow-card" onClick={() => setIsOpen(!isOpen)} aria-label="Abrir menú">
+                <Bars3Icon className="h-5 w-5" />
             </button>
 
             {/* 2. Overlay Móvil */}
@@ -251,12 +250,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 </button>
 
                 {/* HEADER */}
-                <div className={`flex items-center flex-shrink-0 h-16 border-b border-white/5 transition-all duration-300 ${isCollapsed ? 'px-5 md:justify-center md:px-0' : 'px-5'}`}>
-                    <Isotipo />
-                    <div className={`font-bold text-[15px] tracking-tight overflow-hidden transition-all duration-300 whitespace-nowrap text-white
-                        ${isCollapsed ? 'md:w-0 md:opacity-0 md:ml-0 ml-3' : 'w-auto opacity-100 ml-3'}`}>
-                        {APP_NAME}
-                    </div>
+                <div className={`flex items-center flex-shrink-0 h-[72px] border-b border-white/5 ${isCollapsed ? 'px-5 md:justify-center md:px-0' : 'px-5'}`}>
+                    {/* Logo que la empresa sube en Configuración (o la pesa si no tiene) */}
+                    <div className={isCollapsed ? 'md:hidden w-full' : 'w-full'}><MarcaSidebar /></div>
+                    {isCollapsed && <div className="hidden md:block"><MarcaSidebar colapsado /></div>}
                 </div>
 
                 {/* EMPRESA ACTIVA (multitenant) */}

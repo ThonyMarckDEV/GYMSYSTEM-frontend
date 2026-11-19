@@ -101,6 +101,9 @@ export const AuthProvider = ({ children }) => {
         await checkAuth();
     };
 
+    // Cambios de la empresa sin recargar la sesión (p. ej. subió o quitó el logo)
+    const actualizarEmpresa = (cambios) => setEmpresa(e => (e ? { ...e, ...cambios } : e));
+
     const logout = () => {
         logoutAction();
         handleLogoutState();
@@ -113,6 +116,7 @@ export const AuthProvider = ({ children }) => {
             permissions,
             can,
             empresa,
+            actualizarEmpresa,
             esSuperAdmin,
             sucursal,
             sucursalActiva,

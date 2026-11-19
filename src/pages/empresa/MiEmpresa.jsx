@@ -7,6 +7,7 @@ import LoadingScreen from 'components/Shared/LoadingScreen';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { BuildingOffice2Icon } from '@heroicons/react/24/outline';
 import LogoEmpresa from 'components/Empresa/LogoEmpresa';
+import { useAuth } from 'context/AuthContext';
 
 const VACIO = { razon_social: '', nombre_comercial: '', ruc: '', direccion: '', telefono: '', correo: '' };
 
@@ -17,6 +18,9 @@ const MiEmpresa = () => {
     const [alert, setAlert] = useState(null);
     const [formData, setFormData] = useState(VACIO);
     const [tieneLogo, setTieneLogo] = useState(false);
+    const { actualizarEmpresa } = useAuth();
+    // El sidebar muestra este logo: se actualiza al subirlo o quitarlo
+    const alCambiarLogo = (v) => { setTieneLogo(v); actualizarEmpresa({ tiene_logo: v, logo_version: Date.now() }); };
 
     useEffect(() => {
         show()
@@ -52,7 +56,7 @@ const MiEmpresa = () => {
             <PageHeader title="Datos de la Empresa" subtitle="Se muestran en tickets y comprobantes" icon={BuildingOffice2Icon} />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <div className="max-w-4xl mx-auto mb-6">
-                <LogoEmpresa tieneLogo={tieneLogo} onCambio={setTieneLogo} />
+                <LogoEmpresa tieneLogo={tieneLogo} onCambio={alCambiarLogo} />
             </div>
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
                 <EmpresaForm formData={formData} handleChange={handleChange} />

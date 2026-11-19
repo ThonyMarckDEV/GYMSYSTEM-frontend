@@ -7,6 +7,7 @@ import { NotificacionesProvider } from "context/NotificacionesContext";
 import CampanaNotificaciones from "components/Shared/Notificaciones/CampanaNotificaciones";
 import PagoEnVivo from "components/Shared/Notificaciones/PagoEnVivo";
 import { aplicarTema, obtenerTema } from "utilities/Tema/tema";
+import { EnLayoutContext } from "components/Shared/LoadingScreen";
 
 const SidebarLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -51,7 +52,9 @@ const SidebarLayout = () => {
                 Modo sucursal: estás viendo solo la sede {sucursalActiva.nombre}. Cámbialo a "Todas" en el menú lateral para el modo global.
               </div>
             )}
-            <Outlet />
+            <EnLayoutContext.Provider value={true}>
+              <Outlet />
+            </EnLayoutContext.Provider>
           </div>
         </main>
       </div>

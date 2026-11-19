@@ -179,3 +179,5 @@ html.dark .app-root { background-color: var(--fondo); }
 
 /* Panel lateral de edición */
 .dark .panel-lateral { background-color: var(--fondo); }
+.dark .pantalla-carga { background-color: var(--fondo); }
+.dark .border-t-slate-900 { border-top-color: #FFC700; }
