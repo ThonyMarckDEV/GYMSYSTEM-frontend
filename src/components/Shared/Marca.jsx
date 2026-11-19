@@ -49,33 +49,12 @@ export const useLogoEmpresa = () => {
     return src;
 };
 
-/**
- * Marca del menú lateral: el logo de la empresa (sobre blanco, porque suele ser
- * para fondo claro) o, si no subió uno, la pesa con el nombre del gimnasio.
- */
-export const MarcaSidebar = ({ colapsado = false }) => {
-    const { empresa } = useAuth();
-    const src = useLogoEmpresa();
-    const nombre = empresa?.nombre_comercial || APP_NAME;
-
-    if (src) {
-        return colapsado ? (
-            <div className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center flex-shrink-0">
-                <img src={src} alt={nombre} className="max-w-full max-h-full object-contain" />
-            </div>
-        ) : (
-            <div className="h-11 w-full max-w-[210px] rounded-lg bg-white px-3 flex items-center justify-center">
-                <img src={src} alt={nombre} className="max-w-full max-h-8 object-contain" />
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex items-center gap-3 min-w-0">
-            <Isotipo />
-            {!colapsado && <span className="font-bold text-[15px] tracking-tight text-white truncate">{nombre}</span>}
-        </div>
-    );
-};
+/** Marca del menú lateral: la pesa con el nombre del sistema. */
+export const MarcaSidebar = ({ colapsado = false }) => (
+    <div className="flex items-center gap-3 min-w-0">
+        <Isotipo />
+        {!colapsado && <span className="font-bold text-[15px] tracking-tight text-white truncate">{APP_NAME}</span>}
+    </div>
+);
 
 export default Marca;
