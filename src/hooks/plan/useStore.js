@@ -14,7 +14,8 @@ export const useStore = () => {
         duracion_dias: '',
         precio: '',
         dias_gracia: '',
-        congelamientos_permitidos: ''
+        congelamientos_permitidos: '',
+        bono_bienvenida_dias: ''
     });
 
     const handleChange = (field, value) => {

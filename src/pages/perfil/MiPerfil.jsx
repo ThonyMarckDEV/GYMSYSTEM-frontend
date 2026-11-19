@@ -5,9 +5,10 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import PagarMembresia from 'components/Perfil/PagarMembresia';
 import { useAuth } from 'context/AuthContext';
 import QRCode from 'react-qr-code';
+import { textoDias } from 'utilities/Formato/dias';
 import {
     IdentificationIcon, PhoneIcon, EnvelopeIcon,
-    CalendarDaysIcon, ArrowDownTrayIcon
+    CalendarDaysIcon, ArrowDownTrayIcon, GiftIcon
 } from '@heroicons/react/24/outline';
 
 const ESTADO_BADGES = {
@@ -120,6 +121,11 @@ const MiPerfil = () => {
                             <CalendarDaysIcon className="w-4 h-4" />
                             {membresia_actual.fecha_inicio} al {membresia_actual.fecha_fin}
                         </p>
+                        {membresia_actual.dias_bono > 0 && (
+                            <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
+                                <GiftIcon className="w-3.5 h-3.5" /> Incluye +{textoDias(membresia_actual.dias_bono)} de regalo por ser nuevo
+                            </p>
+                        )}
 
                         <div className="mt-4 pt-4 border-t border-dashed border-slate-200 flex items-center justify-center gap-8">
                             <div>

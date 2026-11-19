@@ -1,7 +1,8 @@
 import React from 'react';
-import { TagIcon, ClockIcon, CurrencyDollarIcon, ShieldCheckIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { TagIcon, ClockIcon, CurrencyDollarIcon, ShieldCheckIcon, DocumentTextIcon, GiftIcon } from '@heroicons/react/24/outline';
 import { ThermometerSnowflakeIcon } from 'lucide-react';
 import { toUpper } from 'utilities/Validations/validations';
+import { textoDias } from 'utilities/Formato/dias';
 
 const PlanForm = ({ formData, handleChange }) => {
     return (
@@ -77,6 +78,55 @@ const PlanForm = ({ formData, handleChange }) => {
                 </div>
 
             </div>
+
+            {/* BONO DE BIENVENIDA */}
+            <BonoBienvenida formData={formData} handleChange={handleChange} />
+        </div>
+    );
+};
+
+const ATAJOS = [0, 30, 60, 90];
+
+const BonoBienvenida = ({ formData, handleChange }) => {
+    const bono = Number(formData.bono_bienvenida_dias) || 0;
+    const duracion = Number(formData.duracion_dias) || 0;
+
+    return (
+        <div className="mt-6 pt-5 border-t border-slate-100">
+            <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary-light text-amber-700 flex items-center justify-center flex-shrink-0">
+                    <GiftIcon className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-900">Bono de bienvenida</p>
+                    <p className="text-sm text-slate-500">Días de regalo para clientes nuevos (los que nunca tuvieron una membresía pagada). No aplica a renovaciones.</p>
+                </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+                {ATAJOS.map(d => (
+                    <button key={d} type="button" onClick={() => handleChange('bono_bienvenida_dias', d ? String(d) : '')}
+                        aria-pressed={bono === d}
+                        className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${bono === d
+                            ? 'bg-secondary text-white border-secondary'
+                            : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'}`}>
+                        {d ? `+${textoDias(d)}` : 'Sin bono'}
+                    </button>
+                ))}
+                <div className="relative w-32">
+                    <input type="number" min="0" max="730" value={formData.bono_bienvenida_dias || ''}
+                        onChange={(e) => handleChange('bono_bienvenida_dias', e.target.value)}
+                        className="w-full pr-11 p-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none"
+                        placeholder="Otro" aria-label="Días de bono de bienvenida" />
+                    <span className="absolute right-3 top-2 text-sm text-slate-400 pointer-events-none">días</span>
+                </div>
+            </div>
+
+            {bono > 0 && duracion > 0 && (
+                <p className="mt-3 text-sm text-slate-600">
+                    Un cliente nuevo que compre este plan tendrá <b className="text-slate-900">{duracion} días + {textoDias(bono)} de regalo = {duracion + bono} días</b>.
+                </p>
+            )}
         </div>
     );
 };

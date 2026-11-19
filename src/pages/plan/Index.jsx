@@ -11,8 +11,9 @@ import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
 import {
     TagIcon, PencilSquareIcon, ClockIcon,
-    CurrencyDollarIcon
+    CurrencyDollarIcon, GiftIcon,
 } from '@heroicons/react/24/outline';
+import { textoDias } from 'utilities/Formato/dias';
 import { ThermometerSnowflakeIcon } from 'lucide-react';
 
 const Index = () => {
@@ -48,9 +49,17 @@ const Index = () => {
         {
             header: 'Duración',
             render: (row) => (
-                <span className="text-sm font-bold text-slate-600 flex items-center gap-1">
-                    <ClockIcon className="w-4 h-4 text-slate-400"/> {row.duracion_dias} días
-                </span>
+                <div className="flex flex-col items-start gap-1">
+                    <span className="text-sm font-bold text-slate-600 flex items-center gap-1">
+                        <ClockIcon className="w-4 h-4 text-slate-400"/> {row.duracion_dias} días
+                    </span>
+                    {row.bono_bienvenida_dias > 0 && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5"
+                            title="Bono de bienvenida: solo para clientes nuevos">
+                            <GiftIcon className="w-3.5 h-3.5" /> +{textoDias(row.bono_bienvenida_dias)} a nuevos
+                        </span>
+                    )}
+                </div>
             )
         },
         {

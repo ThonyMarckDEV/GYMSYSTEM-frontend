@@ -4,7 +4,8 @@ import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { useEventoEnVivo } from 'context/NotificacionesContext';
 import { QrPago, soles, METODOS, Modal } from 'components/Pagos/PagoUI';
-import { CreditCardIcon, ClockIcon, XCircleIcon, ArrowUpTrayIcon, CheckCircleIcon, PhotoIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { CreditCardIcon, ClockIcon, XCircleIcon, ArrowUpTrayIcon, CheckCircleIcon, PhotoIcon, ArrowPathIcon, GiftIcon } from '@heroicons/react/24/outline';
+import { textoDias } from 'utilities/Formato/dias';
 
 const inputCls = 'w-full p-2.5 text-base sm:text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white';
 const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-2';
@@ -44,7 +45,7 @@ const PagarMembresia = ({ onPagoEnviado }) => {
 
     if (!opciones) return alert ? <AlertMessage type={alert.type} message={alert.message} details={alert.details} /> : null;
 
-    const { planes, metodos, bloqueo, ultimo_pago_web: ultimo, membresia_actual: actual } = opciones;
+    const { planes, metodos, bloqueo, ultimo_pago_web: ultimo, membresia_actual: actual, es_nuevo: esNuevo } = opciones;
     const plan = planes.find(p => String(p.id) === String(form.plan_id));
     const enRevision = ultimo?.estado === 'pendiente';
     const listo = plan && archivo && form.numero_operacion.trim();
@@ -141,6 +142,11 @@ const PagarMembresia = ({ onPagoEnviado }) => {
                                             <div className="min-w-0">
                                                 <p className="font-black truncate">{p.nombre}</p>
                                                 <p className={`text-xs ${activo ? 'text-white/70' : 'text-slate-500'}`}>{p.duracion_dias} días</p>
+                                                {esNuevo && p.bono_bienvenida_dias > 0 && (
+                                                    <p className={`mt-1 inline-flex items-center gap-1 text-[11px] font-semibold rounded-full px-2 py-0.5 ${activo ? 'bg-primary text-secondary' : 'bg-amber-50 text-amber-800 border border-amber-200'}`}>
+                                                        <GiftIcon className="w-3.5 h-3.5" /> +{textoDias(p.bono_bienvenida_dias)} gratis
+                                                    </p>
+                                                )}
                                             </div>
                                             <p className={`text-lg font-black tabular-nums ${activo ? 'text-primary' : 'text-secondary'}`}>{soles(p.precio)}</p>
                                         </button>

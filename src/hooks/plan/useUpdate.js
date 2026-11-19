@@ -17,7 +17,8 @@ export const useUpdate = () => {
         duracion_dias: '',
         precio: '',
         dias_gracia: '',
-        congelamientos_permitidos: ''
+        congelamientos_permitidos: '',
+        bono_bienvenida_dias: ''
     });
 
     useEffect(() => {
@@ -30,8 +31,9 @@ export const useUpdate = () => {
                     descripcion:                data.descripcion                || '',
                     duracion_dias:              data.duracion_dias              || '',
                     precio:                     data.precio                     || '',
-                    dias_gracia:                data.dias_gracia                || '',
-                    congelamientos_permitidos:  data.congelamientos_permitidos  || '',
+                    dias_gracia:                data.dias_gracia                ?? '',
+                    congelamientos_permitidos:  data.congelamientos_permitidos  ?? '',
+                    bono_bienvenida_dias:       data.bono_bienvenida_dias       ?? '',
                 });
             } catch (err) {
                 setAlert(handleApiError(err, 'No se pudo cargar la información del plan.'));

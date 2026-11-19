@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    MagnifyingGlassIcon, UserIcon, ExclamationTriangleIcon, CheckCircleIcon, PhotoIcon, NoSymbolIcon
+    MagnifyingGlassIcon, UserIcon, ExclamationTriangleIcon, CheckCircleIcon, PhotoIcon, NoSymbolIcon, GiftIcon
 } from '@heroicons/react/24/outline';
+import { textoDias } from 'utilities/Formato/dias';
 import { ComprobanteModal, BotonTicket, soles, METODOS } from 'components/Pagos/PagoUI';
 import MetodoCobro, { TotalCobro, inputCls, labelCls } from 'components/Caja/MetodoCobro';
 
@@ -31,6 +32,9 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
 
     const plan = planes.find(p => String(p.id) === String(form.plan_id));
     const descuento = descuentos.find(d => String(d.id) === String(form.descuento_id));
+    // Bono de bienvenida: solo si el cliente nunca tuvo una membresía pagada
+    const esNuevo = !!busqueda?.es_nuevo;
+    const bono = esNuevo && plan ? Number(plan.bono_bienvenida_dias) || 0 : 0;
 
     const { montoDescuento, total } = useMemo(() => {
         if (!plan) return { montoDescuento: 0, total: 0 };
@@ -87,7 +91,9 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
                     {ultimoCobro.pago?.metodo_pago === 'efectivo' && Number(ultimoCobro.pago?.vuelto) > 0 && (
                         <p className="text-2xl font-black text-green-900 mt-2 tabular-nums">Vuelto: {soles(ultimoCobro.pago.vuelto)}</p>
                     )}
-                    <p className="text-xs text-green-800 mt-1">Vigente del {ultimoCobro.membresia.fecha_inicio?.slice(0, 10)} al {ultimoCobro.membresia.fecha_fin?.slice(0, 10)}</p>
+                    <p className="text-xs text-green-800 mt-1">Vigente del {ultimoCobro.membresia.fecha_inicio?.slice(0, 10)} al {ultimoCobro.membresia.fecha_fin?.slice(0, 10)}
+                        {ultimoCobro.membresia.dias_bono > 0 && <> · incluye <b>+{textoDias(ultimoCobro.membresia.dias_bono)} de regalo</b></>}
+                    </p>
                     <div className="mt-3 flex gap-2">
                         {ultimoCobro.pago && <BotonTicket onClick={() => onTicket(ultimoCobro.pago.id)} />}
                         <button onClick={() => { onLimpiar(); setDni(''); }} className="px-3 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-white">Nuevo cobro</button>
@@ -102,7 +108,9 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
                         <div className="flex items-center gap-3">
                             <div className="p-2 rounded-full bg-white border border-slate-200"><UserIcon className="w-6 h-6 text-slate-500" /></div>
                             <div>
-                                <p className="font-black text-slate-800">{busqueda.cliente.nombre_completo}</p>
+                                <p className="font-black text-slate-800 flex flex-wrap items-center gap-2">{busqueda.cliente.nombre_completo}
+                                    {esNuevo && <span className="text-[11px] font-medium text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5">Cliente nuevo</span>}
+                                </p>
                                 <p className="text-xs text-slate-500">DNI {busqueda.cliente.dni}{busqueda.cliente.telefono ? ` · ${busqueda.cliente.telefono}` : ''}</p>
                             </div>
                         </div>
@@ -141,7 +149,7 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
                                     <label className={labelCls}>Plan *</label>
                                     <select value={form.plan_id} onChange={(e) => setForm(f => ({ ...f, plan_id: e.target.value }))} className={inputCls}>
                                         <option value="">-- Seleccionar plan --</option>
-                                        {planes.map(p => <option key={p.id} value={p.id}>{p.nombre} — {soles(p.precio)} ({p.duracion_dias} días)</option>)}
+                                        {planes.map(p => <option key={p.id} value={p.id}>{p.nombre} — {soles(p.precio)} ({p.duracion_dias} días{esNuevo && p.bono_bienvenida_dias > 0 ? ` + ${textoDias(p.bono_bienvenida_dias)} de regalo` : ''})</option>)}
                                     </select>
                                 </div>
                                 <div>
@@ -152,6 +160,15 @@ const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, 
                                     </select>
                                 </div>
                             </div>
+
+                            {bono > 0 && (
+                                <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+                                    <GiftIcon className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
+                                    <p className="text-sm text-amber-900">
+                                        <b>Bono de bienvenida: +{textoDias(bono)} de regalo.</b> Como es su primera membresía, el plan dura <b>{plan.duracion_dias + bono} días</b> en lugar de {plan.duracion_dias}.
+                                    </p>
+                                </div>
+                            )}
 
                             <MetodoCobro cobro={form} onChange={setForm} total={total} metodos={metodos} />
 
