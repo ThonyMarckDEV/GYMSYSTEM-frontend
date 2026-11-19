@@ -12,8 +12,8 @@ const ForgotPasswordForm = ({ dni, setDni, handleForgotPassword, setShowForgotPa
         <ArrowLeftIcon className="w-4 h-4" /> Volver
       </button>
 
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-slate-900">Restablecer contraseña</h2>
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Restablecer contraseña</h2>
         <p className="text-sm text-slate-500 mt-1">Ingresa tu DNI para validar tu identidad</p>
       </div>
 

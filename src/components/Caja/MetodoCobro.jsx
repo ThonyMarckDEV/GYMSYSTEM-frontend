@@ -9,8 +9,8 @@ export const METODOS_CAJA = [
     { key: 'tarjeta',  label: 'Tarjeta',  icon: CreditCardIcon },
 ];
 
-export const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-white';
-export const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
+export const inputCls = 'w-full p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none bg-white';
+export const labelCls = 'block text-sm font-medium text-slate-700 mb-1.5';
 
 export const COBRO_INICIAL = { metodo_pago: 'efectivo', monto_recibido: '', numero_operacion: '' };
 

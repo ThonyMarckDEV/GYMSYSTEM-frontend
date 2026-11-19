@@ -42,7 +42,7 @@ const AbrirCaja = ({ onAbrir, procesando, ultimoCierre, cajas }) => {
 
                 {sucursal && <p className="mb-4 text-sm text-slate-600">Sede: <b>{sucursal.nombre}</b></p>}
 
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Caja *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Caja *</label>
                 {cajas.length === 0 ? (
                     <p className="mb-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">
                         No hay cajas libres en tu sede. Todas están abiertas por otros cajeros o el administrador aún no registró cajas.
@@ -62,9 +62,9 @@ const AbrirCaja = ({ onAbrir, procesando, ultimoCierre, cajas }) => {
                     </div>
                 )}
 
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Monto de apertura (S/) *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Monto de apertura (S/) *</label>
                 <input type="number" min="0" step="0.10" value={monto} onChange={(e) => setMonto(e.target.value)}
-                    className="w-full p-3 text-2xl font-black border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none tabular-nums" placeholder="0.00" />
+                    className="w-full p-3 text-2xl font-black border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none tabular-nums" placeholder="0.00" />
 
                 <button disabled={procesando || monto === '' || !cajaId}
                     onClick={() => onAbrir({ caja_id: cajaId, monto_apertura: monto })}

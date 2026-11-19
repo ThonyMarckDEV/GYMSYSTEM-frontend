@@ -33,8 +33,8 @@ import { APP_NAME } from 'config/app';
 import {Settings,TagIcon,User2Icon, UserCircleIcon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
 
-// Importamos el logo
-import logo from 'assets/img/logo.png'; 
+// Isotipo del sistema (pesa)
+import { Isotipo } from 'components/Shared/Marca';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ
@@ -252,9 +252,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
 
                 {/* HEADER */}
                 <div className={`flex items-center flex-shrink-0 h-16 border-b border-white/5 transition-all duration-300 ${isCollapsed ? 'px-5 md:justify-center md:px-0' : 'px-5'}`}>
-                    <div className="w-9 h-9 flex-shrink-0 rounded-lg overflow-hidden ring-1 ring-white/10">
-                        <img src={logo} alt="" className="w-full h-full object-cover" />
-                    </div>
+                    <Isotipo />
                     <div className={`font-bold text-[15px] tracking-tight overflow-hidden transition-all duration-300 whitespace-nowrap text-white
                         ${isCollapsed ? 'md:w-0 md:opacity-0 md:ml-0 ml-3' : 'w-auto opacity-100 ml-3'}`}>
                         {APP_NAME}

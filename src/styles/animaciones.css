@@ -77,3 +77,18 @@
 @media (prefers-reduced-motion: reduce) {
     .hoja-subir { animation: none; }
 }
+
+/* Panel lateral (crear / editar): entra desde la derecha */
+@keyframes panel-entrar {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+@keyframes panel-fondo {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.panel-lateral { animation: panel-entrar .28s cubic-bezier(.2, .8, .2, 1); }
+.panel-fondo { animation: panel-fondo .2s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+    .panel-lateral, .panel-fondo { animation: none; }
+}

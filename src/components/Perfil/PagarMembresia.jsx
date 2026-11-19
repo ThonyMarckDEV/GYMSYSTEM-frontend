@@ -6,7 +6,7 @@ import { useEventoEnVivo } from 'context/NotificacionesContext';
 import { QrPago, soles, METODOS, Modal } from 'components/Pagos/PagoUI';
 import { CreditCardIcon, ClockIcon, XCircleIcon, ArrowUpTrayIcon, CheckCircleIcon, PhotoIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
-const inputCls = 'w-full p-2.5 text-base sm:text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none bg-white';
+const inputCls = 'w-full p-2.5 text-base sm:text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white';
 const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-2';
 const FORM_VACIO = { plan_id: '', metodo_pago: 'yape', numero_operacion: '' };
 

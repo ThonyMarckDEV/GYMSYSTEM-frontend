@@ -31,8 +31,8 @@ const EstadoBadge = ({ estado }) => {
     return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase border ${e.cls}`}><Icon className="w-3.5 h-3.5" /> {e.label}</span>;
 };
 
-const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none bg-white';
-const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
+const inputCls = 'w-full p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white';
+const labelCls = 'block text-sm font-medium text-slate-700 mb-1.5';
 const FILTROS_INICIALES = { search: '', categoria: '', estado: '', mantenimiento: '' };
 
 /** Registrar / editar equipo (con foto). */

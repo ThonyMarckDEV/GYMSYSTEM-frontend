@@ -12,8 +12,8 @@ import { Modal, errorDeAlerta } from 'components/Pagos/PagoUI';
 import { InboxStackIcon, PencilSquareIcon, LockOpenIcon } from '@heroicons/react/24/outline';
 
 const FILTROS_INICIALES = { search: '', estado: '' };
-const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none bg-white';
-const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
+const inputCls = 'w-full p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white';
+const labelCls = 'block text-sm font-medium text-slate-700 mb-1.5';
 
 /** Registrar / editar caja (misma ventana). */
 const CajaFormModal = ({ caja, onClose, onGuardado }) => {

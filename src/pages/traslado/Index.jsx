@@ -11,8 +11,8 @@ import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { Modal, errorDeAlerta } from 'components/Pagos/PagoUI';
 import { ArrowsRightLeftIcon, ArrowRightIcon, TrashIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 
-const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none bg-white';
-const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
+const inputCls = 'w-full p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white';
+const labelCls = 'block text-sm font-medium text-slate-700 mb-1.5';
 
 /** Nuevo traslado: elegir origen y destino, y los productos con su cantidad. */
 const TrasladoModal = ({ onClose, onGuardado }) => {

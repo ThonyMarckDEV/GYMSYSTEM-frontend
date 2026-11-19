@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useRefrescarLista } from 'hooks/useRefrescarLista';
 import { index, toggleStatus } from 'services/planService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
@@ -55,6 +56,9 @@ export const useIndex = () => {
         const reset = { search: '', estado: '' };
         setFilters(reset); filtersRef.current = reset; fetchPlanes(1);
     };
+
+    // Se cerró el panel de crear/editar: recargar la página actual
+    useRefrescarLista(() => fetchPlanes(paginationInfo.currentPage));
 
     return {
         loading, planes, paginationInfo, filters, setFilters, alert, setAlert,

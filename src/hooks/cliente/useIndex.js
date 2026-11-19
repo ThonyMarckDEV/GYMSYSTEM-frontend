@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { useRefrescarLista } from 'hooks/useRefrescarLista';
 import { index, show, toggleStatus } from 'services/clienteService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
@@ -74,6 +75,9 @@ export const useIndex = () => {
         const reset = { search: '', estado: '' };
         setFilters(reset); filtersRef.current = reset; fetchClientes(1);
     };
+
+    // Se cerró el panel de crear/editar: recargar la página actual
+    useRefrescarLista(() => fetchClientes(paginationInfo.currentPage));
 
     return {
         loading, clientes, paginationInfo, filters, setFilters, alert, setAlert,

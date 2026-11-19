@@ -84,7 +84,7 @@ const Index = () => {
                         <div className="relative">
                             <BuildingStorefrontIcon className="w-4 h-4 absolute left-3 top-2.5 text-slate-400 pointer-events-none" />
                             <select value={sucursalId} onChange={(e) => cambiarSucursal(e.target.value)}
-                                className="pl-9 pr-8 py-2 text-sm font-semibold border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-primary outline-none">
+                                className="pl-9 pr-8 py-2 text-sm font-semibold border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-primary/40 outline-none">
                                 <option value="">Todas las sucursales</option>
                                 {contexto.sucursales.map(s => (
                                     <option key={s.id} value={s.id}>{s.nombre}{!s.estado ? ' (inactiva)' : ''}</option>

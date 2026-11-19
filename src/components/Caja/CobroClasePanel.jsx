@@ -93,7 +93,7 @@ const CobroClasePanel = ({ metodos, onCobrado, onTicket }) => {
                         <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-slate-400" />
                         <input value={dni} onChange={(e) => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
                             inputMode="numeric" placeholder="DNI del cliente (8 dígitos)"
-                            className="w-full pl-10 p-3 text-lg font-bold tracking-widest text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none tabular-nums" />
+                            className="w-full pl-10 p-3 text-lg font-bold tracking-widest text-secondary border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none tabular-nums" />
                     </div>
                     <button type="submit" disabled={dni.length !== 8 || procesando}
                         className="px-5 bg-secondary text-primary rounded-lg font-black uppercase text-sm hover:bg-secondary/90 disabled:opacity-40">

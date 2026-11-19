@@ -44,7 +44,7 @@ export const useUpdate = () => {
         try {
             await update(id, formData);
             setAlert({ type: 'success', message: 'Sucursal actualizada correctamente.' });
-            setTimeout(() => navigate('/sucursal/listar'), 1500);
+            setTimeout(() => navigate('/sucursal/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al actualizar la sucursal'));
         } finally {

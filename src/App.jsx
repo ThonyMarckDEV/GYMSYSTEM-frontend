@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import PanelLateral from 'components/Shared/PanelLateral';
 import './index.css';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -82,9 +83,44 @@ import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
 import { AuthProvider } from 'context/AuthContext';
 
 
+/**
+ * Crear y editar se abren en un panel lateral sobre el listado (no en otra página).
+ * La URL sigue siendo /<modulo>/agregar o /<modulo>/editar/:id; el listado queda detrás.
+ */
+const PANELES = [
+  { modulo: 'cliente',   Agregar: AgregarCliente,   Editar: EditarCliente,   ancho: 'sm:max-w-3xl' },
+  { modulo: 'empleado',  Agregar: AgregarEmpleado,  Editar: EditarEmpleado,  ancho: 'sm:max-w-3xl' },
+  { modulo: 'plan',      Agregar: AgregarPlan,      Editar: EditarPlan },
+  { modulo: 'descuento', Agregar: AgregarDescuento, Editar: EditarDescuento },
+  { modulo: 'sucursal',  Agregar: AgregarSucursal,  Editar: EditarSucursal },
+];
+
+const panelDeRuta = (pathname) =>
+  PANELES.find(p => new RegExp(`^/${p.modulo}/(agregar|editar/[^/]+)/?$`).test(pathname)) || null;
+
 function AppContent() {
+  const location = useLocation();
+  const panel = panelDeRuta(location.pathname);
+  // Con panel abierto, la pantalla de fondo es el listado del módulo
+  const fondo = panel ? { ...location, pathname: `/${panel.modulo}/listar` } : location;
+
   return (
-    <Routes>
+    <>
+    {panel && (
+      <Routes>
+        <Route path={`/${panel.modulo}/agregar`} element={
+          <ProtectedRoute requiredPermission={`${panel.modulo}.store`} element={
+            <PanelLateral volverA={`/${panel.modulo}/listar`} ancho={panel.ancho}><panel.Agregar /></PanelLateral>
+          } />
+        } />
+        <Route path={`/${panel.modulo}/editar/:id`} element={
+          <ProtectedRoute requiredPermission={`${panel.modulo}.update`} element={
+            <PanelLateral volverA={`/${panel.modulo}/listar`} ancho={panel.ancho}><panel.Editar /></PanelLateral>
+          } />
+        } />
+      </Routes>
+    )}
+    <Routes location={fondo}>
       {/* 1. LOGIN */}
       <Route path="/" element={<ProtectedRouteHome element={<Login />} />} />
 
@@ -166,6 +202,7 @@ function AppContent() {
       <Route path="/401" element={<ErrorPage401 />} />
       <Route path="*" element={<ErrorPage404 />} />
     </Routes>
+    </>
   );
 }
 

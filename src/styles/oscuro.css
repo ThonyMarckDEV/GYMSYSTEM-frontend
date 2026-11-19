@@ -176,3 +176,6 @@ html.dark .app-root { background-color: var(--fondo); }
 
 /* Notificaciones (react-toastify) */
 .dark .Toastify__toast--default, .dark .Toastify__toast-theme--light { background: var(--sup-1); color: var(--txt-1); }
+
+/* Panel lateral de edición */
+.dark .panel-lateral { background-color: var(--fondo); }

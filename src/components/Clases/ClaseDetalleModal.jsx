@@ -171,9 +171,9 @@ const ClaseDetalleModal = ({ clase: inicial, esCliente, onClose, onCambio, onEdi
 
             {cancelando && (
                 <div className="mt-4">
-                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo (lo verán los inscritos)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Motivo (lo verán los inscritos)</label>
                     <input value={motivo} onChange={e => setMotivo(e.target.value)} maxLength={255} autoFocus
-                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none"
+                        className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none"
                         placeholder="Ej: Instructor con descanso médico" />
                 </div>
             )}

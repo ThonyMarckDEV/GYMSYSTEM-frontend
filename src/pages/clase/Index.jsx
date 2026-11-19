@@ -102,7 +102,7 @@ const Index = () => {
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto sm:ml-auto">
                     {puedeFiltrarSede && (
                         <select value={filtros.sucursal_id} onChange={e => setFiltros(f => ({ ...f, sucursal_id: e.target.value }))}
-                            className="flex-1 sm:flex-none py-2 px-3 text-sm font-semibold border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-primary outline-none">
+                            className="flex-1 sm:flex-none py-2 px-3 text-sm font-semibold border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-primary/40 outline-none">
                             <option value="">Todas las sedes</option>
                             {sucursales.map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
                         </select>

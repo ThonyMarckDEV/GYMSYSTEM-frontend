@@ -4,7 +4,7 @@ import { ejercicios as listarEjercicios, store, update } from 'services/rutinaSe
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { Modal, errorDeAlerta } from 'components/Pagos/PagoUI';
 
-const inputCls = 'w-full p-2 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none bg-white';
+const inputCls = 'w-full p-2 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white';
 const labelCls = 'block text-[11px] font-bold text-slate-600 uppercase mb-1';
 
 export const OBJETIVOS = {

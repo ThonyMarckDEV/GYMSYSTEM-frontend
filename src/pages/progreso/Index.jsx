@@ -15,7 +15,7 @@ import {
     ChevronLeftIcon, ChevronRightIcon, PlusIcon, PencilSquareIcon, CheckIcon, Cog6ToothIcon, ArrowTrendingDownIcon, ArrowTrendingUpIcon, MinusIcon,
 } from '@heroicons/react/24/outline';
 
-const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none bg-white tabular-nums';
+const inputCls = 'w-full p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white tabular-nums';
 const labelCls = 'block text-[11px] font-bold text-slate-600 uppercase mb-1';
 const fmt = (v, d = 1) => (v === null || v === undefined ? '—' : Number(v).toLocaleString('es-PE', { maximumFractionDigits: d }));
 

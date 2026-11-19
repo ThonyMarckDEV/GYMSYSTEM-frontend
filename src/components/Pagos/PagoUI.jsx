@@ -230,9 +230,9 @@ export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loadi
                     )}
                     {rechazando && (
                         <div>
-                            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo del rechazo *</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Motivo del rechazo *</label>
                             <textarea rows={3} value={motivo} onChange={e => setMotivo(e.target.value)} autoFocus
-                                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none resize-none"
+                                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none resize-none"
                                 placeholder="Ej: El monto no coincide / no llegó el pago" />
                             <p className="text-[11px] text-slate-400 mt-1">El cliente verá este motivo en su perfil.</p>
                         </div>
@@ -264,14 +264,14 @@ export const AnularPagoModal = ({ pago, onClose, onConfirm, loading = false, err
                 Vas a anular el pago de <b>{pago.cliente}</b> por <b>{soles(pago.monto)}</b> ({METODOS[pago.metodo_pago]}).
                 Su membresía quedará cancelada. Necesitas un <b>PIN de autorización</b> generado por tu administrador.
             </p>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">PIN de autorización *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">PIN de autorización *</label>
             <input type="password" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={pin}
                 onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full p-3 text-center text-2xl tracking-[0.6em] font-black border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none"
+                className="w-full p-3 text-center text-2xl tracking-[0.6em] font-black border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none"
                 placeholder="••••••" />
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1 mt-4">Motivo *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5 mt-4">Motivo *</label>
             <textarea rows={2} value={motivo} onChange={e => setMotivo(e.target.value)}
-                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none resize-none"
+                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none resize-none"
                 placeholder="Ej: Se cobró el plan equivocado" />
         </Modal>
     );

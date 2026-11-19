@@ -27,7 +27,7 @@ export const useStore = () => {
         try {
             await store(formData);
             setAlert({ type: 'success', message: 'Sucursal registrada exitosamente. Redirigiendo...' });
-            setTimeout(() => navigate('/sucursal/listar'), 1500);
+            setTimeout(() => navigate('/sucursal/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al registrar la sucursal'));
         } finally {

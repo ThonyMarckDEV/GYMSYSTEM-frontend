@@ -53,7 +53,7 @@ export const useUpdate = () => {
         try {
             await update(id, formData);
             setAlert({ type: 'success', message: 'Plan actualizado correctamente.' });
-            setTimeout(() => navigate('/plan/listar'), 1500);
+            setTimeout(() => navigate('/plan/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al actualizar el plan'));
         } finally {

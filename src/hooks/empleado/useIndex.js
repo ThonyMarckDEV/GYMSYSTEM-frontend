@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useRefrescarLista } from 'hooks/useRefrescarLista';
 import { index, show, toggleStatus } from 'services/empleadoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
@@ -99,6 +100,9 @@ export const useIndex = () => {
         filtersRef.current = reset; 
         fetchEmpleados(1);
     };
+
+    // Se cerró el panel de crear/editar: recargar la página actual
+    useRefrescarLista(() => fetchEmpleados(paginationInfo.currentPage));
 
     return {
         loading,
