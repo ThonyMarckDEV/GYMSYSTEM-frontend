@@ -29,30 +29,30 @@ const SucursalSelector = ({ isCollapsed }) => {
 
     if (isCollapsed) {
         return (
-            <div className="hidden md:flex justify-center py-3 border-b border-black/10" title={titulo}>
-                <Icon className="w-6 h-6 text-secondary/70" />
+            <div className="hidden md:flex justify-center py-3 border-b border-white/5" title={titulo}>
+                <Icon className="w-5 h-5 text-zinc-400" />
             </div>
         );
     }
 
     return (
-        <div className="px-4 py-3 border-b border-black/10">
+        <div className="px-4 py-3 border-b border-white/5">
             {empresa && (
-                <div className="flex items-center gap-2 text-sm font-semibold text-secondary truncate mb-2">
-                    <BuildingOffice2Icon className="w-4 h-4 flex-shrink-0 text-secondary/60" />
+                <div className="flex items-center gap-2 text-sm font-semibold text-white truncate mb-1">
+                    <BuildingOffice2Icon className="w-4 h-4 flex-shrink-0 text-zinc-500" />
                     <span className="truncate">{empresa.nombre_comercial}</span>
                 </div>
             )}
 
             {esSuperAdmin ? (
                 <>
-                    <div className="text-[10px] font-bold text-secondary/50 uppercase tracking-widest mb-1">Sucursal</div>
+                    <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider mb-1.5 mt-2">Sucursal</div>
                     <div className="relative">
-                        <Icon className="w-4 h-4 absolute left-2.5 top-2.5 text-secondary/60 pointer-events-none" />
+                        <Icon className="w-4 h-4 absolute left-2.5 top-2.5 text-zinc-400 pointer-events-none" />
                         <select
                             value={sucursalActiva?.id || ''}
                             onChange={handleChange}
-                            className="w-full pl-8 pr-2 py-2 text-sm font-semibold rounded-lg bg-black/5 text-secondary border border-black/10 focus:outline-none focus:ring-1 focus:ring-secondary/40 cursor-pointer"
+                            className="w-full pl-8 pr-2 py-2 text-sm font-semibold rounded-lg bg-white/5 text-zinc-100 border border-white/10 focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer [&>option]:text-slate-900"
                         >
                             <option value="">Todas (modo global)</option>
                             {sucursales.map(s => (
@@ -66,7 +66,7 @@ const SucursalSelector = ({ isCollapsed }) => {
                     </div>
                 </>
             ) : (
-                <div className="flex items-center gap-2 text-xs text-secondary/70 truncate">
+                <div className="flex items-center gap-2 text-xs text-zinc-400 truncate">
                     <BuildingStorefrontIcon className="w-3.5 h-3.5 flex-shrink-0" />
                     <span className="truncate">{sucursal ? `Sede: ${sucursal.nombre}` : 'Todas las sedes'}</span>
                 </div>

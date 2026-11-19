@@ -166,23 +166,13 @@ html.dark .app-root { background-color: var(--fondo); }
 .dark .shadow, .dark .shadow-md { --tw-shadow: 0 4px 10px -2px rgba(0, 0, 0, .55); }
 .dark .shadow-lg, .dark .shadow-xl, .dark .shadow-2xl { --tw-shadow: 0 12px 30px -8px rgba(0, 0, 0, .7); }
 
-/* ---------------- Menú lateral (amarillo → negro con acentos amarillos) ---------------- */
-.dark .app-sidebar,
-.dark .app-sidebar .bg-primary { background-color: #0a0c10; }
-.dark .app-sidebar { border-color: rgba(255, 255, 255, .06); }
-/* html.dark (más específico) para ganarle a "texto negro sobre amarillo",
-   porque el menú y su pie tienen bg-primary aunque en oscuro se vean negros */
-html.dark .app-sidebar .text-secondary { color: var(--txt-1); }
-html.dark .app-sidebar .text-secondary\/80 { color: var(--txt-2); }
-html.dark .app-sidebar .text-secondary\/70,
-html.dark .app-sidebar .text-secondary\/60 { color: var(--txt-3); }
-html.dark .app-sidebar .text-secondary\/50,
-html.dark .app-sidebar .text-secondary\/40 { color: var(--txt-4); }
-html.dark .app-sidebar .hover\:text-secondary:hover { color: #FFC700; }
-/* Ítem activo: amarillo sobre negro → negro sobre amarillo */
-html.dark .app-sidebar .bg-secondary.text-primary { background-color: #FFC700; color: #0A0A0A; }
-html.dark .app-sidebar .hover\:bg-red-900\/10:hover { background-color: rgba(248, 113, 113, .12); }
-html.dark .app-sidebar .hover\:text-red-900:hover { color: #fca5a5; }
+/* ---------------- Menú lateral ---------------- */
+/* Ya es negro en modo claro: en oscuro solo se funde con el fondo */
+.dark .app-sidebar { background-color: #0a0c10; border-color: rgba(255, 255, 255, .06); }
+
+/* Botones negros (acciones principales, página activa) se distinguen del fondo oscuro */
+.dark .bg-secondary.text-white:not(.app-sidebar *) { background-color: #2a3142; }
+.dark .hover\:bg-black\/80:hover { background-color: #343c50; }
 
 /* Notificaciones (react-toastify) */
 .dark .Toastify__toast--default, .dark .Toastify__toast-theme--light { background: var(--sup-1); color: var(--txt-1); }

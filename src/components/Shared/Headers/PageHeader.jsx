@@ -1,26 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+/**
+ * Encabezado de cada pantalla: ícono, título, descripción y acción principal opcional.
+ * Sobrio: título oscuro, descripción en gris y una línea fina de separación.
+ */
 const PageHeader = ({ title, subtitle, buttonText, buttonLink, icon: Icon }) => {
   return (
-    /* Borde inferior usando primary (Negro) */
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b-4 border-primary pb-4 gap-4">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 pb-5 border-b border-slate-200">
+      <div className="flex items-center gap-3.5 min-w-0">
         {Icon && (
-          /* Fondo light (Zinc-100) y texto primary (Negro) */
-          <div className="p-3 bg-primary-light rounded-xl text-primary hidden sm:block">
-            <Icon className="w-8 h-8" />
+          <div className="hidden sm:flex w-11 h-11 flex-shrink-0 items-center justify-center rounded-xl bg-secondary text-primary shadow-card">
+            <Icon className="w-5 h-5" />
           </div>
         )}
-        <div>
-          <h1 className="text-3xl md:text-4xl font-black text-primary tracking-tighter uppercase leading-none">
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-[1.75rem] font-bold text-slate-900 tracking-tight leading-tight">
             {title}
           </h1>
           {subtitle && (
-            /* Texto muted (Gris-400) */
-            <p className="text-secondary-muted font-bold mt-1 uppercase text-sm tracking-wide">
-              {subtitle}
-            </p>
+            <p className="text-sm text-slate-500 mt-0.5">{subtitle}</p>
           )}
         </div>
       </div>
@@ -28,8 +27,7 @@ const PageHeader = ({ title, subtitle, buttonText, buttonLink, icon: Icon }) => 
       {buttonText && buttonLink && (
         <Link
           to={buttonLink}
-          /* Botón con fondo primary, texto secondary (Blanco) y hover configurado */
-          className="bg-primary text-secondary px-6 py-3 rounded-lg hover:bg-primary-hover transition-all font-black shadow-lg uppercase tracking-widest active:scale-95 text-center w-full md:w-auto border border-primary"
+          className="inline-flex items-center justify-center gap-2 w-full md:w-auto px-4 py-2.5 rounded-lg bg-primary text-secondary text-sm font-semibold shadow-card hover:bg-primary-hover active:scale-[0.98] transition"
         >
           {buttonText}
         </Link>

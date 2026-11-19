@@ -1,3 +1,63 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---------------------------------------------------------------
+ * Base visual del sistema: tipografía, foco accesible y detalles
+ * --------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  body {
+    @apply bg-[#f6f7f9] text-slate-900;
+  }
+
+  /* Las mayúsculas espaciadas se leen mejor con un poco menos de tracking en Inter */
+  .uppercase.tracking-widest { letter-spacing: 0.08em; }
+
+  /* Foco visible y consistente (teclado) */
+  :focus-visible {
+    outline: 2px solid #FFC700;
+    outline-offset: 2px;
+  }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: none; }
+
+  ::selection { background: rgba(255, 199, 0, 0.35); color: inherit; }
+
+  /* Campos: transición suave y altura táctil cómoda */
+  input, select, textarea { transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease; }
+  input::placeholder, textarea::placeholder { color: #94a3b8; }
+
+  /* Botones deshabilitados: sin cursor de mano */
+  button:disabled { cursor: not-allowed; }
+
+  /* Barras de desplazamiento discretas */
+  * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  html.dark * { scrollbar-color: #364055 transparent; }
+  html.dark *::-webkit-scrollbar-thumb { background: #364055; background-clip: padding-box; }
+}
+
+/* ---------------------------------------------------------------
+ * Botones: texto normal (no todo en mayúsculas), semibold y sin
+ * espaciado extra. Aplica a botones y enlaces-botón con esquinas
+ * redondeadas; los chips/etiquetas (rounded-full) no se tocan.
+ * --------------------------------------------------------------- */
+:is(button, a, label).uppercase:is(.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-sm) {
+  text-transform: none;
+  letter-spacing: normal;
+}
+:is(button, a, label).uppercase:is(.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-sm):is(.font-black, .font-bold) {
+  font-weight: 600;
+}
+/* Sombra de botones más contenida */
+:is(button, a):is(.shadow-lg, .shadow-xl):is(.rounded-lg, .rounded-xl, .rounded-2xl) {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}

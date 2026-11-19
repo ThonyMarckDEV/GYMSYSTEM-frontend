@@ -28,14 +28,14 @@ const getPaginationRange = ({ totalPages, currentPage, siblingCount = 1 }) => {
   return range(1, totalPages);
 };
 
-const btnBase = 'h-9 min-w-[36px] px-2.5 text-xs md:text-sm font-bold rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
+const btnBase = 'h-9 min-w-[36px] px-2.5 text-xs md:text-sm font-medium rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
 
 /** Selector de filas por página (5, 10, 15, 20, 25, 50, 100). */
 export const PorPaginaSelect = ({ value, onChange, disabled = false }) => (
   <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-500">
     Mostrar
     <select value={value} onChange={(e) => onChange(Number(e.target.value))} disabled={disabled}
-      className="h-9 px-2 text-sm font-bold text-secondary bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none cursor-pointer"
+      className="h-9 px-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none cursor-pointer"
       aria-label="Filas por página">
       {OPCIONES_POR_PAGINA.map(n => <option key={n} value={n}>{n}</option>)}
     </select>
@@ -51,7 +51,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, disabled = false })
   return (
     <nav className="flex flex-wrap justify-center items-center gap-1.5" aria-label="Paginación">
       <button type="button" onClick={() => onPageChange(currentPage - 1)} disabled={disabled || currentPage === 1}
-        className={`${btnBase} bg-white text-slate-600 border-slate-300 hover:bg-slate-50`} aria-label="Página anterior">
+        className={`${btnBase} bg-white text-slate-600 border-slate-200 hover:bg-slate-50`} aria-label="Página anterior">
         <ChevronLeftIcon className="w-4 h-4 mx-auto" />
       </button>
 
@@ -61,14 +61,14 @@ const Pagination = ({ currentPage, totalPages, onPageChange, disabled = false })
         <button type="button" key={pageNumber} onClick={() => onPageChange(pageNumber)} disabled={disabled}
           aria-current={currentPage === pageNumber ? 'page' : undefined}
           className={`${btnBase} ${currentPage === pageNumber
-            ? 'bg-secondary text-primary border-secondary shadow-sm'
-            : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'}`}>
+            ? 'bg-secondary text-white border-secondary font-semibold'
+            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900'}`}>
           {pageNumber}
         </button>
       ))}
 
       <button type="button" onClick={() => onPageChange(currentPage + 1)} disabled={disabled || currentPage === totalPages}
-        className={`${btnBase} bg-white text-slate-600 border-slate-300 hover:bg-slate-50`} aria-label="Página siguiente">
+        className={`${btnBase} bg-white text-slate-600 border-slate-200 hover:bg-slate-50`} aria-label="Página siguiente">
         <ChevronRightIcon className="w-4 h-4 mx-auto" />
       </button>
     </nav>

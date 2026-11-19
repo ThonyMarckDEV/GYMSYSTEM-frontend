@@ -77,7 +77,7 @@ const CampanaNotificaciones = () => {
             </button>
 
             {abierto && (
-                <div className="aparecer-arriba absolute right-0 mt-2 w-[min(400px,calc(100vw-1.5rem))] max-h-[min(560px,calc(100vh-6rem))] flex flex-col
+                <div className="aparecer-arriba fixed left-3 right-3 top-14 sm:absolute sm:left-auto sm:top-auto sm:right-0 sm:mt-2 sm:w-[400px] max-h-[min(560px,calc(100dvh-5rem))] flex flex-col
                     bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden" role="dialog" aria-label="Notificaciones">
                     {/* Cabecera */}
                     <div className="px-4 pt-3 pb-2 border-b border-slate-100">

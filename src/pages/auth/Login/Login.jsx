@@ -49,41 +49,28 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-secondary">
-      
-      {/* Capa de fondo con imagen de gym - MENOS DIFUMINADO */}
+
+      {/* Fondo: foto del gimnasio, oscurecida para que la tarjeta destaque */}
       <div className="absolute inset-0 z-0">
-        <img 
+        <img
           src={background}
-          alt="Fondo de gimnasio premium en blanco y negro"
-          className="w-full h-full object-cover opacity-70"
+          alt=""
+          className="w-full h-full object-cover opacity-50"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/50 to-black/80"></div>
       </div>
 
-      {/* Línea decorativa sutil */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent z-10 opacity-60"></div>
-
-      {/* Contenedor Principal - Fondo AMARILLO */}
-      <div className="w-full max-w-md bg-primary rounded-sm shadow-elegant-gold p-8 sm:p-12 border border-secondary/10 relative z-10">
-        
-        {/* Header */}
-        <div className="flex flex-col items-center mb-10 pb-8 border-b border-secondary/15">
-          <h2 className="text-[10px] font-bold text-secondary tracking-[0.4em] uppercase mb-6">
-             {APP_NAME}
-          </h2>
-          
-          {/* Isotipo */}
-          <div className="h-20 w-20 flex items-center justify-center mb-6 relative">
-             <div className="absolute inset-0 rounded-full border border-secondary/40"></div>
-             <div className="absolute inset-[3px] rounded-full border border-secondary/20"></div>
-             
-             <img 
-               src={logo}
-               alt="Logotipo de gimnasio"
-               className="h-12 w-12 relative z-10 object-contain"
-             />
+      <div className="w-full max-w-sm relative z-10">
+        {/* Marca */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="h-16 w-16 rounded-2xl overflow-hidden ring-1 ring-white/15 shadow-elegant mb-3">
+            <img src={logo} alt="" className="w-full h-full object-cover" />
           </div>
+          <p className="text-white text-lg font-bold tracking-tight">{APP_NAME}</p>
         </div>
+
+      {/* Tarjeta */}
+      <div className="bg-white rounded-2xl shadow-elegant-gold p-7 sm:p-8">
 
         <div>
           {loading ? (
@@ -111,12 +98,11 @@ const Login = () => {
           )}
         </div>
         
-        {/* Footer */}
-        <div className="mt-10 text-center border-t border-secondary/15 pt-5">
-            <p className="text-[9px] text-secondary/60 font-medium uppercase tracking-[0.2em]">
-                © {new Date().getFullYear()} Gimnasio. Todos los derechos reservados.
-            </p>
-        </div>
+      </div>
+
+        <p className="mt-6 text-center text-xs text-white/50">
+          © {new Date().getFullYear()} {APP_NAME}
+        </p>
       </div>
     </div>
   );

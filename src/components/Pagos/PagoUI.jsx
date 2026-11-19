@@ -151,24 +151,24 @@ export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max
     const contenido = (
     <div className="fixed inset-0 h-[100dvh] w-screen z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm"
         role="dialog" aria-modal="true" aria-label={typeof titulo === 'string' ? titulo : undefined}>
-        <div className={`bg-white rounded-t-2xl sm:rounded-xl shadow-elegant-gold w-full ${ancho} max-h-[94dvh] sm:max-h-[92vh] flex flex-col overflow-hidden border border-primary/20 hoja-subir`}>
-            <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-primary/20 bg-secondary flex-shrink-0">
-                <h3 className="text-base sm:text-lg font-bold text-primary flex items-center gap-2 min-w-0">
-                    {Icon && <Icon className="w-5 h-5 flex-shrink-0" />} <span className="truncate">{titulo}</span>
+        <div className={`bg-white rounded-t-2xl sm:rounded-xl shadow-elegant-gold w-full ${ancho} max-h-[94dvh] sm:max-h-[92vh] flex flex-col overflow-hidden hoja-subir`}>
+            <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-white flex-shrink-0">
+                <h3 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2.5 min-w-0">
+                    {Icon && <span className="w-8 h-8 rounded-lg bg-primary-light text-amber-700 flex items-center justify-center flex-shrink-0"><Icon className="w-4 h-4" /></span>} <span className="truncate">{titulo}</span>
                 </h3>
-                <button onClick={onClose} className="p-1 -mr-1 text-primary/60 hover:text-primary transition-colors" aria-label="Cerrar">
-                    <XMarkIcon className="w-6 h-6" />
+                <button onClick={onClose} className="p-1.5 -mr-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" aria-label="Cerrar">
+                    <XMarkIcon className="w-5 h-5" />
                 </button>
             </div>
             <div className="p-4 sm:p-6 overflow-y-auto overscroll-contain">
                 {error && (
-                    <p role="alert" className="mb-4 text-sm font-bold text-red-800 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
+                    <p role="alert" className="mb-4 text-sm font-medium text-red-800 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
                         <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0" /> {error}
                     </p>
                 )}
                 {children}
             </div>
-            {pie && <div className="px-4 sm:px-6 py-3 sm:py-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-primary-light/40 border-t border-primary/20 flex justify-end gap-3 flex-shrink-0">{pie}</div>}
+            {pie && <div className="px-4 sm:px-6 py-3 sm:py-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-slate-50 border-t border-slate-100 flex justify-end gap-3 flex-shrink-0">{pie}</div>}
         </div>
     </div>
     );
@@ -177,7 +177,7 @@ export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max
     return portal ? createPortal(contenido, document.body) : contenido;
 };
 
-const btn = 'px-4 py-2 rounded-lg font-bold uppercase text-sm transition-colors disabled:opacity-50';
+const btn = 'px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-50';
 
 // ---------------------------------------------------------------------------
 // Comprobante (con verificar / rechazar)
