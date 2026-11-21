@@ -22,7 +22,7 @@ const SucursalSelect = ({ value, onChange, label = 'Sucursal', emptyLabel = '-- 
 
     return (
         <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 {label} {required && <span className="text-red-500">*</span>}
             </label>
             <div className="relative">
@@ -32,7 +32,7 @@ const SucursalSelect = ({ value, onChange, label = 'Sucursal', emptyLabel = '-- 
                     onChange={(e) => onChange(e.target.value)}
                     required={required}
                     disabled={loading}
-                    className="w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-white disabled:opacity-60"
+                    className="w-full pl-9 p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none bg-white disabled:opacity-60"
                 >
                     <option value="">{loading ? 'Cargando...' : emptyLabel}</option>
                     {sucursales.map(s => (

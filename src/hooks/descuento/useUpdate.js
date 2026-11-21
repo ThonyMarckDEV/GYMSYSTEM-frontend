@@ -55,7 +55,7 @@ export const useUpdate = () => {
         try {
             await update(id, formData);
             setAlert({ type: 'success', message: 'Descuento actualizado correctamente.' });
-            setTimeout(() => navigate('/descuento/listar'), 1500);
+            setTimeout(() => navigate('/descuento/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al actualizar el descuento'));
         } finally {

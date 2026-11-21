@@ -68,7 +68,7 @@ export const BarrasVerticales = ({ data = [], alto = 200 }) => {
                                         style={{
                                             height: `${h}%`,
                                             minHeight: d.total > 0 ? 2 : 0,
-                                            backgroundColor: '#27272a',
+                                            backgroundColor: 'var(--color-barra, #27272a)',
                                             opacity: activo === null || esActivo ? 1 : 0.45,
                                         }} />
 
@@ -130,7 +130,7 @@ export const BarrasHorizontales = ({ data = [], formato = (v) => v, vacio = 'Sin
                         <div className="h-full rounded-full transition-opacity"
                             style={{
                                 width: `${max ? Math.max((d.valor / max) * 100, d.valor > 0 ? 2 : 0) : 0}%`,
-                                backgroundColor: '#27272a',
+                                backgroundColor: 'var(--color-barra, #27272a)',
                                 opacity: activo === null || activo === i ? 1 : 0.45,
                             }} />
                     </div>

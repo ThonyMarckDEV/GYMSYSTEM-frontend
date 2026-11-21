@@ -4,6 +4,8 @@ import { useIndex } from 'hooks/descuento/useIndex';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
+import { useAuth } from 'context/AuthContext';
+import EstadoToggle, { SinAcciones } from 'components/Shared/Tables/EstadoToggle';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 
@@ -13,6 +15,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Index = () => {
+    const { can } = useAuth();
     const {
         loading, descuentos, paginationInfo, filters, alert, setAlert,
         showConfirm, setShowConfirm, setIdToToggle,
@@ -72,13 +75,7 @@ const Index = () => {
             header: 'Estado',
             render: (row) => (
                 <div className="flex flex-col gap-1 items-start">
-                    <button
-                        onClick={() => handleAskToggle(row.id)}
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                            ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}
-                    >
-                        {row.estado ? 'Activo' : 'Inactivo'}
-                    </button>
+                    <EstadoToggle activo={row.estado} puede={can('descuento.status')} onClick={() => handleAskToggle(row.id)} />
                     {row.estado && !row.vigente && (
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200">
                             No vigente
@@ -89,23 +86,23 @@ const Index = () => {
         },
         {
             header: 'Acciones',
-            render: (row) => (
+            render: (row) => !can('descuento.update') ? <SinAcciones /> : (
                 <div className="flex items-center gap-2">
-                    <Link to={`/descuento/editar/${row.id}`}
+                    <Link to={`/descuento/editar/${row.id}`} title="Editar"
                         className="p-2 text-slate-500 hover:text-secondary hover:bg-primary-light rounded-lg transition-all">
                         <PencilSquareIcon className="w-5 h-5" />
                     </Link>
                 </div>
             )
         }
-    ], [handleAskToggle]);
+    ], [handleAskToggle, can]);
 
     return (
         <div className="container mx-auto p-6">
             <PageHeader
                 title="Gestión de Descuentos"
                 icon={TagIcon}
-                buttonText="+ Nuevo Descuento"
+                buttonText={can('descuento.store') ? '+ Nuevo Descuento' : null}
                 buttonLink="/descuento/agregar"
             />
 
@@ -117,7 +114,7 @@ const Index = () => {
                 onFilterChange={handleFilterChange}
                 onFilterSubmit={handleFilterSubmit}
                 onFilterClear={handleFilterClear}
-                pagination={{ ...paginationInfo, onPageChange: fetchDescuentos }}
+                pagination={{ clave: 'descuentos', ...paginationInfo, onPageChange: fetchDescuentos }}
             />
 
             {showConfirm && (

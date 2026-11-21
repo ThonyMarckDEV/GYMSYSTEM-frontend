@@ -31,7 +31,7 @@ export const useStore = () => {
         try {
             await store(formData);
             setAlert({ type: 'success', message: 'Cliente registrado exitosamente. Redirigiendo...' });
-            setTimeout(() => navigate('/cliente/listar'), 1500);
+            setTimeout(() => navigate('/cliente/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al registrar cliente'));
         } finally {

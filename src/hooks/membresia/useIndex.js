@@ -1,7 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { index, asignar, congelar, reanudar, cancelar } from 'services/membresiaService';
-import { combobox as comboboxPlanes } from 'services/planService';
-import { combobox as comboboxDescuentos } from 'services/descuentoService';
+import { index, congelar, reanudar, cancelar } from 'services/membresiaService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 
 export const useIndex = (clienteId) => {
@@ -9,10 +7,6 @@ export const useIndex = (clienteId) => {
     const [data, setData]       = useState(null);
     const [alert, setAlert]     = useState(null);
 
-    const [planes, setPlanes]         = useState([]);
-    const [descuentos, setDescuentos] = useState([]);
-
-    const [isAsignarOpen, setIsAsignarOpen]   = useState(false);
     const [isCongelarOpen, setIsCongelarOpen] = useState(false);
     const [confirmAction, setConfirmAction]   = useState(null); // 'reanudar' | 'cancelar'
 
@@ -30,37 +24,9 @@ export const useIndex = (clienteId) => {
         }
     }, [clienteId]);
 
-    const fetchCombos = useCallback(async () => {
-        try {
-            const [planesRes, descuentosRes] = await Promise.all([
-                comboboxPlanes(),
-                comboboxDescuentos(),
-            ]);
-            setPlanes(planesRes.data || planesRes || []);
-            setDescuentos(descuentosRes.data || descuentosRes || []);
-        } catch (err) {
-            setAlert(handleApiError(err, 'Error al cargar planes o descuentos'));
-        }
-    }, []);
-
     useEffect(() => {
         fetchMembresia();
-        fetchCombos();
-    }, [fetchMembresia, fetchCombos]);
-
-    const handleAsignar = async (formData) => {
-        setActionLoading(true);
-        try {
-            await asignar(clienteId, formData);
-            setAlert({ type: 'success', message: 'Membresía asignada exitosamente.' });
-            setIsAsignarOpen(false);
-            await fetchMembresia();
-        } catch (err) {
-            setAlert(handleApiError(err, 'Error al asignar la membresía'));
-        } finally {
-            setActionLoading(false);
-        }
-    };
+    }, [fetchMembresia]);
 
     const handleConfirmCongelar = async (motivo) => {
         setActionLoading(true);
@@ -99,8 +65,7 @@ export const useIndex = (clienteId) => {
     };
 
     return {
-        loading, data, alert, setAlert, planes, descuentos,
-        isAsignarOpen, setIsAsignarOpen, handleAsignar,
+        loading, data, alert, setAlert,
         isCongelarOpen, setIsCongelarOpen, handleConfirmCongelar,
         confirmAction, setConfirmAction, handleAskConfirm, handleConfirmAction,
         actionLoading, fetchMembresia,

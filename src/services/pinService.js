@@ -1,11 +1,12 @@
 import { fetchWithAuth } from 'js/authToken';
 import API_BASE_URL from 'js/urlHelper';
 import { handleResponse } from 'utilities/Responses/handleResponse';
+import { porPagina } from 'utilities/Paginacion/porPagina';
 
 const BASE_URL = `${API_BASE_URL}/api/pin`;
 
 export const index = async (page = 1) =>
-    handleResponse(await fetchWithAuth(`${BASE_URL}/index?page=${page}`, { method: 'GET' }));
+    handleResponse(await fetchWithAuth(`${BASE_URL}/index?page=${page}&per_page=${porPagina('pines')}`, { method: 'GET' }));
 
 export const usuarios = async (sucursalId = '') =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/usuarios?sucursal_id=${sucursalId || ''}`, { method: 'GET' }));

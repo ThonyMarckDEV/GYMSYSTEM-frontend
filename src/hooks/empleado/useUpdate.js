@@ -86,7 +86,7 @@ export const useUpdate = () => {
             await update(id, formData);
             setAlert({ type: 'success', message: 'Empleado actualizado correctamente.' });
             
-            setTimeout(() => navigate('/empleado/listar'), 1500);
+            setTimeout(() => navigate('/empleado/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al actualizar el empleado'));
         } finally {

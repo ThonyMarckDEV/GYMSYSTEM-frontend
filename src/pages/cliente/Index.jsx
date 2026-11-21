@@ -1,10 +1,12 @@
 import React, { useMemo } from 'react';
+import { useColumnasConEmpresa } from 'hooks/useColumnasConEmpresa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useIndex } from 'hooks/cliente/useIndex';
-import { useColumnasConEmpresa } from 'hooks/useColumnasConEmpresa';
 
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
+import { useAuth } from 'context/AuthContext';
+import EstadoToggle, { SinAcciones } from 'components/Shared/Tables/EstadoToggle';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
 import ViewModal from 'components/Shared/Modals/ViewModal';
@@ -17,6 +19,7 @@ import {
 import { IdCardIcon } from 'lucide-react';
 
 const Index = () => {
+    const { can } = useAuth();
     const navigate = useNavigate();
     const {
         loading, clientes, paginationInfo, filters, alert, setAlert,
@@ -76,37 +79,38 @@ const Index = () => {
                     Sin acceso
                 </span>
             ) : (
-                <button
-                    onClick={() => handleAskToggle(row.id)}
-                    className={`px-3 py-1 rounded-full text-[10px] font-black uppercase cursor-pointer hover:scale-105 transition-transform shadow-sm
-                        ${row.estado ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-red-100 text-red-600 border border-red-200'}`}
-                >
-                    {row.estado ? 'Activo' : 'Bloqueado'}
-                </button>
+                <EstadoToggle activo={row.estado} no="Bloqueado" puede={can('cliente.status')} onClick={() => handleAskToggle(row.id)} />
             )
         },
         {
             header: 'Acciones',
-            render: (row) => (
+            render: (row) => !['cliente.show', 'membresia.index', 'cliente.update'].some(can) ? <SinAcciones /> : (
                 <div className="flex items-center gap-2">
-                    <button onClick={() => handleView(row.id)}
-                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all" title="Ver ficha del cliente">
-                        <EyeIcon className="w-5 h-5" />
-                    </button>
-                    <button onClick={() => navigate(`/membresia/${row.id}`)}
-                        className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all" title="Gestionar membresía">
-                        <IdCardIcon className="w-5 h-5" />
-                    </button>
-                    <Link to={`/cliente/editar/${row.id}`}
-                        className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all" title="Editar datos">
-                        <PencilSquareIcon className="w-5 h-5" />
-                    </Link>
+                    {can('cliente.show') && (
+                        <button onClick={() => handleView(row.id)}
+                            className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all" title="Ver ficha del cliente">
+                            <EyeIcon className="w-5 h-5" />
+                        </button>
+                    )}
+                    {can('membresia.index') && (
+                        <button onClick={() => navigate(`/membresia/${row.id}`)}
+                            className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all" title="Gestionar membresía">
+                            <IdCardIcon className="w-5 h-5" />
+                        </button>
+                    )}
+                    {can('cliente.update') && (
+                        <Link to={`/cliente/editar/${row.id}`}
+                            className="p-2 text-slate-500 hover:text-black hover:bg-slate-50 rounded-lg transition-all" title="Editar datos">
+                            <PencilSquareIcon className="w-5 h-5" />
+                        </Link>
+                    )}
                 </div>
             )
         }
-    ], [handleAskToggle, handleView, navigate]);
+    ], [handleAskToggle, handleView, navigate, can]);
 
-    // Multitenant: columna Empresa para el superadmin en modo global
+
+    // Multiempresa: columna Empresa para el superadmin en modo global
     const columnasTabla = useColumnasConEmpresa(columns);
 
     return (
@@ -114,7 +118,7 @@ const Index = () => {
             <PageHeader
                 title="Gestión de Clientes"
                 icon={UserGroupIcon}
-                buttonText="+ Nuevo Cliente"
+                buttonText={can('cliente.store') ? '+ Nuevo Cliente' : null}
                 buttonLink="/cliente/agregar"
             />
 
@@ -126,7 +130,7 @@ const Index = () => {
                 onFilterChange={handleFilterChange}
                 onFilterSubmit={handleFilterSubmit}
                 onFilterClear={handleFilterClear}
-                pagination={{ ...paginationInfo, onPageChange: fetchClientes }}
+                pagination={{ clave: 'clientes', ...paginationInfo, onPageChange: fetchClientes }}
             />
 
             {showConfirm && (

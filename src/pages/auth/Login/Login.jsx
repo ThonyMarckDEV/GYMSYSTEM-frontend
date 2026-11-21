@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import LoadingScreen from 'components/Shared/LoadingScreen';
 import LoginForm from './components/LoginForm';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
 import authService from 'services/authService';
 import { useAuth } from 'context/AuthContext';
+import Marca from 'components/Shared/Marca';
 import background from 'assets/img/background.jpg';
-import logo from 'assets/img/logo.png';
 import { APP_NAME } from 'config/app';
 
 const Login = () => {
@@ -23,17 +22,17 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
       const result = await authService.login(username, password, rememberMe);
       const { access_token } = result;
-      
+
       document.cookie = `access_token=${access_token}; path=/; Secure; SameSite=Strict`;
 
-      login(); 
-      navigate('/home'); 
+      login();
+      navigate('/home');
       toast.success(`Bienvenido al sistema`);
-      
+
     } catch (error) {
       const msg = error.response?.data?.message || 'Credenciales inválidas';
       toast.error(msg);
@@ -42,57 +41,33 @@ const Login = () => {
     }
   };
 
-  const handleForgotPassword = async (e) => { 
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
     toast.info("Enlace enviado si el DNI existe.");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-secondary">
-      
-      {/* Capa de fondo con imagen de gym - MENOS DIFUMINADO */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={background}
-          alt="Fondo de gimnasio premium en blanco y negro"
-          className="w-full h-full object-cover opacity-70"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"></div>
+    <div className="min-h-[100dvh] bg-white lg:grid lg:grid-cols-[1.15fr_1fr]">
+
+      {/* Foto del gimnasio */}
+      <div className="relative h-56 sm:h-72 lg:h-auto lg:min-h-[100dvh] overflow-hidden bg-secondary">
+        <img src={background} alt="" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10" />
+        <div className="absolute left-6 right-6 bottom-6 lg:left-12 lg:right-12 lg:bottom-12">
+          <Marca claro />
+          <p className="hidden lg:block mt-5 max-w-sm text-lg text-white/80 leading-relaxed">
+            Todo tu gimnasio en un solo lugar: socios, caja, clases y reportes.
+          </p>
+        </div>
       </div>
 
-      {/* Línea decorativa sutil */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent z-10 opacity-60"></div>
-
-      {/* Contenedor Principal - Fondo AMARILLO */}
-      <div className="w-full max-w-md bg-primary rounded-sm shadow-elegant-gold p-8 sm:p-12 border border-secondary/10 relative z-10">
-        
-        {/* Header */}
-        <div className="flex flex-col items-center mb-10 pb-8 border-b border-secondary/15">
-          <h2 className="text-[10px] font-bold text-secondary tracking-[0.4em] uppercase mb-6">
-             {APP_NAME}
-          </h2>
-          
-          {/* Isotipo */}
-          <div className="h-20 w-20 flex items-center justify-center mb-6 relative">
-             <div className="absolute inset-0 rounded-full border border-secondary/40"></div>
-             <div className="absolute inset-[3px] rounded-full border border-secondary/20"></div>
-             
-             <img 
-               src={logo}
-               alt="Logotipo de gimnasio"
-               className="h-12 w-12 relative z-10 object-contain"
-             />
-          </div>
-
-          <h1 className="text-xs font-semibold text-secondary/90 tracking-[0.3em] uppercase">
-            BY Emily Diaz
-          </h1>
-        </div>
-
-        <div>
+      {/* Formulario */}
+      <main className="flex flex-col justify-center px-6 py-10 sm:px-12 lg:py-0">
+        <div className="w-full max-w-sm mx-auto">
           {loading ? (
-             <div className="flex justify-center items-center h-64">
-              <LoadingScreen />
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <div className="w-8 h-8 border-[3px] border-slate-200 border-t-slate-900 rounded-full animate-spin" />
+              <p className="text-sm text-slate-500">Ingresando…</p>
             </div>
           ) : showForgotPassword ? (
             <ForgotPasswordForm
@@ -113,15 +88,10 @@ const Login = () => {
               setShowForgotPassword={setShowForgotPassword}
             />
           )}
+
+          <p className="mt-12 text-xs text-slate-400">© {new Date().getFullYear()} {APP_NAME}</p>
         </div>
-        
-        {/* Footer */}
-        <div className="mt-10 text-center border-t border-secondary/15 pt-5">
-            <p className="text-[9px] text-secondary/60 font-medium uppercase tracking-[0.2em]">
-                © {new Date().getFullYear()} Gimnasio. Todos los derechos reservados.
-            </p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 };

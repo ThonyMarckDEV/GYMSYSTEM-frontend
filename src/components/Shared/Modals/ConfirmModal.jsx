@@ -17,31 +17,31 @@ const ConfirmModal = ({
                 onClick={onCancel}
             ></div>
 
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100 animate-in fade-in zoom-in duration-200 border border-slate-100">
+            <div className="relative bg-white rounded-2xl shadow-elegant-gold w-full max-w-sm overflow-hidden aparecer-abajo">
                 
                 <div className="p-6">
-                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 mb-5">
-                        <ExclamationTriangleIcon className="h-7 w-7 text-black" aria-hidden="true" />
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-50 mb-4">
+                        <ExclamationTriangleIcon className="h-6 w-6 text-amber-600" aria-hidden="true" />
                     </div>
 
                     <div className="text-center">
-                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight">
+                        <h3 className="text-lg font-semibold text-slate-900">
                             {title}
                         </h3>
                         <div className="mt-2">
-                            <p className="text-sm text-slate-500 font-medium">
+                            <p className="text-sm text-slate-500">
                                 {message}
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-slate-50 px-4 py-4 flex flex-col-reverse sm:flex-row justify-center gap-3">
+                <div className="px-6 pb-6 flex flex-col-reverse sm:flex-row gap-3">
                     
                     <button
                         type="button"
                         onClick={onCancel}
-                        className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-slate-300 bg-white px-6 py-2 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all active:scale-95 uppercase tracking-wide"
+                        className="w-full sm:flex-1 inline-flex justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-all active:scale-[0.98]"
                     >
                         {cancelText}
                     </button>
@@ -49,7 +49,7 @@ const ConfirmModal = ({
                     <button
                         type="button"
                         onClick={onConfirm}
-                        className="w-full sm:w-auto inline-flex justify-center rounded-lg border border-transparent bg-black px-6 py-2 text-sm font-bold text-white shadow-lg hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 transition-all active:scale-95 uppercase tracking-wide"
+                        className="w-full sm:flex-1 inline-flex justify-center rounded-lg bg-secondary px-4 py-2.5 text-sm font-semibold text-white hover:bg-black/80 transition-all active:scale-[0.98]"
                     >
                         {confirmText}
                     </button>

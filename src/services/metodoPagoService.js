@@ -10,5 +10,5 @@ export const index = async () => handleResponse(await fetchWithAuth(`${BASE_URL}
 export const update = async (formData) =>
     handleResponse(await fetchWithAuth(`${BASE_URL}/update`, { method: 'POST', body: formData }));
 
-/** URL protegida del QR ('yape' | 'plin') — se abre con obtenerArchivoUrl */
+/** Endpoint del QR ('yape' | 'plin'): devuelve una URL temporal firmada (ImagenProtegida) */
 export const qrUrl = (tipo) => `${BASE_URL}/qr/${tipo}`;

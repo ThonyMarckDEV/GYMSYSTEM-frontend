@@ -1,48 +1,45 @@
 import React from 'react';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 const ForgotPasswordForm = ({ dni, setDni, handleForgotPassword, setShowForgotPassword }) => {
   return (
     <div className="w-full">
-      <div className="mb-8 text-center">
-        <h2 className="text-2xl font-light text-white mb-2 tracking-wide">
-          Restablecer
-        </h2>
-        <p className="text-xs text-white/50 tracking-wide">
-          Ingresa tu DNI para validar tu identidad
-        </p>
+      <button
+        type="button"
+        onClick={() => setShowForgotPassword(false)}
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 mb-4"
+      >
+        <ArrowLeftIcon className="w-4 h-4" /> Volver
+      </button>
+
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-slate-900 tracking-tight">Restablecer contraseña</h2>
+        <p className="text-sm text-slate-500 mt-1">Ingresa tu DNI para validar tu identidad</p>
       </div>
 
-      <form onSubmit={handleForgotPassword} className="space-y-5">
+      <form onSubmit={handleForgotPassword} className="space-y-4">
         <div>
+          <label htmlFor="dni" className="block text-sm font-medium text-slate-700 mb-1.5">DNI</label>
           <input
             type="text"
             id="dni"
+            inputMode="numeric"
             value={dni}
             onChange={(e) => setDni(e.target.value)}
-            className="block w-full px-4 py-3 bg-white/5 border border-white/15 text-white placeholder-white/30 focus:outline-none focus:ring-0 focus:border-primary transition-colors sm:text-sm rounded-sm text-center tracking-[0.3em] font-medium"
-            placeholder="N° DE DNI"
+            className="block w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 tracking-widest placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            placeholder="8 dígitos"
             maxLength="8"
             pattern="\d*"
             required
           />
         </div>
-        
-        <div className="pt-2 space-y-3">
-          <button
-            type="submit"
-            className="w-full flex justify-center py-3.5 px-4 bg-primary text-secondary text-xs font-semibold hover:bg-primary-hover focus:outline-none transition-all duration-300 uppercase tracking-[0.2em] rounded-sm"
-          >
-            Validar
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => setShowForgotPassword(false)}
-            className="w-full flex justify-center py-3.5 px-4 border border-white/20 text-xs font-semibold text-white/70 bg-transparent hover:border-primary/50 hover:text-primary focus:outline-none transition-all duration-300 uppercase tracking-[0.2em] rounded-sm"
-          >
-            Volver
-          </button>
-        </div>
+
+        <button
+          type="submit"
+          className="w-full py-2.5 px-4 bg-secondary text-white text-sm font-semibold rounded-lg hover:bg-black/80 transition"
+        >
+          Validar
+        </button>
       </form>
     </div>
   );

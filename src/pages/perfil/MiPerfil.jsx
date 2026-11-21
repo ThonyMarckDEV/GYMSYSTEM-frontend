@@ -4,9 +4,11 @@ import LoadingScreen from 'components/Shared/LoadingScreen';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import PagarMembresia from 'components/Perfil/PagarMembresia';
 import { useAuth } from 'context/AuthContext';
+import QRCode from 'react-qr-code';
+import { textoDias } from 'utilities/Formato/dias';
 import {
     IdentificationIcon, PhoneIcon, EnvelopeIcon,
-    CalendarDaysIcon, ArrowDownTrayIcon
+    CalendarDaysIcon, ArrowDownTrayIcon, GiftIcon
 } from '@heroicons/react/24/outline';
 
 const ESTADO_BADGES = {
@@ -33,28 +35,30 @@ const MiPerfil = () => {
     const { cliente, membresia_actual, historial } = data;
     const iniciales = cliente.nombre_completo?.split(' ').slice(0, 2).map(p => p[0]).join('') || '?';
 
-    // QR generado a partir del DNI, usando un servicio público de generación de imágenes.
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(cliente.dni)}`;
-
-    const handleDescargarQR = async () => {
-        try {
-            const response = await fetch(qrUrl);
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+    // El QR (con el DNI) se genera en el navegador: el DNI no se envía a ningún servicio externo.
+    const handleDescargarQR = () => {
+        const svg = document.getElementById('qr-acceso');
+        if (!svg) return;
+        const datos = new XMLSerializer().serializeToString(svg);
+        const img = new Image();
+        img.onload = () => {
+            const lado = 600, margen = 48;
+            const canvas = document.createElement('canvas');
+            canvas.width = lado; canvas.height = lado;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, lado, lado);
+            ctx.drawImage(img, margen, margen, lado - margen * 2, lado - margen * 2);
             const a = document.createElement('a');
-            a.href = url;
+            a.href = canvas.toDataURL('image/png');
             a.download = `qr-acceso-${cliente.dni}.png`;
-            document.body.appendChild(a);
             a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        } catch (err) {
-            window.open(qrUrl, '_blank');
-        }
+        };
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(datos);
     };
 
     return (
-        <div className="min-h-full bg-gradient-to-b from-primary-light/30 to-white p-6">
+        <div className="p-6">
             <div className="max-w-3xl mx-auto space-y-5">
 
                 <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
@@ -69,12 +73,12 @@ const MiPerfil = () => {
                     <div className="relative flex flex-col sm:flex-row items-center gap-6">
                         <div className="flex-1 text-center sm:text-left">
                             <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center mx-auto sm:mx-0 mb-3 shadow-lg">
-                                <span className="text-xl font-black text-secondary">{iniciales}</span>
+                                <span className="text-xl font-bold text-secondary">{iniciales}</span>
                             </div>
-                            <h1 className="text-xl font-black text-primary">{cliente.nombre_completo}</h1>
+                            <h1 className="text-xl font-bold text-white tracking-tight">{cliente.nombre_completo}</h1>
 
                             <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
-                                <span className="flex items-center gap-1.5 text-xs text-secondary bg-primary/90 px-3 py-1 rounded-full font-bold">
+                                <span className="flex items-center gap-1.5 text-xs text-white/90 bg-white/10 px-3 py-1 rounded-full font-medium">
                                     <IdentificationIcon className="w-3.5 h-3.5"/> {cliente.dni}
                                 </span>
                                 {cliente.telefonoMovil && (
@@ -93,15 +97,12 @@ const MiPerfil = () => {
                         {/* QR compacto al costado */}
                         <div className="flex flex-col items-center shrink-0">
                             <div className="p-2 bg-white rounded-xl shadow-md">
-                                <img
-                                    src={qrUrl}
-                                    alt={`Código QR de acceso para el DNI ${cliente.dni}`}
-                                    className="w-28 h-28"
-                                />
+                                <QRCode id="qr-acceso" value={String(cliente.dni)} size={112}
+                                    title={`Código QR de acceso para el DNI ${cliente.dni}`} />
                             </div>
                             <button
                                 onClick={handleDescargarQR}
-                                className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-primary/70 hover:text-primary transition-colors"
+                                className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-white/60 hover:text-white transition-colors"
                             >
                                 <ArrowDownTrayIcon className="w-3 h-3" /> Descargar
                             </button>
@@ -120,6 +121,11 @@ const MiPerfil = () => {
                             <CalendarDaysIcon className="w-4 h-4" />
                             {membresia_actual.fecha_inicio} al {membresia_actual.fecha_fin}
                         </p>
+                        {membresia_actual.dias_bono > 0 && (
+                            <p className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-0.5">
+                                <GiftIcon className="w-3.5 h-3.5" /> Incluye +{textoDias(membresia_actual.dias_bono)} de regalo por ser nuevo
+                            </p>
+                        )}
 
                         <div className="mt-4 pt-4 border-t border-dashed border-slate-200 flex items-center justify-center gap-8">
                             <div>

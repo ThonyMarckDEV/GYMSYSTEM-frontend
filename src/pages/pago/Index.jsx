@@ -3,13 +3,15 @@ import { Link } from 'react-router-dom';
 import { index, verificar, rechazar, anular } from 'services/pagoService';
 import { handleApiError } from 'utilities/Errors/apiErrorHandler';
 import { useAuth } from 'context/AuthContext';
+import { useEventoEnVivo } from 'context/NotificacionesContext';
 import Table from 'components/Shared/Tables/Table';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { ComprobanteModal, AnularPagoModal, EstadoPago, BotonTicket, useTicket, soles, METODOS, errorDeAlerta } from 'components/Pagos/PagoUI';
 import { CreditCardIcon, PhotoIcon, NoSymbolIcon, GlobeAltIcon, BuildingStorefrontIcon } from '@heroicons/react/24/outline';
 
-const FILTROS_INICIALES = { search: '', estado: '', metodo_pago: '', origen: '', fecha_desde: '', fecha_hasta: '' };
+const FILTROS_INICIALES = { search: '', estado: '', metodo_pago: '', origen: '', concepto: '', fecha_desde: '', fecha_hasta: '' };
+const CONCEPTOS = { membresia: 'Membresía', clase: 'Clase / evento', producto: 'Productos' };
 
 const Index = () => {
     const { can } = useAuth();
@@ -38,6 +40,8 @@ const Index = () => {
     }, []);
 
     useEffect(() => { fetchPagos(1); }, [fetchPagos]);
+    // Llegó un comprobante en línea: la lista se actualiza sola
+    useEventoEnVivo('gym:notificacion', (n) => { if (n.tipo === 'pago_por_verificar') fetchPagos(pagination.currentPage); });
 
     const accion = useCallback(async (fn, mensaje, errorMsg) => {
         setProcesando(true);
@@ -57,6 +61,8 @@ const Index = () => {
 
     const filterConfig = useMemo(() => [
         { name: 'search', type: 'text', label: 'Cliente (nombre / DNI) o N° operación', placeholder: 'Ej: 45781989', colSpan: 'col-span-12 md:col-span-4' },
+        { name: 'concepto', type: 'select', label: 'Concepto', colSpan: 'col-span-6 md:col-span-2',
+            options: [{ value: '', label: 'Todos' }, ...Object.entries(CONCEPTOS).map(([value, label]) => ({ value, label }))] },
         { name: 'estado', type: 'select', label: 'Estado', colSpan: 'col-span-6 md:col-span-2',
             options: [{ value: '', label: 'Todos' }, { value: 'pendiente', label: 'Pendientes' }, { value: 'verificado', label: 'Verificados' }, { value: 'rechazado', label: 'Rechazados' }, { value: 'anulado', label: 'Anulados' }] },
         { name: 'metodo_pago', type: 'select', label: 'Método', colSpan: 'col-span-6 md:col-span-2',
@@ -76,8 +82,12 @@ const Index = () => {
         ) },
         { header: 'Cliente', render: (r) => (
             <div>
-                <Link to={`/membresia/${r.cliente_id}`} className="font-bold text-slate-800 text-sm hover:underline">{r.cliente}</Link>
-                <p className="text-xs text-slate-500">DNI {r.dni} · {r.plan}</p>
+                {r.cliente_id
+                    ? <Link to={`/membresia/${r.cliente_id}`} className="font-bold text-slate-800 text-sm hover:underline">{r.cliente}</Link>
+                    : <p className="font-bold text-slate-800 text-sm">{r.cliente}</p>}
+                <p className="text-xs text-slate-500 max-w-[260px] truncate" title={r.descripcion}>
+                    {r.dni ? `DNI ${r.dni} · ` : ''}<span className="font-bold text-slate-600">{CONCEPTOS[r.concepto] || 'Membresía'}:</span> {r.descripcion}
+                </p>
             </div>
         ) },
         { header: 'Monto', render: (r) => (
@@ -112,8 +122,9 @@ const Index = () => {
                 )}
                 {r.estado !== 'pendiente' && can('pago.ticket') && <BotonTicket compacto onClick={() => abrirTicket(r.id)} />}
                 {r.estado === 'verificado' && can('pago.anular') && (
-                    <button onClick={() => { setAlert(null); setAnulando(r); }} title="Anular (requiere PIN)"
-                        className="p-2 text-slate-500 hover:text-red-700 hover:bg-red-50 rounded-lg">
+                    <button onClick={() => { if (r.no_anulable) return; setAlert(null); setAnulando(r); }}
+                        disabled={!!r.no_anulable} title={r.no_anulable || 'Anular (requiere PIN)'}
+                        className={`p-2 rounded-lg ${r.no_anulable ? 'text-slate-300 cursor-not-allowed' : 'text-slate-500 hover:text-red-700 hover:bg-red-50'}`}>
                         <NoSymbolIcon className="w-5 h-5" />
                     </button>
                 )}
@@ -132,7 +143,7 @@ const Index = () => {
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchPagos(1); }}
                 onFilterClear={() => { setFilters(FILTROS_INICIALES); filtersRef.current = FILTROS_INICIALES; fetchPagos(1); }}
-                pagination={{ ...pagination, onPageChange: fetchPagos }} />
+                pagination={{ clave: 'pagos', ...pagination, onPageChange: fetchPagos }} />
 
             {comprobante && (
                 <ComprobanteModal pago={comprobante} loading={procesando} error={errorDeAlerta(alert)} onClose={() => { setComprobante(null); setAlert(null); }}

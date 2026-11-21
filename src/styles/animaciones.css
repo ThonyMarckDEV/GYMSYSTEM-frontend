@@ -1,0 +1,94 @@
+/* Animaciones de notificaciones y avisos en vivo */
+
+/* Campana: se sacude cuando llega una notificación */
+@keyframes campana-sacude {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(16deg); }
+    30% { transform: rotate(-14deg); }
+    45% { transform: rotate(10deg); }
+    60% { transform: rotate(-8deg); }
+    75% { transform: rotate(4deg); }
+}
+.campana-sacude { animation: campana-sacude .9s ease-in-out; transform-origin: 50% 4px; }
+
+/* Popup / tarjetas que aparecen */
+@keyframes aparecer-arriba {
+    from { opacity: 0; transform: translateY(-6px) scale(.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.aparecer-arriba { animation: aparecer-arriba .18s ease-out; }
+
+@keyframes aparecer-abajo {
+    from { opacity: 0; transform: translateY(16px) scale(.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.aparecer-abajo { animation: aparecer-abajo .3s cubic-bezier(.2, .9, .3, 1.2); }
+
+/* "Están revisando tu pago": anillos que se expanden */
+@keyframes anillo {
+    0% { transform: scale(.6); opacity: .7; }
+    100% { transform: scale(1.9); opacity: 0; }
+}
+.anillo-pulso { animation: anillo 1.6s ease-out infinite; }
+.anillo-pulso-2 { animation: anillo 1.6s ease-out .8s infinite; }
+
+/* Lupa que "revisa" de lado a lado */
+@keyframes revisar {
+    0%, 100% { transform: translateX(-6px) rotate(-8deg); }
+    50% { transform: translateX(6px) rotate(8deg); }
+}
+.lupa-revisa { animation: revisar 1.4s ease-in-out infinite; }
+
+/* Barra indeterminada */
+@keyframes barrido {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+}
+.barra-barrido { animation: barrido 1.3s ease-in-out infinite; }
+
+/* Check / X que aparecen con rebote */
+@keyframes pop {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    60% { transform: scale(1.25) rotate(6deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); }
+}
+.icono-pop { animation: pop .55s cubic-bezier(.2, .9, .3, 1.3); }
+
+/* Puntitos de celebración */
+@keyframes chispa {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(.3); opacity: 0; }
+}
+.chispa { animation: chispa .9s ease-out forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+    .campana-sacude, .aparecer-arriba, .aparecer-abajo, .anillo-pulso, .anillo-pulso-2,
+    .lupa-revisa, .barra-barrido, .icono-pop, .chispa { animation: none !important; }
+}
+
+/* Modal como hoja que sube desde abajo (solo celular) */
+@keyframes hoja-subir {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+@media (max-width: 639px) {
+    .hoja-subir { animation: hoja-subir .25s cubic-bezier(.2, .9, .3, 1); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .hoja-subir { animation: none; }
+}
+
+/* Panel lateral (crear / editar): entra desde la derecha */
+@keyframes panel-entrar {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+@keyframes panel-fondo {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.panel-lateral { animation: panel-entrar .28s cubic-bezier(.2, .8, .2, 1); }
+.panel-fondo { animation: panel-fondo .2s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+    .panel-lateral, .panel-fondo { animation: none; }
+}

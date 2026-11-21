@@ -86,7 +86,7 @@ const Index = () => {
                         columns={columns} 
                         data={roles} 
                         loading={loading} 
-                        pagination={{...paginationInfo, onPageChange: fetchRoles}} 
+                        pagination={{ clave: 'roles',...paginationInfo, onPageChange: fetchRoles}} 
                     />
                 </div>
             ) : (

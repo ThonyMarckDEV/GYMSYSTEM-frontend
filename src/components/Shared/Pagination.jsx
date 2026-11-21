@@ -1,96 +1,75 @@
 import React from 'react';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { OPCIONES_POR_PAGINA } from 'utilities/Paginacion/porPagina';
 
 const DOTS = '...';
 
 const getPaginationRange = ({ totalPages, currentPage, siblingCount = 1 }) => {
-  const range = (start, end) => {
-    let length = end - start + 1;
-    return Array.from({ length }, (_, idx) => idx + start);
-  };
+  const range = (start, end) => Array.from({ length: end - start + 1 }, (_, idx) => idx + start);
 
   const totalPageNumbers = siblingCount + 5;
-
-  if (totalPages <= totalPageNumbers) {
-    return range(1, totalPages);
-  }
+  if (totalPages <= totalPageNumbers) return range(1, totalPages);
 
   const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
   const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
-
   const shouldShowLeftDots = leftSiblingIndex > 2;
   const shouldShowRightDots = rightSiblingIndex < totalPages - 2;
 
-  const firstPageIndex = 1;
-  const lastPageIndex = totalPages;
-
   if (!shouldShowLeftDots && shouldShowRightDots) {
-    let leftItemCount = 3 + 2 * siblingCount;
-    let leftRange = range(1, leftItemCount);
-    return [...leftRange, DOTS, totalPages];
+    return [...range(1, 3 + 2 * siblingCount), DOTS, totalPages];
   }
-
   if (shouldShowLeftDots && !shouldShowRightDots) {
-    let rightItemCount = 3 + 2 * siblingCount;
-    let rightRange = range(totalPages - rightItemCount + 1, totalPages);
-    return [firstPageIndex, DOTS, ...rightRange];
+    const rightItemCount = 3 + 2 * siblingCount;
+    return [1, DOTS, ...range(totalPages - rightItemCount + 1, totalPages)];
   }
-
   if (shouldShowLeftDots && shouldShowRightDots) {
-    let middleRange = range(leftSiblingIndex, rightSiblingIndex);
-    return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex];
+    return [1, DOTS, ...range(leftSiblingIndex, rightSiblingIndex), DOTS, totalPages];
   }
-
   return range(1, totalPages);
 };
 
+const btnBase = 'h-9 min-w-[36px] px-2.5 text-xs md:text-sm font-medium rounded-lg border transition-colors disabled:opacity-40 disabled:cursor-not-allowed';
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+/** Selector de filas por página (5, 10, 15, 20, 25, 50, 100). */
+export const PorPaginaSelect = ({ value, onChange, disabled = false }) => (
+  <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-500">
+    Mostrar
+    <select value={value} onChange={(e) => onChange(Number(e.target.value))} disabled={disabled}
+      className="h-9 px-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none cursor-pointer"
+      aria-label="Filas por página">
+      {OPCIONES_POR_PAGINA.map(n => <option key={n} value={n}>{n}</option>)}
+    </select>
+    por página
+  </label>
+);
+
+/** Botones de página (solo si hay más de una). */
+const Pagination = ({ currentPage, totalPages, onPageChange, disabled = false }) => {
+  if (!totalPages || totalPages <= 1) return null;
   const paginationRange = getPaginationRange({ currentPage, totalPages });
 
-  if (totalPages <= 1) {
-    return null;
-  }
-
   return (
-    <nav className="flex flex-wrap justify-center items-center gap-1.5 md:gap-2 w-full mt-4 md:mt-0">
-      <button
-          type="button" // 🔥 CRUCIAL: Evita el submit accidental
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1} 
-          className="px-2.5 py-1.5 md:px-4 md:py-2 text-[11px] md:text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
-      >
-          Anterior
+    <nav className="flex flex-wrap justify-center items-center gap-1.5" aria-label="Paginación">
+      <button type="button" onClick={() => onPageChange(currentPage - 1)} disabled={disabled || currentPage === 1}
+        className={`${btnBase} bg-white text-slate-600 border-slate-200 hover:bg-slate-50`} aria-label="Página anterior">
+        <ChevronLeftIcon className="w-4 h-4 mx-auto" />
       </button>
 
-      <div className="flex flex-wrap justify-center items-center gap-1 md:gap-2">
-          {paginationRange.map((pageNumber, index) => {
-            if (pageNumber === DOTS) {
-              return <span key={`${pageNumber}-${index}`} className="px-1 md:px-2 py-1 text-xs md:text-sm font-medium text-gray-500">...</span>;
-            }
-            return (
-              <button
-                type="button" // 🔥 CRUCIAL: Evita el submit accidental
-                key={pageNumber}
-                onClick={() => onPageChange(pageNumber)}
-                className={`px-2.5 py-1.5 md:px-4 md:py-2 text-[11px] md:text-sm font-medium border rounded-md transition-colors ${
-                  currentPage === pageNumber
-                    ? 'bg-black text-white border-black shadow-sm'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                {pageNumber}
-              </button> 
-            );
-          })}
-      </div>
+      {paginationRange.map((pageNumber, index) => pageNumber === DOTS ? (
+        <span key={`dots-${index}`} className="px-1 text-sm font-medium text-slate-400">…</span>
+      ) : (
+        <button type="button" key={pageNumber} onClick={() => onPageChange(pageNumber)} disabled={disabled}
+          aria-current={currentPage === pageNumber ? 'page' : undefined}
+          className={`${btnBase} ${currentPage === pageNumber
+            ? 'bg-secondary text-white border-secondary font-semibold'
+            : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900'}`}>
+          {pageNumber}
+        </button>
+      ))}
 
-      <button
-          type="button" // 🔥 CRUCIAL: Evita el submit accidental
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-2.5 py-1.5 md:px-4 md:py-2 text-[11px] md:text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 transition-colors"
-      >
-          Siguiente
+      <button type="button" onClick={() => onPageChange(currentPage + 1)} disabled={disabled || currentPage === totalPages}
+        className={`${btnBase} bg-white text-slate-600 border-slate-200 hover:bg-slate-50`} aria-label="Página siguiente">
+        <ChevronRightIcon className="w-4 h-4 mx-auto" />
       </button>
     </nav>
   );

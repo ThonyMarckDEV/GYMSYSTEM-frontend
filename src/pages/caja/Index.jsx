@@ -1,15 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useCaja } from 'hooks/caja/useCaja';
 import { useAuth } from 'context/AuthContext';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import LoadingScreen from 'components/Shared/LoadingScreen';
 import CobroPanel from 'components/Caja/CobroPanel';
+import CobroClasePanel from 'components/Caja/CobroClasePanel';
+import VentaProductosPanel from 'components/Caja/VentaProductosPanel';
 import ArqueoModal from 'components/Caja/ArqueoModal';
 import { EstadoPago, BotonTicket, useTicket, soles, METODOS, errorDeAlerta } from 'components/Pagos/PagoUI';
 import { KpiTile } from 'components/Dashboard/Charts';
-import { BanknotesIcon, LockClosedIcon, LockOpenIcon, DevicePhoneMobileIcon, ReceiptPercentIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
+import { BanknotesIcon, LockClosedIcon, LockOpenIcon, DevicePhoneMobileIcon, ReceiptPercentIcon, ArchiveBoxIcon, IdentificationIcon, CalendarDaysIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+
+/** Qué se cobra en caja */
+const PESTANAS = [
+    { key: 'membresia', label: 'Membresías', icon: IdentificationIcon },
+    { key: 'clase',     label: 'Clases y eventos', icon: CalendarDaysIcon },
+    { key: 'producto',  label: 'Productos', icon: ShoppingCartIcon },
+];
+const CONCEPTO_CORTO = { membresia: 'Plan', clase: 'Clase', producto: 'Venta' };
 
 /** Abrir turno: el cajero elige una caja libre de su sede */
 const AbrirCaja = ({ onAbrir, procesando, ultimoCierre, cajas }) => {
@@ -32,7 +42,7 @@ const AbrirCaja = ({ onAbrir, procesando, ultimoCierre, cajas }) => {
 
                 {sucursal && <p className="mb-4 text-sm text-slate-600">Sede: <b>{sucursal.nombre}</b></p>}
 
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Caja *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Caja *</label>
                 {cajas.length === 0 ? (
                     <p className="mb-4 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-3">
                         No hay cajas libres en tu sede. Todas están abiertas por otros cajeros o el administrador aún no registró cajas.
@@ -52,9 +62,9 @@ const AbrirCaja = ({ onAbrir, procesando, ultimoCierre, cajas }) => {
                     </div>
                 )}
 
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Monto de apertura (S/) *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Monto de apertura (S/) *</label>
                 <input type="number" min="0" step="0.10" value={monto} onChange={(e) => setMonto(e.target.value)}
-                    className="w-full p-3 text-2xl font-black border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none tabular-nums" placeholder="0.00" />
+                    className="w-full p-3 text-2xl font-black border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none tabular-nums" placeholder="0.00" />
 
                 <button disabled={procesando || monto === '' || !cajaId}
                     onClick={() => onAbrir({ caja_id: cajaId, monto_apertura: monto })}
@@ -91,7 +101,10 @@ const ResumenCierre = ({ data }) => {
 
 const Index = () => {
     const c = useCaja();
+    const [params] = useSearchParams();
+    const dniInicial = (params.get('dni') || '').replace(/\D/g, '').slice(0, 8);
     const [cerrando, setCerrando] = useState(false);
+    const [pestana, setPestana] = useState('membresia');
     const { abrirTicket, TicketModal, errorTicket } = useTicket();
 
     if (c.loading) return <LoadingScreen />;
@@ -117,16 +130,36 @@ const Index = () => {
                     </div>
 
                     <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-                        <div className="xl:col-span-3">
-                            <CobroPanel
-                                errorModal={errorDeAlerta(c.alert)}
-                                planes={c.planes} descuentos={c.descuentos} metodos={c.metodos}
-                                busqueda={c.busqueda} ultimoCobro={c.ultimoCobro} procesando={c.procesando}
-                                onBuscar={c.buscar} onCobrar={c.cobrarCliente}
-                                onVerificar={c.verificarPendiente} onRechazar={c.rechazarPendiente}
-                                onLimpiar={() => { c.setBusqueda(null); c.setUltimoCobro(null); }}
-                                onTicket={abrirTicket}
-                            />
+                        <div className="xl:col-span-3 min-w-0">
+                            {/* Qué se cobra: membresía, clase/evento con costo o productos */}
+                            <div className="grid grid-cols-3 gap-1 p-1 mb-3 bg-white border border-slate-200 rounded-xl shadow-sm" role="tablist" aria-label="Tipo de cobro">
+                                {PESTANAS.map(p => {
+                                    const Icon = p.icon;
+                                    const activa = pestana === p.key;
+                                    return (
+                                        <button key={p.key} role="tab" aria-selected={activa} onClick={() => setPestana(p.key)}
+                                            className={`flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-lg text-xs sm:text-sm font-black uppercase transition-colors
+                                                ${activa ? 'bg-secondary text-primary' : 'text-slate-500 hover:bg-slate-50 hover:text-secondary'}`}>
+                                            <Icon className="w-4 h-4 shrink-0" /> <span className="truncate">{p.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {pestana === 'membresia' && (
+                                <CobroPanel
+                                    errorModal={errorDeAlerta(c.alert)}
+                                    dniInicial={dniInicial}
+                                    planes={c.planes} descuentos={c.descuentos} metodos={c.metodos}
+                                    busqueda={c.busqueda} ultimoCobro={c.ultimoCobro} procesando={c.procesando}
+                                    onBuscar={c.buscar} onCobrar={c.cobrarCliente}
+                                    onVerificar={c.verificarPendiente} onRechazar={c.rechazarPendiente}
+                                    onLimpiar={() => { c.setBusqueda(null); c.setUltimoCobro(null); }}
+                                    onTicket={abrirTicket}
+                                />
+                            )}
+                            {pestana === 'clase' && <CobroClasePanel metodos={c.metodos} onCobrado={c.recargar} onTicket={abrirTicket} />}
+                            {pestana === 'producto' && <VentaProductosPanel metodos={c.metodos} onCobrado={c.recargar} onTicket={abrirTicket} />}
                         </div>
 
                         <div className="xl:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -137,6 +170,13 @@ const Index = () => {
                                     <LockClosedIcon className="w-4 h-4" /> Cerrar caja
                                 </button>
                             </div>
+                            {c.caja.resumen.por_concepto && (
+                                <p className="mb-2 text-[11px] text-slate-500 flex flex-wrap gap-x-3">
+                                    {PESTANAS.map(p => (
+                                        <span key={p.key}>{p.label}: <b className="text-slate-700 tabular-nums">{soles(c.caja.resumen.por_concepto[p.key]?.total)}</b></span>
+                                    ))}
+                                </p>
+                            )}
                             {c.caja.pagos.length === 0 ? (
                                 <p className="text-sm text-slate-400 py-8 text-center">Aún no hay cobros en este turno.</p>
                             ) : (
@@ -145,7 +185,7 @@ const Index = () => {
                                         <li key={p.id} className="py-2.5 flex items-center justify-between gap-2">
                                             <div className="min-w-0">
                                                 <p className="text-sm font-bold text-slate-800 truncate">{p.cliente}</p>
-                                                <p className="text-[11px] text-slate-400">{p.hora} · {p.plan} · {METODOS[p.metodo_pago]}{p.origen === 'web' ? ' (en línea)' : ''}</p>
+                                                <p className="text-[11px] text-slate-400 truncate">{p.hora} · {CONCEPTO_CORTO[p.concepto] || 'Plan'}: {p.plan} · {METODOS[p.metodo_pago]}{p.origen === 'web' ? ' (en línea)' : ''}</p>
                                             </div>
                                             <div className="flex items-center gap-2 flex-shrink-0">
                                                 <div className="text-right">

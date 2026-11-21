@@ -29,7 +29,7 @@ export const useStore = () => {
         try {
             await store(formData);
             setAlert({ type: 'success', message: 'Descuento registrado exitosamente. Redirigiendo...' });
-            setTimeout(() => navigate('/descuento/listar'), 1500);
+            setTimeout(() => navigate('/descuento/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al registrar descuento'));
         } finally {

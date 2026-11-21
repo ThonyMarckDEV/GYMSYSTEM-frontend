@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
     XMarkIcon, 
     PrinterIcon, 
@@ -60,7 +61,9 @@ const PdfModal = ({ isOpen, onClose, title, pdfUrl }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        // Portal al body: si el modal queda dentro de un contenedor con transform/blur,
+        // "fixed" se mide contra ese contenedor y el fondo no cubre toda la pantalla.
+        createPortal(<div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
 
             <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[90vh] flex flex-col overflow-hidden border border-slate-700">
 
@@ -116,7 +119,7 @@ const PdfModal = ({ isOpen, onClose, title, pdfUrl }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>, document.body)
     );
 };
 

@@ -13,7 +13,7 @@ const Fila = ({ d, cantidad, onChange }) => (
         <span className="text-slate-400 text-xs">×</span>
         <input type="number" min="0" inputMode="numeric" value={cantidad ?? ''}
             onChange={(e) => onChange(e.target.value.replace(/\D/g, ''))}
-            className="w-20 p-1.5 text-right text-sm border border-slate-300 rounded-md focus:ring-1 focus:ring-primary outline-none tabular-nums"
+            className="w-20 p-1.5 text-right text-sm border border-slate-300 rounded-md focus:ring-2 focus:ring-primary/40 outline-none tabular-nums"
             placeholder="0" aria-label={`Cantidad de ${etiqueta(d)}`} />
         <span className="w-20 text-right text-sm tabular-nums text-slate-600">{soles(Number(d) * (Number(cantidad) || 0))}</span>
     </label>
@@ -82,9 +82,9 @@ const ArqueoModal = ({ esperado, onClose, onConfirm, loading, error }) => {
                 </div>
             </div>
 
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1 mt-5">Observaciones</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5 mt-5">Observaciones</label>
             <textarea rows={2} value={observaciones} onChange={e => setObservaciones(e.target.value)}
-                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none resize-none"
+                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none resize-none"
                 placeholder={diferencia !== 0 ? 'Explica el sobrante o faltante' : 'Opcional'} />
         </Modal>
     );

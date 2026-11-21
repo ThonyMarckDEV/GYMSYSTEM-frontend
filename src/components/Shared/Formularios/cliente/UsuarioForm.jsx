@@ -8,8 +8,8 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
   const noCoinciden = pass && confirm && pass !== confirm;
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mt-6">
-      <h3 className="text-lg font-black text-secondary flex items-center gap-2 mb-4 border-b border-slate-100 pb-2 uppercase">
+    <div className="bg-white p-6 rounded-xl shadow-card border border-slate-200 mt-6">
+      <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
         <UserIcon className="w-5 h-5" /> Credenciales y Acceso
       </h3>
       
@@ -17,7 +17,7 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
 
         {/* Username */}
         <div className="md:col-span-2">
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Nombre de Usuario <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -26,7 +26,7 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                     type="text"
                     value={form.usuario.username || ''}
                     onChange={(e) => handleNestedChange('usuario', 'username', e.target.value)}
-                    className="w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                    className="w-full pl-9 p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none"
                     placeholder="Ej: jperez"
                     required
                 />
@@ -35,7 +35,7 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
         
         {/* Password */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Contraseña {isEditing && <span className="text-xs text-gray-400 font-normal normal-case">(Opcional al editar)</span>}
               {!isEditing && <span className="text-red-500">*</span>}
           </label>
@@ -45,7 +45,7 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
                   type="password"
                   value={form.usuario.password || ''}
                   onChange={(e) => handleNestedChange('usuario', 'password', e.target.value)}
-                  className="w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                  className="w-full pl-9 p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none"
                   placeholder={isEditing ? "Dejar vacío para mantener" : "Mínimo 8 caracteres"}
                   required={!isEditing}
                   minLength={8}
@@ -55,7 +55,7 @@ const UsuarioForm = ({ form, handleNestedChange, isEditing = false }) => {
 
         {/* Confirm Password */}
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
               Confirmar Contraseña {isEditing && <span className="text-xs text-gray-400 font-normal normal-case">(Opcional)</span>}
               {!isEditing && <span className="text-red-500">*</span>}
           </label>

@@ -2,14 +2,14 @@ import React from 'react';
 import { BuildingStorefrontIcon, MapPinIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import { toUpper } from 'utilities/Validations/validations';
 
-const inputClass = "w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none";
-const labelClass = "block text-xs font-bold text-slate-700 uppercase mb-1";
+const inputClass = "w-full pl-9 p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none";
+const labelClass = "block text-sm font-medium text-slate-700 mb-1.5";
 const iconClass  = "w-4 h-4 absolute left-3 top-3 text-gray-400";
 
 const SucursalForm = ({ formData, handleChange }) => {
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h3 className="text-lg font-black text-secondary flex items-center gap-2 mb-4 border-b border-slate-100 pb-2 uppercase">
+        <div className="bg-white p-6 rounded-xl shadow-card border border-slate-200">
+            <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
                 <BuildingStorefrontIcon className="w-5 h-5" /> Información de la Sucursal
             </h3>
 

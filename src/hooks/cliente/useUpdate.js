@@ -67,7 +67,7 @@ export const useUpdate = () => {
         try {
             await update(id, formData);
             setAlert({ type: 'success', message: 'Cliente actualizado correctamente.' });
-            setTimeout(() => navigate('/cliente/listar'), 1500);
+            setTimeout(() => navigate('/cliente/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al actualizar el cliente'));
         } finally {

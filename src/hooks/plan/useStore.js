@@ -14,7 +14,8 @@ export const useStore = () => {
         duracion_dias: '',
         precio: '',
         dias_gracia: '',
-        congelamientos_permitidos: ''
+        congelamientos_permitidos: '',
+        bono_bienvenida_dias: ''
     });
 
     const handleChange = (field, value) => {
@@ -28,7 +29,7 @@ export const useStore = () => {
         try {
             await store(formData);
             setAlert({ type: 'success', message: 'Plan registrado exitosamente. Redirigiendo...' });
-            setTimeout(() => navigate('/plan/listar'), 1500);
+            setTimeout(() => navigate('/plan/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al registrar plan'));
         } finally {

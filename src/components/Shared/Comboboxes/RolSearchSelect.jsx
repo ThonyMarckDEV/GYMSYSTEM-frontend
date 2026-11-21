@@ -104,7 +104,7 @@ const RolSearchSelect = ({ form, setForm, disabled, isFilter = false }) => {
                     onClick={handleInputClick}
                     disabled={disabled}
                     placeholder={isFilter ? "Todos los roles" : "Ej: Administrador, Editor..."}
-                    className={`w-full border border-slate-300 rounded-md shadow-sm pl-9 pr-8 text-sm focus:ring-1 focus:ring-black focus:border-black outline-none transition-all placeholder-slate-400 
+                    className={`w-full border border-slate-300 rounded-md shadow-sm pl-9 pr-8 text-sm text-secondary focus:ring-1 focus:ring-black focus:border-black outline-none transition-all placeholder-slate-400 
                         ${isFilter ? 'py-2' : 'py-3'} 
                         ${disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}
                     `}

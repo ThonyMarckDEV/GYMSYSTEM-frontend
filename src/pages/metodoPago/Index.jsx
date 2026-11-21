@@ -7,8 +7,8 @@ import LoadingScreen from 'components/Shared/LoadingScreen';
 import { QrPago } from 'components/Pagos/PagoUI';
 import { DevicePhoneMobileIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
 
-const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none';
-const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
+const inputCls = 'w-full p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none';
+const labelCls = 'block text-sm font-medium text-slate-700 mb-1.5';
 
 const Tarjeta = ({ tipo, datos, form, setForm, archivo, setArchivo, quitar, setQuitar, version }) => {
     const nombre = tipo === 'yape' ? 'Yape' : 'Plin';

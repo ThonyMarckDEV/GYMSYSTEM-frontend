@@ -1,27 +1,27 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
-    MagnifyingGlassIcon, UserIcon, ExclamationTriangleIcon, BanknotesIcon,
-    DevicePhoneMobileIcon, CreditCardIcon, CheckCircleIcon, PhotoIcon, NoSymbolIcon
+    MagnifyingGlassIcon, UserIcon, ExclamationTriangleIcon, CheckCircleIcon, PhotoIcon, NoSymbolIcon, GiftIcon
 } from '@heroicons/react/24/outline';
-import { QrPago, ComprobanteModal, BotonTicket, soles, METODOS } from 'components/Pagos/PagoUI';
-
-const METODOS_CAJA = [
-    { key: 'efectivo', label: 'Efectivo', icon: BanknotesIcon },
-    { key: 'yape',     label: 'Yape',     icon: DevicePhoneMobileIcon },
-    { key: 'plin',     label: 'Plin',     icon: DevicePhoneMobileIcon },
-    { key: 'tarjeta',  label: 'Tarjeta',  icon: CreditCardIcon },
-];
-
-const inputCls = 'w-full p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none bg-white';
-const labelCls = 'block text-xs font-bold text-slate-700 uppercase mb-1';
+import { textoDias } from 'utilities/Formato/dias';
+import { ComprobanteModal, BotonTicket, soles, METODOS } from 'components/Pagos/PagoUI';
+import MetodoCobro, { TotalCobro, inputCls, labelCls } from 'components/Caja/MetodoCobro';
 
 /**
  * Cobro en caja: buscar al cliente por DNI → si ya subió comprobante se verifica,
  * si no, se elige plan y se cobra en efectivo (con vuelto), Yape/Plin al momento o tarjeta.
  */
-const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoCobro, procesando, onBuscar, onCobrar, onVerificar, onRechazar, onLimpiar, onTicket }) => {
-    const [dni, setDni] = useState('');
+const CobroPanel = ({ errorModal, dniInicial = '', planes, descuentos, metodos, busqueda, ultimoCobro, procesando, onBuscar, onCobrar, onVerificar, onRechazar, onLimpiar, onTicket }) => {
+    const [dni, setDni] = useState(dniInicial);
+
+    // Llegó desde la ficha del cliente (/caja?dni=...): buscarlo automáticamente una vez
+    const buscado = useRef(false);
+    useEffect(() => {
+        if (!buscado.current && /^\d{8}$/.test(dniInicial)) {
+            buscado.current = true;
+            onBuscar(dniInicial);
+        }
+    }, [dniInicial, onBuscar]);
     const [form, setForm] = useState({ plan_id: '', descuento_id: '', metodo_pago: 'efectivo', monto_recibido: '', numero_operacion: '' });
     const [verComprobante, setVerComprobante] = useState(false);
 
@@ -32,6 +32,9 @@ const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoC
 
     const plan = planes.find(p => String(p.id) === String(form.plan_id));
     const descuento = descuentos.find(d => String(d.id) === String(form.descuento_id));
+    // Bono de bienvenida: solo si el cliente nunca tuvo una membresía pagada
+    const esNuevo = !!busqueda?.es_nuevo;
+    const bono = esNuevo && plan ? Number(plan.bono_bienvenida_dias) || 0 : 0;
 
     const { montoDescuento, total } = useMemo(() => {
         if (!plan) return { montoDescuento: 0, total: 0 };
@@ -43,7 +46,6 @@ const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoC
     }, [plan, descuento]);
 
     const recibido = form.monto_recibido === '' ? null : Number(form.monto_recibido);
-    const vuelto = recibido !== null ? Math.round((recibido - total) * 100) / 100 : null;
     const esDigital = form.metodo_pago === 'yape' || form.metodo_pago === 'plin';
 
     const puedeCobrar = plan && !procesando
@@ -65,15 +67,13 @@ const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoC
 
     return (
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-sm font-black text-slate-800 uppercase tracking-wide mb-4">Cobrar membresía</h3>
-
             {/* 1. BUSCAR POR DNI */}
             <form onSubmit={buscar} className="flex gap-2">
                 <div className="relative flex-1">
                     <MagnifyingGlassIcon className="w-5 h-5 absolute left-3 top-3 text-slate-400" />
                     <input value={dni} onChange={(e) => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
                         inputMode="numeric" autoFocus placeholder="DNI del cliente (8 dígitos)"
-                        className="w-full pl-10 p-3 text-lg font-bold tracking-widest border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none tabular-nums" />
+                        className="w-full pl-10 p-3 text-lg font-bold tracking-widest border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none tabular-nums" />
                 </div>
                 <button type="submit" disabled={dni.length !== 8 || procesando}
                     className="px-5 bg-secondary text-primary rounded-lg font-black uppercase text-sm hover:bg-secondary/90 disabled:opacity-40">
@@ -91,7 +91,9 @@ const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoC
                     {ultimoCobro.pago?.metodo_pago === 'efectivo' && Number(ultimoCobro.pago?.vuelto) > 0 && (
                         <p className="text-2xl font-black text-green-900 mt-2 tabular-nums">Vuelto: {soles(ultimoCobro.pago.vuelto)}</p>
                     )}
-                    <p className="text-xs text-green-800 mt-1">Vigente del {ultimoCobro.membresia.fecha_inicio?.slice(0, 10)} al {ultimoCobro.membresia.fecha_fin?.slice(0, 10)}</p>
+                    <p className="text-xs text-green-800 mt-1">Vigente del {ultimoCobro.membresia.fecha_inicio?.slice(0, 10)} al {ultimoCobro.membresia.fecha_fin?.slice(0, 10)}
+                        {ultimoCobro.membresia.dias_bono > 0 && <> · incluye <b>+{textoDias(ultimoCobro.membresia.dias_bono)} de regalo</b></>}
+                    </p>
                     <div className="mt-3 flex gap-2">
                         {ultimoCobro.pago && <BotonTicket onClick={() => onTicket(ultimoCobro.pago.id)} />}
                         <button onClick={() => { onLimpiar(); setDni(''); }} className="px-3 py-2 text-xs font-bold rounded-lg border border-slate-200 text-slate-600 hover:bg-white">Nuevo cobro</button>
@@ -106,7 +108,9 @@ const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoC
                         <div className="flex items-center gap-3">
                             <div className="p-2 rounded-full bg-white border border-slate-200"><UserIcon className="w-6 h-6 text-slate-500" /></div>
                             <div>
-                                <p className="font-black text-slate-800">{busqueda.cliente.nombre_completo}</p>
+                                <p className="font-black text-slate-800 flex flex-wrap items-center gap-2">{busqueda.cliente.nombre_completo}
+                                    {esNuevo && <span className="text-[11px] font-medium text-emerald-700 bg-emerald-100 border border-emerald-200 rounded-full px-2 py-0.5">Cliente nuevo</span>}
+                                </p>
                                 <p className="text-xs text-slate-500">DNI {busqueda.cliente.dni}{busqueda.cliente.telefono ? ` · ${busqueda.cliente.telefono}` : ''}</p>
                             </div>
                         </div>
@@ -145,7 +149,7 @@ const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoC
                                     <label className={labelCls}>Plan *</label>
                                     <select value={form.plan_id} onChange={(e) => setForm(f => ({ ...f, plan_id: e.target.value }))} className={inputCls}>
                                         <option value="">-- Seleccionar plan --</option>
-                                        {planes.map(p => <option key={p.id} value={p.id}>{p.nombre} — {soles(p.precio)} ({p.duracion_dias} días)</option>)}
+                                        {planes.map(p => <option key={p.id} value={p.id}>{p.nombre} — {soles(p.precio)} ({p.duracion_dias} días{esNuevo && p.bono_bienvenida_dias > 0 ? ` + ${textoDias(p.bono_bienvenida_dias)} de regalo` : ''})</option>)}
                                     </select>
                                 </div>
                                 <div>
@@ -157,59 +161,19 @@ const CobroPanel = ({ errorModal, planes, descuentos, metodos, busqueda, ultimoC
                                 </div>
                             </div>
 
-                            <div>
-                                <label className={labelCls}>Método de pago</label>
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup">
-                                    {METODOS_CAJA.map(m => {
-                                        const Icon = m.icon;
-                                        const activo = form.metodo_pago === m.key;
-                                        return (
-                                            <button key={m.key} type="button" role="radio" aria-checked={activo}
-                                                onClick={() => setForm(f => ({ ...f, metodo_pago: m.key }))}
-                                                className={`flex items-center justify-center gap-1.5 p-2.5 rounded-lg border text-sm font-bold transition-colors
-                                                    ${activo ? 'bg-secondary text-primary border-secondary' : 'bg-white text-slate-600 border-slate-300 hover:border-slate-400'}`}>
-                                                <Icon className="w-4 h-4" /> {m.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {form.metodo_pago === 'efectivo' && (
-                                <div className="grid grid-cols-2 gap-4 items-end">
-                                    <div>
-                                        <label className={labelCls}>Recibido (S/)</label>
-                                        <input type="number" min="0" step="0.10" value={form.monto_recibido}
-                                            onChange={(e) => setForm(f => ({ ...f, monto_recibido: e.target.value }))}
-                                            className={`${inputCls} text-lg font-bold tabular-nums`} placeholder={total ? total.toFixed(2) : '0.00'} />
-                                    </div>
-                                    <div className={`p-2.5 rounded-lg border text-center ${vuelto !== null && vuelto < 0 ? 'bg-red-50 border-red-200 text-red-800' : 'bg-slate-50 border-slate-200 text-slate-800'}`}>
-                                        <p className="text-[10px] uppercase font-bold opacity-70">{vuelto !== null && vuelto < 0 ? 'Falta' : 'Vuelto'}</p>
-                                        <p className="text-xl font-black tabular-nums">{soles(Math.abs(vuelto ?? 0))}</p>
-                                    </div>
+                            {bono > 0 && (
+                                <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+                                    <GiftIcon className="w-5 h-5 text-amber-700 flex-shrink-0 mt-0.5" />
+                                    <p className="text-sm text-amber-900">
+                                        <b>Bono de bienvenida: +{textoDias(bono)} de regalo.</b> Como es su primera membresía, el plan dura <b>{plan.duracion_dias + bono} días</b> en lugar de {plan.duracion_dias}.
+                                    </p>
                                 </div>
                             )}
 
-                            {esDigital && (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-xl bg-slate-50 border border-slate-200">
-                                    <QrPago tipo={form.metodo_pago} datos={metodos?.[form.metodo_pago]} />
-                                    <div>
-                                        <p className="text-sm text-slate-600 mb-3">Muestra el QR al cliente. Cuando te enseñe la confirmación, escribe el N° de operación.</p>
-                                        <label className={labelCls}>N° de operación *</label>
-                                        <input value={form.numero_operacion} onChange={(e) => setForm(f => ({ ...f, numero_operacion: e.target.value }))}
-                                            className={inputCls} placeholder="Ej: 12345678" />
-                                    </div>
-                                </div>
-                            )}
+                            <MetodoCobro cobro={form} onChange={setForm} total={total} metodos={metodos} />
 
                             {plan && (
-                                <div className="flex items-center justify-between p-4 rounded-xl bg-secondary text-white">
-                                    <div className="text-sm">
-                                        <p className="text-white/70">{plan.nombre}{montoDescuento > 0 && ` · desc. -${soles(montoDescuento)}`}</p>
-                                        <p className="text-[10px] uppercase font-bold text-primary">Total a cobrar</p>
-                                    </div>
-                                    <p className="text-3xl font-black tabular-nums">{soles(total)}</p>
-                                </div>
+                                <TotalCobro detalle={`${plan.nombre}${montoDescuento > 0 ? ` · desc. -${soles(montoDescuento)}` : ''}`} total={total} />
                             )}
 
                             <div className="flex justify-end">
