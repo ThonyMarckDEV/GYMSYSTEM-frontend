@@ -11,27 +11,52 @@ import {
     BuildingOffice2Icon,
     BuildingStorefrontIcon,
     ChartBarIcon,
-    RocketLaunchIcon,
     BanknotesIcon,
     CreditCardIcon,
     KeyIcon,
     DevicePhoneMobileIcon,
     ArchiveBoxIcon,
     InboxStackIcon,
+    CalendarDaysIcon,
+    CubeTransparentIcon,
+    ShoppingBagIcon,
+    ArrowsRightLeftIcon,
+    DocumentArrowDownIcon,
+    ShieldCheckIcon,
+    ClipboardDocumentListIcon,
+    Squares2X2Icon,
+    ScaleIcon,
+    RocketLaunchIcon,
+    ReceiptPercentIcon,
 } from '@heroicons/react/24/outline';
 import ConfirmModal from 'components/Shared/Modals/ConfirmModal';
-import EmpresaSelector from 'components/Shared/Comboboxes/EmpresaSelector';
-import { APP_NAME } from 'config/app';
+import SucursalSelector from 'components/Shared/Comboboxes/SucursalSelector';
 import {Settings,TagIcon,User2Icon, UserCircleIcon, UserSquare2Icon } from 'lucide-react';
 import { useAuth } from 'context/AuthContext';
 
-// Importamos el logo
-import logo from 'assets/img/logo.png'; 
+// Marca: logo de la empresa o la pesa
+import { MarcaSidebar } from 'components/Shared/Marca';
 
 // =======================================================================
 // CONFIGURACIÓN MAESTRA DEL MENÚ
 // =======================================================================
 const MENU_GROUPS = [
+    {
+        // SaaS: solo el superadmin (dueño de la plataforma)
+        groupName: 'Plataforma',
+        items: [
+            {
+                section: 'Empresas', icon: BuildingOffice2Icon,
+                subs: [
+                    { name: 'Listar', link: '/empresa/listar', requiredPermission: 'empresa.index' },
+                    { name: 'Agregar', link: '/empresa/agregar', requiredPermission: 'empresa.store' },
+                ],
+            },
+            { section: 'Planes del Sistema', link: '/suscripcion/listar', icon: RocketLaunchIcon, requiredPermission: 'suscripcion.index' },
+            // Lo que las empresas le pagan a la plataforma (registrar y anular)
+            { section: 'Pagos de Empresas', link: '/suscripcion/cobros', icon: ReceiptPercentIcon, requiredPermission: 'suscripcion.cobrar' },
+        ]
+    },
     {
         groupName: 'Principal',
         items: [
@@ -45,7 +70,10 @@ const MENU_GROUPS = [
                 link: '/dashboard',
                 icon: ChartBarIcon,
                 requiredPermission: 'dashboard.index',
-            }
+            },
+            { section: 'Mi Panel', link: '/mi-panel', icon: Squares2X2Icon, requiredPermission: 'perfil.index' },
+            { section: 'Mi Panel', link: '/panel-instructor', icon: Squares2X2Icon, requiredPermission: 'clase.panel' },
+            { section: 'Reportes', link: '/reportes', icon: DocumentArrowDownIcon, requiredPermission: 'reporte.ventas' },
         ]
     },
     {
@@ -56,14 +84,17 @@ const MENU_GROUPS = [
                 link: '/mi-perfil',
                 icon: UserCircleIcon,
                 requiredPermission: 'perfil.index',
-            }
+            },
+            { section: 'Mis Pagos', link: '/mis-pagos', icon: CreditCardIcon, requiredPermission: 'perfil.pagos' },
+            { section: 'Mis Rutinas', link: '/mis-rutinas', icon: ClipboardDocumentListIcon, requiredPermission: 'rutina.mias' },
+            { section: 'Mi Progreso', link: '/mi-progreso', icon: ScaleIcon, requiredPermission: 'progreso.mio' },
         ]
     },
     {
         groupName: 'Administración',
         items: [
             { 
-                section: 'Clientes', icon: User2Icon,
+                section: 'Clientes', icon: User2Icon, soloConEmpresa: true, // los clientes son de cada gimnasio
                 subs: [
                     { name: 'Listar', link: '/cliente/listar', requiredPermission: 'cliente.index' },
                     { name: 'Agregar', link: '/cliente/agregar', requiredPermission: 'cliente.store' },
@@ -82,7 +113,8 @@ const MENU_GROUPS = [
         groupName: 'Caja y Pagos',
         items: [
             { section: 'Mi Caja', link: '/caja', icon: BanknotesIcon, requiredPermission: 'cajaSesion.actual' },
-            { section: 'Pagos', link: '/pago/listar', icon: CreditCardIcon, requiredPermission: 'pago.index' },
+            // Pagos de los clientes del gimnasio: el superadmin los ve dentro de una empresa
+            { section: 'Pagos', link: '/pago/listar', icon: CreditCardIcon, requiredPermission: 'pago.index', soloConEmpresa: true },
             { section: 'Historial de Cajas', link: '/caja/historial', icon: ArchiveBoxIcon, requiredPermission: 'cajaSesion.index' },
             { section: 'Cajas', link: '/caja/listar', icon: InboxStackIcon, requiredPermission: 'caja.index' },
             { section: 'PINs de Autorización', link: '/pin/listar', icon: KeyIcon, requiredPermission: 'pin.index' },
@@ -92,6 +124,10 @@ const MENU_GROUPS = [
     {
         groupName: 'Gimnasio',
         items: [
+            { section: 'Clases', link: '/clases', icon: CalendarDaysIcon, requiredPermission: 'clase.index' },
+            { section: 'Inventario', link: '/inventario', icon: CubeTransparentIcon, requiredPermission: 'inventario.index' },
+            { section: 'Productos', link: '/productos', icon: ShoppingBagIcon, requiredPermission: 'producto.index' },
+            { section: 'Traslados', link: '/traslados', icon: ArrowsRightLeftIcon, requiredPermission: 'traslado.index' },
             { 
                 section: 'Planes', icon: TagIcon,
                 subs: [
@@ -111,6 +147,7 @@ const MENU_GROUPS = [
     {
         groupName: 'Configuracion',
         items: [
+            { section: 'Bitácora', link: '/bitacora', icon: ShieldCheckIcon, requiredPermission: 'auditoria.index' },
             {
                 section: 'Sucursales', icon: BuildingStorefrontIcon,
                 subs: [
@@ -119,19 +156,11 @@ const MENU_GROUPS = [
                 ],
             },
             {
-                section: 'Planes del Sistema', icon: RocketLaunchIcon,
-                subs: [
-                    { name: 'Listar', link: '/suscripcion/listar', requiredPermission: 'suscripcion.index' },
-                    { name: 'Agregar', link: '/suscripcion/agregar', requiredPermission: 'suscripcion.store' },
-                ],
+                section: 'Datos de la Empresa', icon: BuildingOffice2Icon,
+                link: '/empresa/datos', requiredPermission: 'miEmpresa.update', soloConEmpresa: true,
             },
-            {
-                section: 'Empresas', icon: BuildingOffice2Icon,
-                subs: [
-                    { name: 'Listar', link: '/empresa/listar', requiredPermission: 'empresa.index' },
-                    { name: 'Agregar', link: '/empresa/agregar', requiredPermission: 'empresa.store' },
-                ],
-            },
+            // SaaS: cada empresa ve su plan, consumo, beneficios y pagos
+            { section: 'Mi Plan', link: '/mi-plan', icon: RocketLaunchIcon, requiredPermission: 'suscripcion.miPlan' },
             { 
                 section: 'Roles y Permisos', icon: Settings,
                 link: '/rol/listar', requiredPermission: 'rol.index'
@@ -146,7 +175,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     const [showConfirm, setShowConfirm] = useState(false);
     
     const location = useLocation();
-    const { can, logout } = useAuth();
+    const { can, logout, esSuperAdmin, empresaActiva } = useAuth();
 
     const handleLogout = () => { logout(); setShowConfirm(false); };
     
@@ -159,6 +188,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 }
                 return item;
             }).filter(item => {
+                // Pantallas de UNA empresa: el superadmin las ve solo dentro de una empresa
+                if (item.soloConEmpresa && esSuperAdmin && !empresaActiva) return false;
                 if (item.subs) return item.subs.length > 0;
                 if (!item.requiredPermission) return true;
                 return can(item.requiredPermission);
@@ -166,7 +197,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
 
             return { ...group, items: filteredItems };
         }).filter(group => group.items.length > 0);
-    }, [can]);
+    }, [can, esSuperAdmin, empresaActiva]);
 
     const handleSectionClick = (section) => { 
         if (isCollapsed && window.innerWidth >= 768) {
@@ -214,8 +245,8 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             `}</style>
 
             {/* 1. Botón Móvil (Hamburguesa) */}
-            <button className="md:hidden fixed top-4 left-4 z-50 p-2 bg-secondary text-primary rounded-md shadow-lg" onClick={() => setIsOpen(!isOpen)}>
-                <Bars3Icon className="h-6 w-6" />
+            <button className="md:hidden fixed top-3 left-3 z-50 p-2 bg-white text-slate-700 border border-slate-200 rounded-lg shadow-card" onClick={() => setIsOpen(!isOpen)} aria-label="Abrir menú">
+                <Bars3Icon className="h-5 w-5" />
             </button>
 
             {/* 2. Overlay Móvil */}
@@ -225,9 +256,9 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 onClick={() => setIsOpen(false)}
             />
 
-            {/* 3. Sidebar Container — FONDO DORADO */}
+            {/* 3. Sidebar Container — negro con acentos amarillos */}
             <div
-                className={`fixed left-0 top-0 h-screen bg-primary border-r border-black/10 shadow-elegant z-40 transition-all duration-300 ease-in-out flex flex-col
+                className={`app-sidebar fixed left-0 top-0 h-screen bg-secondary border-r border-white/5 z-40 transition-all duration-300 ease-in-out flex flex-col
                     ${isOpen ? 'translate-x-0 w-72' : '-translate-x-full'} 
                     ${sidebarWidth} md:translate-x-0`}
                 style={{ height: '100dvh' }}
@@ -235,54 +266,45 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 {/* Botón Flotante para Retraer/Expandir (Solo visible en PC) */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="hidden md:flex absolute -right-3.5 top-8 bg-secondary border border-primary/40 rounded-full p-1.5 shadow-md z-50 hover:bg-primary-hover text-primary transition-all"
+                    className="hidden md:flex absolute -right-3 top-6 bg-white border border-slate-200 rounded-full p-1 shadow-card z-50 text-slate-500 hover:text-slate-900 transition-all"
+                    aria-label={isCollapsed ? 'Expandir menú' : 'Contraer menú'}
                 >
                     <ChevronLeftIcon className={`w-4 h-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* HEADER */}
-                <div className={`flex items-center justify-center flex-shrink-0 border-b border-black/10 transition-all duration-300 relative ${isCollapsed ? 'h-24 md:h-20' : 'h-24'}`}>
-                    
-                    <img 
-                        src={logo} 
-                        alt="Logo" 
-                        className={`hidden md:block absolute w-14 h-14 object-contain transition-all duration-300 ${
-                            isCollapsed ? 'opacity-100 scale-100 delay-100' : 'opacity-0 scale-50 pointer-events-none'
-                        }`}
-                    />
-
-                    <div className={`font-semibold text-lg tracking-tight overflow-hidden transition-all duration-300 whitespace-nowrap text-secondary
-                        ${isCollapsed ? 'md:w-0 md:opacity-0' : 'w-auto opacity-100'}`}>
-                        {APP_NAME}
-                    </div>
+                <div className={`flex items-center flex-shrink-0 h-[72px] border-b border-white/5 ${isCollapsed ? 'px-5 md:justify-center md:px-0' : 'px-5'}`}>
+                    {/* Logo que la empresa sube en Configuración (o la pesa si no tiene) */}
+                    <div className={isCollapsed ? 'md:hidden w-full' : 'w-full'}><MarcaSidebar /></div>
+                    {isCollapsed && <div className="hidden md:block"><MarcaSidebar colapsado /></div>}
                 </div>
 
                 {/* EMPRESA ACTIVA (multitenant) */}
-                <EmpresaSelector isCollapsed={isCollapsed} />
+                <SucursalSelector isCollapsed={isCollapsed} />
 
                 {/* BODY (Mapeo por Grupos) */}
-                <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 space-y-4 hide-scrollbar px-3 relative">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 hide-scrollbar px-3 relative">
                     {userMenuGroups.map((group, gIndex) => (
-                        <div key={gIndex} className="mb-2">
-                            
-                            <div className={`px-4 mb-2 text-[10px] font-bold text-secondary/50 uppercase tracking-widest transition-all duration-300
+                        <div key={gIndex} className="mb-5">
+
+                            <div className={`px-3 mb-1.5 text-[11px] font-medium text-zinc-500 uppercase tracking-wider transition-all duration-300
                                 ${isCollapsed ? 'md:opacity-0 md:h-0 md:mb-0 overflow-hidden' : 'opacity-100'}`}>
                                 {group.groupName}
                             </div>
-                            
+
                             {isCollapsed && gIndex !== 0 && (
-                                <div className="hidden md:block border-t border-black/10 my-3 mx-4" />
+                                <div className="hidden md:block border-t border-white/5 my-3 mx-3" />
                             )}
 
-                            <div className="space-y-1">
+                            <div className="space-y-0.5">
                                 {group.items.map((item, idx) => {
-                                    const isActive = isSectionActive(item); 
-                                    const isSubOpen = item.subs && openSection === item.section; 
+                                    const isActive = isSectionActive(item);
+                                    const isSubOpen = item.subs && openSection === item.section;
                                     const IconComponent = item.icon || CubeIcon;
-                                    
-                                    const itemBaseClasses = "flex items-center flex-nowrap w-full p-3 rounded-lg transition-all duration-200 group relative overflow-hidden";
-                                    const activeClasses = "bg-secondary text-primary shadow-md font-semibold"; 
-                                    const inactiveClasses = "text-secondary/70 hover:bg-black/5 hover:text-secondary"; 
+
+                                    const itemBaseClasses = "flex items-center flex-nowrap w-full px-3 py-2.5 rounded-lg transition-colors duration-150 group relative overflow-hidden";
+                                    const activeClasses = "bg-white/10 text-white font-medium [&>svg:first-child]:text-primary";
+                                    const inactiveClasses = "text-zinc-400 hover:bg-white/5 hover:text-white";
                                     
                                     return (
                                         <div key={idx}>
@@ -290,10 +312,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                                                 <>
                                                     <button 
                                                         onClick={() => handleSectionClick(item.section)} 
-                                                        className={`${itemBaseClasses} ${isActive && isCollapsed ? 'bg-black/5 text-secondary' : (isActive ? activeClasses : inactiveClasses)}`}
+                                                        className={`${itemBaseClasses} ${isActive && isCollapsed ? 'bg-white/10 text-white' : (isActive ? activeClasses : inactiveClasses)}`}
                                                         title={isCollapsed ? item.section : ''}
                                                     >
-                                                        <IconComponent className="h-6 w-6 flex-shrink-0 min-w-[24px]" /> 
+                                                        <IconComponent className="h-5 w-5 flex-shrink-0 min-w-[20px]" /> 
                                                         
                                                         <span className={`font-medium text-sm whitespace-nowrap overflow-hidden transition-all duration-300 
                                                             ${isCollapsed ? 'md:w-0 md:opacity-0 md:ml-0' : 'md:w-auto md:opacity-100 ml-3'}`}>
@@ -311,14 +333,14 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                                                         ${isSubOpen ? 'max-h-96 opacity-100 mt-1' : 'max-h-0 opacity-0'}
                                                         ${isCollapsed ? 'md:hidden' : ''} 
                                                     `}>
-                                                        <ul className="ml-4 pl-4 border-l border-black/10 space-y-1">
+                                                        <ul className="ml-[22px] pl-3 border-l border-white/10 space-y-0.5 py-0.5">
                                                             {item.subs.map((sub, sIdx) => (
                                                                 <li key={sIdx}>
                                                                     <Link to={sub.link} onClick={() => setIsOpen(false)} 
                                                                         className={`block py-2 px-3 rounded-md text-[13px] font-medium transition-colors truncate
                                                                         ${location.pathname.startsWith(sub.link) 
-                                                                            ? 'text-secondary bg-black/5' 
-                                                                            : 'text-secondary/60 hover:text-secondary hover:bg-black/5'}`}>
+                                                                            ? 'text-white bg-white/5' 
+                                                                            : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
                                                                         {sub.name}
                                                                     </Link>
                                                                 </li>
@@ -331,7 +353,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                                                     className={`${itemBaseClasses} ${isActive ? activeClasses : inactiveClasses}`}
                                                     title={isCollapsed ? item.section : ''}
                                                 >
-                                                    <IconComponent className="h-6 w-6 flex-shrink-0 min-w-[24px]" />
+                                                    <IconComponent className="h-5 w-5 flex-shrink-0 min-w-[20px]" />
                                                     <span className={`font-medium text-sm whitespace-nowrap overflow-hidden transition-all duration-300
                                                         ${isCollapsed ? 'md:w-0 md:opacity-0 md:ml-0' : 'md:w-auto md:opacity-100 ml-3'}`}>
                                                         {item.section}
@@ -347,12 +369,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 </div>
 
                 {/* FOOTER */}
-                <div className="p-4 border-t border-black/10 flex-shrink-0 bg-primary">
+                <div className="p-3 border-t border-white/5 flex-shrink-0">
                     <button onClick={() => setShowConfirm(true)} 
-                        className={`flex items-center w-full p-3 rounded-lg text-secondary/70 hover:bg-red-900/10 hover:text-red-900 transition-all duration-200 group ${isCollapsed ? 'md:justify-center' : ''}`} 
+                        className={`flex items-center w-full px-3 py-2.5 rounded-lg text-zinc-400 hover:bg-red-500/10 hover:text-red-400 transition-colors duration-150 group ${isCollapsed ? 'md:justify-center' : ''}`} 
                         title="Cerrar Sesión">
-                        <ArrowRightOnRectangleIcon className="h-6 w-6 flex-shrink-0 min-w-[24px]" />
-                        <span className={`whitespace-nowrap overflow-hidden transition-all duration-300 font-medium 
+                        <ArrowRightOnRectangleIcon className="h-5 w-5 flex-shrink-0 min-w-[20px]" />
+                        <span className={`whitespace-nowrap overflow-hidden transition-all duration-300 text-sm font-medium 
                              ${isCollapsed ? 'md:w-0 md:opacity-0 md:ml-0' : 'md:w-auto md:opacity-100 ml-3'}`}>
                             Salir
                         </span>

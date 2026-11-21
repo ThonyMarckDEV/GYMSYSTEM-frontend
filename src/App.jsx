@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import PanelLateral from 'components/Shared/PanelLateral';
 import './index.css';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -42,9 +43,30 @@ import MiPerfil from 'pages/perfil/MiPerfil';
 import ListarRoles from 'pages/rol/Index';
 
 // UI EMPRESAS (multitenant — solo superadmin)
+import MiEmpresa from 'pages/empresa/MiEmpresa';
 import AgregarEmpresa from 'pages/empresa/Store';
 import EditarEmpresa from 'pages/empresa/Update';
 import ListarEmpresas from 'pages/empresa/Index';
+
+// UI PLANES DEL SISTEMA Y SUSCRIPCIONES (SaaS)
+import ListarPlanesSistema from 'pages/suscripcion/Index';
+import FormPlanSistema from 'pages/suscripcion/Form';
+import CobrosSuscripcion from 'pages/suscripcion/Cobros';
+import MiPlan from 'pages/suscripcion/MiPlan';
+
+// UI CLASES E INVENTARIO
+import Clases from 'pages/clase/Index';
+import Inventario from 'pages/inventario/Index';
+import Productos from 'pages/producto/Index';
+import Reportes from 'pages/reporte/Index';
+import Bitacora from 'pages/auditoria/Index';
+import MisRutinas from 'pages/rutina/Index';
+import MiPanel from 'pages/panel/Index';
+import PanelInstructor from 'pages/panel-instructor/Index';
+import MisPagos from 'pages/mis-pagos/Index';
+import MiProgreso from 'pages/progreso/Index';
+import Entrenar from 'pages/rutina/Entrenar';
+import Traslados from 'pages/traslado/Index';
 
 // UI CAJA Y PAGOS
 import Caja from 'pages/caja/Index';
@@ -57,9 +79,6 @@ import MetodosPago from 'pages/metodoPago/Index';
 // UI DASHBOARD
 import Dashboard from 'pages/dashboard/Index';
 
-// UI PLANES DEL SISTEMA (suscripción SaaS — solo superadmin)
-import ListarPlanesSistema from 'pages/suscripcion/Index';
-import FormPlanSistema from 'pages/suscripcion/Form';
 
 // UI SUCURSALES (sedes de la empresa)
 import AgregarSucursal from 'pages/sucursal/Store';
@@ -72,9 +91,47 @@ import ProtectedRoute from 'utilities/ProtectedRoutes/ProtectedRoute';
 import { AuthProvider } from 'context/AuthContext';
 
 
+/**
+ * Crear y editar se abren en un panel lateral sobre el listado (no en otra página).
+ * La URL sigue siendo /<modulo>/agregar o /<modulo>/editar/:id; el listado queda detrás.
+ */
+const PANELES = [
+  { modulo: 'cliente',   Agregar: AgregarCliente,   Editar: EditarCliente,   ancho: 'sm:max-w-3xl' },
+  { modulo: 'empleado',  Agregar: AgregarEmpleado,  Editar: EditarEmpleado,  ancho: 'sm:max-w-3xl' },
+  { modulo: 'plan',      Agregar: AgregarPlan,      Editar: EditarPlan },
+  { modulo: 'descuento', Agregar: AgregarDescuento, Editar: EditarDescuento },
+  { modulo: 'sucursal',  Agregar: AgregarSucursal,  Editar: EditarSucursal },
+  // SaaS (superadmin): empresas y planes del sistema
+  { modulo: 'empresa',     Agregar: AgregarEmpresa,  Editar: EditarEmpresa,  ancho: 'sm:max-w-3xl' },
+  { modulo: 'suscripcion', Agregar: FormPlanSistema, Editar: FormPlanSistema, ancho: 'sm:max-w-3xl' },
+];
+
+const panelDeRuta = (pathname) =>
+  PANELES.find(p => new RegExp(`^/${p.modulo}/(agregar|editar/[^/]+)/?$`).test(pathname)) || null;
+
 function AppContent() {
+  const location = useLocation();
+  const panel = panelDeRuta(location.pathname);
+  // Con panel abierto, la pantalla de fondo es el listado del módulo
+  const fondo = panel ? { ...location, pathname: `/${panel.modulo}/listar` } : location;
+
   return (
-    <Routes>
+    <>
+    {panel && (
+      <Routes>
+        <Route path={`/${panel.modulo}/agregar`} element={
+          <ProtectedRoute requiredPermission={`${panel.modulo}.store`} element={
+            <PanelLateral volverA={`/${panel.modulo}/listar`} ancho={panel.ancho}><panel.Agregar /></PanelLateral>
+          } />
+        } />
+        <Route path={`/${panel.modulo}/editar/:id`} element={
+          <ProtectedRoute requiredPermission={`${panel.modulo}.update`} element={
+            <PanelLateral volverA={`/${panel.modulo}/listar`} ancho={panel.ancho}><panel.Editar /></PanelLateral>
+          } />
+        } />
+      </Routes>
+    )}
+    <Routes location={fondo}>
       {/* 1. LOGIN */}
       <Route path="/" element={<ProtectedRouteHome element={<Login />} />} />
 
@@ -113,6 +170,20 @@ function AppContent() {
         {/* SETTINGS */}
         <Route path="/rol/listar" element={<ProtectedRoute requiredPermission="rol.index" element={<ListarRoles />} />} />
 
+        {/* CLASES E INVENTARIO */}
+        <Route path="/clases" element={<ProtectedRoute requiredPermission="clase.index" element={<Clases />} />} />
+        <Route path="/inventario" element={<ProtectedRoute requiredPermission="inventario.index" element={<Inventario />} />} />
+        <Route path="/productos" element={<ProtectedRoute requiredPermission="producto.index" element={<Productos />} />} />
+        <Route path="/reportes" element={<ProtectedRoute requiredPermission="reporte.ventas" element={<Reportes />} />} />
+        <Route path="/bitacora" element={<ProtectedRoute requiredPermission="auditoria.index" element={<Bitacora />} />} />
+        <Route path="/mi-progreso" element={<ProtectedRoute requiredPermission="progreso.mio" element={<MiProgreso />} />} />
+        <Route path="/mis-pagos" element={<ProtectedRoute requiredPermission="perfil.pagos" element={<MisPagos />} />} />
+        <Route path="/panel-instructor" element={<ProtectedRoute requiredPermission="clase.panel" element={<PanelInstructor />} />} />
+        <Route path="/mi-panel" element={<ProtectedRoute requiredPermission="perfil.index" element={<MiPanel />} />} />
+        <Route path="/mis-rutinas" element={<ProtectedRoute requiredPermission="rutina.mias" element={<MisRutinas />} />} />
+        <Route path="/mis-rutinas/entrenar/:id/:dia" element={<ProtectedRoute requiredPermission="rutina.mias" element={<Entrenar />} />} />
+        <Route path="/traslados" element={<ProtectedRoute requiredPermission="traslado.index" element={<Traslados />} />} />
+
         {/* CAJA Y PAGOS */}
         <Route path="/caja" element={<ProtectedRoute requiredPermission="cajaSesion.actual" element={<Caja />} />} />
         <Route path="/caja/historial" element={<ProtectedRoute requiredPermission="cajaSesion.index" element={<HistorialCajas />} />} />
@@ -124,10 +195,6 @@ function AppContent() {
         {/* DASHBOARD */}
         <Route path="/dashboard" element={<ProtectedRoute requiredPermission="dashboard.index" element={<Dashboard />} />} />
 
-        {/* PLANES DEL SISTEMA */}
-        <Route path="/suscripcion/agregar" element={<ProtectedRoute requiredPermission="suscripcion.store" element={<FormPlanSistema />} />} />
-        <Route path="/suscripcion/editar/:id" element={<ProtectedRoute requiredPermission="suscripcion.update" element={<FormPlanSistema />} />} />
-        <Route path="/suscripcion/listar" element={<ProtectedRoute requiredPermission="suscripcion.index" element={<ListarPlanesSistema />} />} />
 
         {/* SUCURSALES */}
         <Route path="/sucursal/agregar" element={<ProtectedRoute requiredPermission="sucursal.store" element={<AgregarSucursal />} />} />
@@ -135,9 +202,22 @@ function AppContent() {
         <Route path="/sucursal/listar" element={<ProtectedRoute requiredPermission="sucursal.index" element={<ListarSucursales />} />} />
 
         {/* EMPRESAS */}
+        {/* MI EMPRESA: datos del negocio y logo de la empresa activa */}
+        <Route path="/empresa/datos" element={<ProtectedRoute requiredPermission="miEmpresa.update" element={<MiEmpresa />} />} />
+
+        {/* SaaS — EMPRESAS (superadmin) */}
         <Route path="/empresa/agregar" element={<ProtectedRoute requiredPermission="empresa.store" element={<AgregarEmpresa />} />} />
         <Route path="/empresa/editar/:id" element={<ProtectedRoute requiredPermission="empresa.update" element={<EditarEmpresa />} />} />
         <Route path="/empresa/listar" element={<ProtectedRoute requiredPermission="empresa.index" element={<ListarEmpresas />} />} />
+
+        {/* SaaS — PLANES DEL SISTEMA Y COBRO DE SUSCRIPCIONES (superadmin) */}
+        <Route path="/suscripcion/agregar" element={<ProtectedRoute requiredPermission="suscripcion.store" element={<FormPlanSistema />} />} />
+        <Route path="/suscripcion/editar/:id" element={<ProtectedRoute requiredPermission="suscripcion.update" element={<FormPlanSistema />} />} />
+        <Route path="/suscripcion/listar" element={<ProtectedRoute requiredPermission="suscripcion.index" element={<ListarPlanesSistema />} />} />
+        <Route path="/suscripcion/cobros" element={<ProtectedRoute requiredPermission="suscripcion.cobrar" element={<CobrosSuscripcion />} />} />
+
+        {/* SaaS — MI PLAN: cada empresa ve su plan, consumo, beneficios y pagos */}
+        <Route path="/mi-plan" element={<ProtectedRoute requiredPermission="suscripcion.miPlan" element={<MiPlan />} />} />
 
       </Route>
 
@@ -145,6 +225,7 @@ function AppContent() {
       <Route path="/401" element={<ErrorPage401 />} />
       <Route path="*" element={<ErrorPage404 />} />
     </Routes>
+    </>
   );
 }
 
@@ -152,7 +233,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-white text-primary">
+        <div className="app-root min-h-screen bg-[#f6f7f9] text-slate-900">
           <AppContent />
           <ToastContainer position="top-right" autoClose={3000} />
         </div>
