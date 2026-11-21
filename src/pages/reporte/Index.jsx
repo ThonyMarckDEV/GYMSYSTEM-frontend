@@ -3,7 +3,6 @@ import API_BASE_URL from 'js/urlHelper';
 import { useAuth } from 'context/AuthContext';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
-import SucursalSelect from 'components/Shared/Comboboxes/SucursalSelect';
 import { descargarArchivo, query } from 'utilities/Archivos/descargar';
 import { aISO, sumarDias } from 'utilities/Fechas/fechas';
 import {
@@ -61,9 +60,10 @@ const REPORTES = [
       ] },
 ];
 
-const TarjetaReporte = ({ reporte, sedeFija }) => {
+/** La sede del reporte es la elegida en el menú lateral (no tiene filtro propio). */
+const TarjetaReporte = ({ reporte }) => {
     const Icon = reporte.icon;
-    const [filtros, setFiltros] = useState(() => ({ sucursal_id: '', ...(reporte.fechas?.() || {}) }));
+    const [filtros, setFiltros] = useState(() => ({ ...(reporte.fechas?.() || {}) }));
     const [descargando, setDescargando] = useState(false);
     const [error, setError] = useState(null);
     const set = (k, v) => setFiltros(f => ({ ...f, [k]: v }));
@@ -110,11 +110,6 @@ const TarjetaReporte = ({ reporte, sedeFija }) => {
                         </select>
                     </div>
                 ))}
-                {!sedeFija && (
-                    <div className="col-span-2 [&_label]:text-[11px] [&_label]:text-slate-600">
-                        <SucursalSelect label="Sede" emptyLabel="Todas las sedes" value={filtros.sucursal_id} onChange={v => set('sucursal_id', v)} />
-                    </div>
-                )}
             </div>
 
             {error && <p className="mt-3 text-xs font-bold text-red-700">{error}</p>}
@@ -137,12 +132,14 @@ const Index = () => {
     return (
         <div className="container mx-auto p-4 sm:p-6">
             <PageHeader title="Reportes" subtitle="Descarga la información del gimnasio en Excel" icon={DocumentArrowDownIcon} />
-            {sucursal && <p className="-mt-2 mb-4 text-sm text-slate-600">Los reportes incluyen solo la sede <b>{sucursal.nombre}</b>.</p>}
+            <p className="-mt-2 mb-4 text-sm text-slate-600">
+                {sucursal ? <>Los reportes incluyen solo la sede <b>{sucursal.nombre}</b>.</> : <>Los reportes incluyen <b>todas las sedes</b>.</>}
+            </p>
             {visibles.length === 0 ? (
                 <AlertMessage type="info" message="No tienes reportes habilitados." />
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-5">
-                    {visibles.map(r => <TarjetaReporte key={r.key} reporte={r} sedeFija={!!sucursal} />)}
+                    {visibles.map(r => <TarjetaReporte key={r.key} reporte={r} />)}
                 </div>
             )}
         </div>

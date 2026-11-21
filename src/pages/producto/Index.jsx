@@ -17,7 +17,7 @@ import {
 
 const inputCls = 'w-full p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none bg-white';
 const labelCls = 'block text-sm font-medium text-slate-700 mb-1.5';
-const FILTROS_INICIALES = { search: '', categoria: '', estado: '', sucursal_id: '', bajo_stock: '' };
+const FILTROS_INICIALES = { search: '', categoria: '', estado: '', bajo_stock: '' };
 
 // Tipos del kardex: texto + color (el signo de la cantidad también lo indica)
 export const TIPOS_KARDEX = {
@@ -192,27 +192,22 @@ const MovimientoModal = ({ producto, sedeInicial, onClose, onGuardado }) => {
     );
 };
 
-/** Kardex del producto (de una sede o de todas). */
-export const KardexModal = ({ producto, sedeInicial, onClose }) => {
+/** Kardex del producto: de la sede elegida en el menú lateral, o de todas. */
+export const KardexModal = ({ producto, onClose }) => {
     const { sucursal } = useAuth();
-    const [sede, setSede] = useState(sedeInicial || '');
     const [datos, setDatos] = useState(null);
     const [page, setPage] = useState(1);
     const [alert, setAlert] = useState(null);
 
     useEffect(() => {
-        kardex(producto.id, page, { sucursal_id: sede })
+        kardex(producto.id, page, {})
             .then(setDatos)
             .catch(err => setAlert(handleApiError(err, 'No se pudo cargar el kardex')));
-    }, [producto.id, page, sede]);
+    }, [producto.id, page]);
 
     return (
         <Modal titulo={`Kardex · ${producto.nombre}`} icon={ClipboardDocumentListIcon} onClose={onClose} ancho="max-w-4xl" error={errorDeAlerta(alert)}>
-            {!sucursal && (
-                <div className="mb-4 max-w-xs">
-                    <SucursalSelect label="Sede" emptyLabel="Todas las sedes" value={sede} onChange={v => { setSede(v); setPage(1); }} />
-                </div>
-            )}
+            <p className="mb-4 text-sm text-slate-600">{sucursal ? <>Sede <b>{sucursal.nombre}</b></> : <>Movimientos de <b>todas las sedes</b></>}</p>
             {!datos ? (
                 <p className="text-sm text-slate-400 text-center py-8">Cargando...</p>
             ) : datos.data.length === 0 ? (
@@ -223,7 +218,7 @@ export const KardexModal = ({ producto, sedeInicial, onClose }) => {
                         <thead>
                             <tr className="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
                                 <th className="text-left py-2 pr-3 font-black">Fecha</th>
-                                {!sede && !sucursal && <th className="text-left py-2 pr-3 font-black">Sede</th>}
+                                {!sucursal && <th className="text-left py-2 pr-3 font-black">Sede</th>}
                                 <th className="text-left py-2 pr-3 font-black">Movimiento</th>
                                 <th className="text-right py-2 pr-3 font-black">Cant.</th>
                                 <th className="text-right py-2 pr-3 font-black">Saldo</th>
@@ -237,7 +232,7 @@ export const KardexModal = ({ producto, sedeInicial, onClose }) => {
                                 return (
                                     <tr key={m.id}>
                                         <td className="py-2 pr-3 text-xs text-slate-500 tabular-nums whitespace-nowrap">{m.fecha.slice(0, 16)}</td>
-                                        {!sede && !sucursal && <td className="py-2 pr-3 text-xs text-slate-600">{m.sucursal}</td>}
+                                        {!sucursal && <td className="py-2 pr-3 text-xs text-slate-600">{m.sucursal}</td>}
                                         <td className="py-2 pr-3"><span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase border whitespace-nowrap ${t.cls}`}>{t.label}</span></td>
                                         <td className={`py-2 pr-3 text-right font-black tabular-nums ${m.cantidad > 0 ? 'text-green-700' : 'text-red-700'}`}>{m.cantidad > 0 ? `+${m.cantidad}` : m.cantidad}</td>
                                         <td className="py-2 pr-3 text-right font-black tabular-nums text-slate-900">{m.stock_resultante}</td>
@@ -309,7 +304,7 @@ const Index = () => {
     }, [fetchProductos, pagination.currentPage]);
 
     const categorias = useMemo(() => resumen?.categorias || [], [resumen]);
-    const verTodasLasSedes = !sucursal && !filters.sucursal_id;
+    const verTodasLasSedes = !sucursal;
 
     const filterConfig = useMemo(() => [
         { name: 'search', type: 'text', label: 'Nombre o código', placeholder: 'Ej: agua', colSpan: 'col-span-12 md:col-span-5' },
@@ -367,11 +362,10 @@ const Index = () => {
             <PageHeader title="Productos" subtitle="Catálogo de venta, stock por sede y kardex" icon={ShoppingBagIcon} />
 
             <div className="flex flex-wrap items-end justify-between gap-3 -mt-2 mb-6">
-                {!sucursal ? (
-                    <div className="w-full sm:w-64">
-                        <SucursalSelect label="Ver stock de" emptyLabel="Todas las sedes" value={filters.sucursal_id} onChange={v => aplicarFiltro({ sucursal_id: v })} />
-                    </div>
-                ) : <p className="text-sm text-slate-600">Stock de la sede <b>{sucursal.nombre}</b></p>}
+                {/* La sede se elige en el menú lateral (modo sucursal) */}
+                <p className="text-sm text-slate-600">
+                    {sucursal ? <>Stock de la sede <b>{sucursal.nombre}</b></> : <>Stock de <b>todas las sedes</b></>}
+                </p>
                 <div className="flex flex-wrap gap-2">
                     {can('traslado.index') && (
                         <Link to="/traslados" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-lg border border-slate-300 bg-white text-secondary font-black uppercase text-sm hover:border-slate-500">
@@ -402,7 +396,7 @@ const Index = () => {
                 filterConfig={filterConfig} filters={filters}
                 onFilterChange={(n, v) => setFilters(p => ({ ...p, [n]: v }))}
                 onFilterSubmit={() => { filtersRef.current = filters; fetchProductos(1); }}
-                onFilterClear={() => { const f = { ...FILTROS_INICIALES, sucursal_id: filters.sucursal_id }; setFilters(f); filtersRef.current = f; fetchProductos(1); }}
+                onFilterClear={() => { const f = { ...FILTROS_INICIALES }; setFilters(f); filtersRef.current = f; fetchProductos(1); }}
                 pagination={{ clave: 'productos', ...pagination, onPageChange: fetchProductos }} />
 
             {editando && (
@@ -410,10 +404,10 @@ const Index = () => {
                     onClose={() => setEditando(null)} onGuardado={(msg) => guardado(msg, setEditando)} />
             )}
             {moviendo && (
-                <MovimientoModal producto={moviendo} sedeInicial={filters.sucursal_id}
+                <MovimientoModal producto={moviendo}
                     onClose={() => setMoviendo(null)} onGuardado={(msg) => guardado(msg, setMoviendo)} />
             )}
-            {viendoKardex && <KardexModal producto={viendoKardex} sedeInicial={filters.sucursal_id} onClose={() => setViendoKardex(null)} />}
+            {viendoKardex && <KardexModal producto={viendoKardex} onClose={() => setViendoKardex(null)} />}
         </div>
     );
 };

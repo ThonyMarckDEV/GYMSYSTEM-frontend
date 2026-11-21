@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDashboard } from 'hooks/dashboard/useDashboard';
-import { useAuth } from 'context/AuthContext';
 import PageHeader from 'components/Shared/Headers/PageHeader';
 import AlertMessage from 'components/Shared/Errors/AlertMessage';
 import { BarrasVerticales, BarrasHorizontales, KpiTile, Panel, formatSoles } from 'components/Dashboard/Charts';
@@ -37,8 +36,8 @@ const TablaIngresos = ({ data }) => (
 );
 
 const Index = () => {
-    const { loading, data, alert, setAlert, sucursalId, cambiarSucursal } = useDashboard();
-    const { esSuperAdmin } = useAuth();
+    // La sede del dashboard es la elegida en el menú lateral (no tiene filtro propio)
+    const { loading, data, alert, setAlert } = useDashboard();
     const [verTabla, setVerTabla] = useState(false);
 
     if (!data && loading) {
@@ -63,7 +62,6 @@ const Index = () => {
 
     const { contexto, kpis, ingresos_mensuales, planes_top, proximos_vencimientos, por_sucursal } = data;
     const modo = contexto.modo;
-    const puedeFiltrarSucursal = !contexto.sucursal_fija && contexto.sucursales?.length > 0;
 
     const subtitulo = [
         contexto.empresa?.nombre_comercial,
@@ -76,32 +74,14 @@ const Index = () => {
 
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
 
-            {/* FILTROS — una sola fila sobre los gráficos */}
-            <div className="flex flex-wrap items-end gap-3 mb-6">
-                {puedeFiltrarSucursal && (
-                    <div>
-                        <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Sucursal</label>
-                        <div className="relative">
-                            <BuildingStorefrontIcon className="w-4 h-4 absolute left-3 top-2.5 text-slate-400 pointer-events-none" />
-                            <select value={sucursalId} onChange={(e) => cambiarSucursal(e.target.value)}
-                                className="pl-9 pr-8 py-2 text-sm font-semibold border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-primary/40 outline-none">
-                                <option value="">Todas las sucursales</option>
-                                {contexto.sucursales.map(s => (
-                                    <option key={s.id} value={s.id}>{s.nombre}{!s.estado ? ' (inactiva)' : ''}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                )}
-                {contexto.sucursal_fija && (
-                    <span className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">
-                        <BuildingStorefrontIcon className="w-4 h-4" />
-                        {esSuperAdmin
-                            ? `Modo sucursal: ${contexto.sucursal?.nombre} (cámbialo en el menú lateral)`
-                            : `Estás viendo solo tu sede: ${contexto.sucursal?.nombre}`}
+            {/* La sede se elige solo en el menú lateral; aquí únicamente se informa */}
+            {contexto.sucursal_fija && (
+                <div className="mb-6">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-slate-100 text-slate-600">
+                        <BuildingStorefrontIcon className="w-4 h-4" /> Estás viendo solo tu sede: {contexto.sucursal?.nombre}
                     </span>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* KPIs */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
