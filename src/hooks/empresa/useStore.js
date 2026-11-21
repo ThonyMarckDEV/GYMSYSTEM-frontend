@@ -32,7 +32,7 @@ export const useStore = () => {
         try {
             await store(formData);
             setAlert({ type: 'success', message: 'Empresa registrada exitosamente. Redirigiendo...' });
-            setTimeout(() => navigate('/empresa/listar'), 1500);
+            setTimeout(() => navigate('/empresa/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al registrar la empresa'));
         } finally {

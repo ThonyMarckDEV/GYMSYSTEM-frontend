@@ -1,10 +1,11 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
     XMarkIcon, CheckCircleIcon, XCircleIcon, KeyIcon, PrinterIcon,
-    PhotoIcon, ExclamationTriangleIcon, ClockIcon, NoSymbolIcon
+    PhotoIcon, ExclamationTriangleIcon, ClockIcon, NoSymbolIcon, MagnifyingGlassPlusIcon
 } from '@heroicons/react/24/outline';
-import { obtenerArchivoUrl } from 'js/archivoAutenticado';
-import { comprobanteUrl, ticketUrl } from 'services/pagoService';
+import { obtenerArchivoUrl, obtenerUrlFirmada } from 'js/archivoAutenticado';
+import { comprobanteUrl, ticketUrl, revisando } from 'services/pagoService';
 import { qrUrl } from 'services/metodoPagoService';
 // El visor de PDF es pesado: se descarga solo al abrir un ticket
 const PdfModal = lazy(() => import('components/Shared/Modals/PdfModal'));
@@ -37,21 +38,27 @@ export const EstadoPago = ({ estado }) => {
 };
 
 // ---------------------------------------------------------------------------
-// Imagen protegida (se pide con token y se muestra como blob)
+// Imagen protegida de MinIO: el endpoint (con token) entrega una URL temporal
+// firmada que solo sirve para esta imagen; nunca la URL real del bucket.
 // ---------------------------------------------------------------------------
-export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no disponible' }) => {
+export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no disponible', onAbrir }) => {
     const [src, setSrc] = useState(null);
     const [error, setError] = useState(null);
+    const [intento, setIntento] = useState(0); // si la URL firmada venció, se pide otra (una vez)
 
     useEffect(() => {
-        let objectUrl = null;
         let activo = true;
         setSrc(null); setError(null);
-        obtenerArchivoUrl(url)
-            .then(u => { objectUrl = u; if (activo) setSrc(u); else URL.revokeObjectURL(u); })
+        obtenerUrlFirmada(url)
+            .then(u => activo && setSrc(u))
             .catch(e => activo && setError(e.message));
-        return () => { activo = false; if (objectUrl) URL.revokeObjectURL(objectUrl); };
-    }, [url]);
+        return () => { activo = false; };
+    }, [url, intento]);
+
+    const alFallar = () => {
+        if (intento < 1) setIntento(i => i + 1);
+        else setError('No se pudo cargar la imagen');
+    };
 
     if (error) {
         return (
@@ -61,7 +68,39 @@ export const ImagenProtegida = ({ url, alt, className = '', vacio = 'Imagen no d
         );
     }
     if (!src) return <div className={`bg-slate-100 animate-pulse rounded-lg ${className}`} />;
-    return <img src={src} alt={alt} className={`object-contain ${className}`} />;
+    if (!onAbrir) return <img src={src} alt={alt} onError={alFallar} referrerPolicy="no-referrer" className={`object-contain ${className}`} />;
+
+    return (
+        <button type="button" onClick={() => onAbrir(src)} title="Ver imagen completa"
+            className={`group relative block cursor-zoom-in overflow-hidden ${className}`}>
+            <img src={src} alt={alt} onError={alFallar} referrerPolicy="no-referrer" className="w-full h-full object-contain" />
+            <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-black/70 text-white text-[11px] font-bold opacity-80 group-hover:opacity-100">
+                <MagnifyingGlassPlusIcon className="w-4 h-4" /> Ver completa
+            </span>
+        </button>
+    );
+};
+
+/** Imagen a pantalla completa. Se cierra con clic, con la X o con Esc. */
+export const VisorImagen = ({ src, alt, onClose }) => {
+    useEffect(() => {
+        const alPresionar = (e) => { if (e.key === 'Escape') onClose(); };
+        window.addEventListener('keydown', alPresionar);
+        return () => window.removeEventListener('keydown', alPresionar);
+    }, [onClose]);
+
+    // Portal al <body>: así ningún contenedor del modal lo recorta
+    return createPortal(
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4 cursor-zoom-out"
+            onClick={onClose} role="dialog" aria-label={alt}>
+            <button onClick={onClose} aria-label="Cerrar"
+                className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20">
+                <XMarkIcon className="w-7 h-7" />
+            </button>
+            <img src={src} alt={alt} className="max-w-full max-h-full object-contain" onClick={(e) => e.stopPropagation()} />
+        </div>,
+        document.body
+    );
 };
 
 // ---------------------------------------------------------------------------
@@ -96,31 +135,49 @@ export const QrPago = ({ tipo, datos }) => {
 // ---------------------------------------------------------------------------
 // Modal base
 // ---------------------------------------------------------------------------
-export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max-w-lg', error }) => (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div className={`bg-white rounded-xl shadow-elegant-gold w-full ${ancho} max-h-[92vh] flex flex-col overflow-hidden border border-primary/20`}>
-            <div className="flex justify-between items-center px-6 py-4 border-b border-primary/20 bg-secondary">
-                <h3 className="text-lg font-bold text-primary flex items-center gap-2">
-                    {Icon && <Icon className="w-5 h-5" />} {titulo}
+/**
+ * En celular se abre como hoja desde abajo (todo el ancho); desde sm, centrado.
+ * Escape cierra y el fondo no se desplaza mientras está abierto.
+ */
+export const Modal = ({ titulo, icon: Icon, onClose, children, pie, ancho = 'max-w-lg', error, portal = false }) => {
+    useEffect(() => {
+        const previo = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        const tecla = (e) => { if (e.key === 'Escape') onClose?.(); };
+        window.addEventListener('keydown', tecla);
+        return () => { document.body.style.overflow = previo; window.removeEventListener('keydown', tecla); };
+    }, [onClose]);
+
+    const contenido = (
+    <div className="fixed inset-0 h-[100dvh] w-screen z-50 flex items-end sm:items-center justify-center sm:p-4 bg-black/60 backdrop-blur-sm"
+        role="dialog" aria-modal="true" aria-label={typeof titulo === 'string' ? titulo : undefined}>
+        <div className={`bg-white rounded-t-2xl sm:rounded-xl shadow-elegant-gold w-full ${ancho} max-h-[94dvh] sm:max-h-[92vh] flex flex-col overflow-hidden hoja-subir`}>
+            <div className="flex justify-between items-center px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-white flex-shrink-0">
+                <h3 className="text-base sm:text-lg font-semibold text-slate-900 flex items-center gap-2.5 min-w-0">
+                    {Icon && <span className="w-8 h-8 rounded-lg bg-primary-light text-amber-700 flex items-center justify-center flex-shrink-0"><Icon className="w-4 h-4" /></span>} <span className="truncate">{titulo}</span>
                 </h3>
-                <button onClick={onClose} className="text-primary/60 hover:text-primary transition-colors" aria-label="Cerrar">
-                    <XMarkIcon className="w-6 h-6" />
+                <button onClick={onClose} className="p-1.5 -mr-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" aria-label="Cerrar">
+                    <XMarkIcon className="w-5 h-5" />
                 </button>
             </div>
-            <div className="p-6 overflow-y-auto">
+            <div className="p-4 sm:p-6 overflow-y-auto overscroll-contain">
                 {error && (
-                    <p role="alert" className="mb-4 text-sm font-bold text-red-800 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
+                    <p role="alert" className="mb-4 text-sm font-medium text-red-800 bg-red-50 border border-red-200 rounded-lg p-3 flex gap-2">
                         <ExclamationTriangleIcon className="w-5 h-5 flex-shrink-0" /> {error}
                     </p>
                 )}
                 {children}
             </div>
-            {pie && <div className="px-6 py-4 bg-primary-light/40 border-t border-primary/20 flex justify-end gap-3">{pie}</div>}
+            {pie && <div className="px-4 sm:px-6 py-3 sm:py-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-slate-50 border-t border-slate-100 flex justify-end gap-3 flex-shrink-0">{pie}</div>}
         </div>
     </div>
-);
+    );
+    // portal: se monta en <body> para que el fondo oscuro cubra toda la ventana
+    // aunque el modal se abra dentro del <main> con scroll propio
+    return portal ? createPortal(contenido, document.body) : contenido;
+};
 
-const btn = 'px-4 py-2 rounded-lg font-bold uppercase text-sm transition-colors disabled:opacity-50';
+const btn = 'px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-50';
 
 // ---------------------------------------------------------------------------
 // Comprobante (con verificar / rechazar)
@@ -128,10 +185,16 @@ const btn = 'px-4 py-2 rounded-lg font-bold uppercase text-sm transition-colors 
 export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loading = false, error }) => {
     const [rechazando, setRechazando] = useState(false);
     const [motivo, setMotivo] = useState('');
+    const [ampliada, setAmpliada] = useState(null); // URL de la imagen a pantalla completa
     const puedeRevisar = pago.estado === 'pendiente' && (onVerificar || onRechazar);
 
+    // El cliente ve en vivo que su pago está siendo revisado (no bloquea si falla)
+    useEffect(() => {
+        if (puedeRevisar) revisando(pago.id).catch(() => {});
+    }, [pago.id, puedeRevisar]);
+
     return (
-        <Modal titulo={`Comprobante del pago #${pago.id}`} icon={PhotoIcon} onClose={onClose} ancho="max-w-2xl" error={error}
+        <Modal titulo={`Comprobante del pago #${pago.id}`} icon={PhotoIcon} onClose={onClose} ancho="max-w-2xl lg:max-w-5xl" error={error}
             pie={puedeRevisar && (rechazando ? (
                 <>
                     <button className={`${btn} bg-slate-100 text-slate-600 hover:bg-slate-200`} onClick={() => setRechazando(false)} disabled={loading}>Volver</button>
@@ -147,11 +210,15 @@ export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loadi
                 </>
             ))}
         >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ImagenProtegida url={comprobanteUrl(pago.id)} alt="Comprobante de pago" className="w-full h-80 rounded-lg bg-slate-50" vacio="Sin comprobante" />
-                <dl className="text-sm space-y-2">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div className="lg:col-span-3">
+                    <ImagenProtegida url={comprobanteUrl(pago.id)} alt="Comprobante de pago" onAbrir={setAmpliada}
+                        className="w-full h-80 lg:h-[62vh] rounded-lg bg-slate-50 border border-slate-200" vacio="Sin comprobante" />
+                    <p className="mt-1.5 text-[11px] text-slate-400 text-center">Haz clic en la imagen para verla completa</p>
+                </div>
+                <dl className="text-sm space-y-3 lg:col-span-2">
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Cliente</dt><dd className="font-bold text-slate-800">{pago.cliente}</dd><dd className="text-xs text-slate-500">DNI {pago.dni}</dd></div>
-                    <div><dt className="text-[10px] uppercase font-bold text-slate-400">Plan</dt><dd className="font-bold text-slate-800">{pago.plan}</dd></div>
+                    <div><dt className="text-[10px] uppercase font-bold text-slate-400">{pago.concepto === 'clase' ? 'Clase / evento' : pago.concepto === 'producto' ? 'Productos' : 'Plan'}</dt><dd className="font-bold text-slate-800">{pago.plan}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Monto a verificar</dt><dd className="text-2xl font-black text-secondary tabular-nums">{soles(pago.monto)}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Método · N° operación</dt><dd className="font-bold text-slate-800">{METODOS[pago.metodo_pago]} · {pago.numero_operacion || '—'}</dd></div>
                     <div><dt className="text-[10px] uppercase font-bold text-slate-400">Estado</dt><dd><EstadoPago estado={pago.estado} /></dd></div>
@@ -163,15 +230,16 @@ export const ComprobanteModal = ({ pago, onClose, onVerificar, onRechazar, loadi
                     )}
                     {rechazando && (
                         <div>
-                            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo del rechazo *</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Motivo del rechazo *</label>
                             <textarea rows={3} value={motivo} onChange={e => setMotivo(e.target.value)} autoFocus
-                                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none resize-none"
+                                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none resize-none"
                                 placeholder="Ej: El monto no coincide / no llegó el pago" />
                             <p className="text-[11px] text-slate-400 mt-1">El cliente verá este motivo en su perfil.</p>
                         </div>
                     )}
                 </dl>
             </div>
+            {ampliada && <VisorImagen src={ampliada} alt="Comprobante de pago" onClose={() => setAmpliada(null)} />}
         </Modal>
     );
 };
@@ -196,14 +264,14 @@ export const AnularPagoModal = ({ pago, onClose, onConfirm, loading = false, err
                 Vas a anular el pago de <b>{pago.cliente}</b> por <b>{soles(pago.monto)}</b> ({METODOS[pago.metodo_pago]}).
                 Su membresía quedará cancelada. Necesitas un <b>PIN de autorización</b> generado por tu administrador.
             </p>
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">PIN de autorización *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">PIN de autorización *</label>
             <input type="password" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={pin}
                 onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full p-3 text-center text-2xl tracking-[0.6em] font-black border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none"
+                className="w-full p-3 text-center text-2xl tracking-[0.6em] font-black border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none"
                 placeholder="••••••" />
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1 mt-4">Motivo *</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5 mt-4">Motivo *</label>
             <textarea rows={2} value={motivo} onChange={e => setMotivo(e.target.value)}
-                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary outline-none resize-none"
+                className="w-full p-2.5 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 outline-none resize-none"
                 placeholder="Ej: Se cobró el plan equivocado" />
         </Modal>
     );
@@ -217,14 +285,15 @@ export const errorDeAlerta = (alert) =>
 // ---------------------------------------------------------------------------
 // Ticket PDF (Blade en el backend)
 // ---------------------------------------------------------------------------
-export const useTicket = () => {
+/** urlDe(id): de dónde sale el PDF (por defecto el endpoint del personal) */
+export const useTicket = (urlDe = ticketUrl, titulo = 'Ticket del pago') => {
     const [ticket, setTicket] = useState(null); // { id, url }
     const [error, setError] = useState(null);
 
     const abrirTicket = async (id) => {
         setError(null);
         try {
-            const url = await obtenerArchivoUrl(ticketUrl(id));
+            const url = await obtenerArchivoUrl(urlDe(id));
             setTicket({ id, url });
         } catch (e) {
             setError(e.message);
@@ -238,7 +307,7 @@ export const useTicket = () => {
 
     const TicketModal = () => ticket ? (
         <Suspense fallback={null}>
-            <PdfModal isOpen onClose={cerrarTicket} title={`Ticket del pago #${ticket.id}`} pdfUrl={ticket.url} />
+            <PdfModal isOpen onClose={cerrarTicket} title={`${titulo} #${ticket.id}`} pdfUrl={ticket.url} />
         </Suspense>
     ) : null;
 

@@ -1,13 +1,13 @@
 import React from 'react';
-import { RocketLaunchIcon, CurrencyDollarIcon, DocumentTextIcon, BuildingStorefrontIcon, UsersIcon, UserGroupIcon, InboxStackIcon } from '@heroicons/react/24/outline';
+import { RocketLaunchIcon, CurrencyDollarIcon, DocumentTextIcon, BuildingStorefrontIcon, UsersIcon, UserGroupIcon, InboxStackIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 import { toUpper } from 'utilities/Validations/validations';
 
-const inputClass = "w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none";
-const labelClass = "block text-xs font-bold text-slate-700 uppercase mb-1";
+const inputClass = "w-full pl-9 p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none";
+const labelClass = "block text-sm font-medium text-slate-700 mb-1.5";
 const iconClass  = "w-4 h-4 absolute left-3 top-3 text-gray-400";
 
 const LimiteInput = ({ label, icon: Icon, value, onChange }) => (
-    <div className="md:col-span-3">
+    <div className="md:col-span-4">
         <label className={labelClass}>{label}</label>
         <div className="relative">
             <Icon className={iconClass} />
@@ -18,10 +18,14 @@ const LimiteInput = ({ label, icon: Icon, value, onChange }) => (
     </div>
 );
 
+/**
+ * Plan del sistema (SaaS). Todos los planes traen todas las funciones;
+ * lo que cambia entre uno y otro son los límites.
+ */
 const SuscripcionForm = ({ formData, handleChange }) => (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-        <h3 className="text-lg font-black text-secondary flex items-center gap-2 mb-4 border-b border-slate-100 pb-2 uppercase">
-            <RocketLaunchIcon className="w-5 h-5" /> Plan del Sistema
+    <div className="bg-white p-6 rounded-xl shadow-card border border-slate-200">
+        <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
+            <RocketLaunchIcon className="w-5 h-5" /> Plan del sistema
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
@@ -55,13 +59,14 @@ const SuscripcionForm = ({ formData, handleChange }) => (
                 </div>
             </div>
 
-            <div className="md:col-span-12 text-xs text-slate-500 -mb-2">
-                <b>Límites</b> — deja el campo vacío para que sea <b>ilimitado</b>.
+            <div className="md:col-span-12 text-sm text-slate-500 -mb-2">
+                <b className="text-slate-700">Límites</b> — deja el campo vacío para que sea <b className="text-slate-700">ilimitado</b>. Todas las funciones del sistema vienen en todos los planes.
             </div>
             <LimiteInput label="Máx. sucursales" icon={BuildingStorefrontIcon} value={formData.max_sucursales} onChange={(v) => handleChange('max_sucursales', v)} />
             <LimiteInput label="Máx. cajas por sucursal" icon={InboxStackIcon} value={formData.max_cajas_por_sucursal} onChange={(v) => handleChange('max_cajas_por_sucursal', v)} />
             <LimiteInput label="Máx. clientes"   icon={UsersIcon}              value={formData.max_clientes}   onChange={(v) => handleChange('max_clientes', v)} />
             <LimiteInput label="Máx. empleados"  icon={UserGroupIcon}          value={formData.max_empleados}  onChange={(v) => handleChange('max_empleados', v)} />
+            <LimiteInput label="Máx. productos activos" icon={ShoppingBagIcon} value={formData.max_productos}  onChange={(v) => handleChange('max_productos', v)} />
         </div>
     </div>
 );

@@ -22,7 +22,7 @@ const Update = () => {
             />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-                <EmpresaForm formData={formData} handleChange={handleChange} />
+                <EmpresaForm formData={formData} handleChange={handleChange} conSuscripcion />
                 <div className="flex justify-end gap-4 mt-8">
                     <button type="button" onClick={() => navigate('/empresa/listar')}
                         className="px-6 py-3 bg-slate-100 text-slate-600 rounded-lg font-bold hover:bg-slate-200 transition-colors uppercase text-sm">

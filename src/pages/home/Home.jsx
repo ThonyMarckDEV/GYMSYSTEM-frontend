@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import jwtUtils from "utilities/Token/jwtUtils";
 import { useAuth } from "context/AuthContext";
 import MiPlanCard from "components/Dashboard/MiPlanCard";
+import { Link } from "react-router-dom";
 import { 
   User, 
   ShieldCheck, 
@@ -12,9 +13,7 @@ import {
 
 const Home = () => {
   const token = jwtUtils.getAccessTokenFromCookie();
-  const { can, empresa, empresaActiva } = useAuth();
-  // Mi plan: solo para usuarios con permiso y una empresa en contexto
-  const mostrarMiPlan = can("suscripcion.miPlan") && (empresa || empresaActiva);
+  const { empresa, sucursal, can } = useAuth();
   
   const userData = useMemo(() => {
     if (!token) return null;
@@ -46,14 +45,42 @@ const Home = () => {
               <span className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded border border-white/10 text-[10px] font-bold uppercase tracking-wider">
                 <ShieldCheck size={14} className="text-primary"/> {userData?.role || 'Personal'}
               </span>
+              {empresa && (
+                <span className="px-3 py-1 bg-white/10 rounded border border-white/10 text-[10px] font-bold uppercase tracking-wider">
+                  {empresa.nombre_comercial}{sucursal ? ` · Sede ${sucursal.nombre}` : ''}
+                </span>
+              )}
             </div>
           </div>
 
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
         </header>
 
-        {/* PLAN CONTRATADO POR LA EMPRESA */}
-        {mostrarMiPlan && (
+
+        {/* Cliente: su membresía, clases y entrenamiento están en su panel */}
+        {can("perfil.index") && (
+          <Link to="/mi-panel" className="mb-6 flex items-center justify-between gap-4 p-5 rounded-2xl bg-primary text-secondary shadow-lg hover:bg-primary-hover transition-colors">
+            <div>
+              <p className="text-lg font-black uppercase">Ir a mi panel</p>
+              <p className="text-sm font-semibold text-secondary/70">Tu membresía, próximas clases, qué entrenar hoy y tus récords.</p>
+            </div>
+            <span className="text-2xl font-black" aria-hidden>→</span>
+          </Link>
+        )}
+
+        {/* Instructor: sus clases de hoy, asistencias pendientes y su mes están en su panel */}
+        {can("clase.panel") && (
+          <Link to="/panel-instructor" className="mb-6 flex items-center justify-between gap-4 p-5 rounded-2xl bg-primary text-secondary shadow-lg hover:bg-primary-hover transition-colors">
+            <div>
+              <p className="text-lg font-black uppercase">Ir a mi panel</p>
+              <p className="text-sm font-semibold text-secondary/70">Tus clases de hoy, asistencias por tomar, próximas clases y cómo te va en el mes.</p>
+            </div>
+            <span className="text-2xl font-black" aria-hidden>→</span>
+          </Link>
+        )}
+
+        {/* SaaS: plan contratado por la empresa y su consumo (admin de cada empresa) */}
+        {can("suscripcion.miPlan") && empresa && (
           <div className="mb-6">
             <MiPlanCard />
           </div>

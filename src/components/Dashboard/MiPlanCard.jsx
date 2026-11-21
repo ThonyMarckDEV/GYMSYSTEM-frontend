@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { RocketLaunchIcon, BuildingStorefrontIcon, UsersIcon, UserGroupIcon, CalendarDaysIcon, ExclamationTriangleIcon, InboxStackIcon } from '@heroicons/react/24/outline';
+import { RocketLaunchIcon, BuildingStorefrontIcon, UsersIcon, UserGroupIcon, CalendarDaysIcon, ExclamationTriangleIcon, InboxStackIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
 import { miPlan } from 'services/suscripcionService';
 
-const RECURSOS = [
+export const RECURSOS = [
     { key: 'sucursales', label: 'Sucursales', icon: BuildingStorefrontIcon },
     { key: 'cajas_por_sucursal', label: 'Cajas por sede', icon: InboxStackIcon },
     { key: 'clientes',   label: 'Clientes',   icon: UsersIcon },
     { key: 'empleados',  label: 'Empleados',  icon: UserGroupIcon },
+    { key: 'productos',  label: 'Productos activos', icon: ShoppingBagIcon },
 ];
 
 /**
  * Medidor de uso: la barra es neutra y solo cambia a estado (ámbar/rojo)
  * cerca del límite, siempre acompañada de texto (no se depende solo del color).
  */
-const Medidor = ({ label, icon: Icon, usado, limite, porcentaje, detalle }) => {
+export const Medidor = ({ label, icon: Icon, usado, limite, porcentaje, detalle }) => {
     const ilimitado = limite === null || limite === undefined;
     const lleno = !ilimitado && usado >= limite;
     const cerca = !ilimitado && !lleno && porcentaje >= 80;

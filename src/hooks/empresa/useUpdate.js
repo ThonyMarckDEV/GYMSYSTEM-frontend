@@ -49,7 +49,7 @@ export const useUpdate = () => {
         try {
             await update(id, formData);
             setAlert({ type: 'success', message: 'Empresa actualizada correctamente.' });
-            setTimeout(() => navigate('/empresa/listar'), 1500);
+            setTimeout(() => navigate('/empresa/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al actualizar la empresa'));
         } finally {

@@ -11,6 +11,7 @@ const FORM_INICIAL = {
     max_cajas_por_sucursal: '',
     max_clientes: '',
     max_empleados: '',
+    max_productos: '',
 };
 
 /**
@@ -40,6 +41,7 @@ export const useForm = () => {
                     max_cajas_por_sucursal: d.max_cajas_por_sucursal ?? '',
                     max_clientes:   d.max_clientes ?? '',
                     max_empleados:  d.max_empleados ?? '',
+                    max_productos:  d.max_productos ?? '',
                 });
             })
             .catch(err => setAlert(handleApiError(err, 'No se pudo cargar el plan.')))
@@ -56,7 +58,7 @@ export const useForm = () => {
             if (isEditing) await update(id, formData);
             else await store(formData);
             setAlert({ type: 'success', message: `Plan ${isEditing ? 'actualizado' : 'registrado'} correctamente. Redirigiendo...` });
-            setTimeout(() => navigate('/suscripcion/listar'), 1500);
+            setTimeout(() => navigate('/suscripcion/listar'), 900);
         } catch (err) {
             setAlert(handleApiError(err, 'Error al guardar el plan'));
         } finally {

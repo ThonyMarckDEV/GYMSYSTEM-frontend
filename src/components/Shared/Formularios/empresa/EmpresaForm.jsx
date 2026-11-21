@@ -3,24 +3,17 @@ import { BuildingOffice2Icon, IdentificationIcon, MapPinIcon, PhoneIcon, Envelop
 import { combobox as planesSistema } from 'services/suscripcionService';
 import { toUpper } from 'utilities/Validations/validations';
 
-const inputClass = "w-full pl-9 p-2.5 text-sm text-secondary border border-slate-300 rounded-lg focus:ring-1 focus:ring-primary focus:border-primary outline-none";
-const labelClass = "block text-xs font-bold text-slate-700 uppercase mb-1";
+const inputClass = "w-full pl-9 p-2.5 text-sm text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none";
+const labelClass = "block text-sm font-medium text-slate-700 mb-1.5";
 const iconClass  = "w-4 h-4 absolute left-3 top-3 text-gray-400";
 
-const EmpresaForm = ({ formData, handleChange }) => {
+/** conSuscripcion: muestra plan y vencimiento (solo el superadmin; no en "Mi empresa"). */
+const EmpresaForm = ({ formData, handleChange, conSuscripcion = false }) => {
     const onlyDigits = (value, max) => value.replace(/\D/g, '').slice(0, max);
-    const [planes, setPlanes] = useState([]);
-
-    useEffect(() => {
-        planesSistema().then(res => setPlanes(res.data || [])).catch(() => setPlanes([]));
-    }, []);
-
-    const limite = (v) => (v === null || v === undefined ? 'ilimitado' : v);
-    const planSeleccionado = planes.find(p => String(p.id) === String(formData.plan_suscripcion_id));
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-            <h3 className="text-lg font-black text-secondary flex items-center gap-2 mb-4 border-b border-slate-100 pb-2 uppercase">
+        <div className="bg-white p-6 rounded-xl shadow-card border border-slate-200">
+            <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
                 <BuildingOffice2Icon className="w-5 h-5" /> Información de la Empresa
             </h3>
 
@@ -88,10 +81,27 @@ const EmpresaForm = ({ formData, handleChange }) => {
 
             </div>
 
-            <h3 className="text-lg font-black text-secondary flex items-center gap-2 mt-8 mb-4 border-b border-slate-100 pb-2 uppercase">
-                <RocketLaunchIcon className="w-5 h-5" /> Suscripción al Sistema
-            </h3>
+            {conSuscripcion && <SuscripcionCampos formData={formData} handleChange={handleChange} />}
+        </div>
+    );
+};
 
+/**
+ * Plan del sistema y vencimiento (solo el superadmin, al crear o editar una empresa).
+ * Para renovar lo normal es "Registrar pago" en Cobros de suscripción, que extiende el vencimiento solo.
+ */
+const SuscripcionCampos = ({ formData, handleChange }) => {
+    const [planes, setPlanes] = useState([]);
+    useEffect(() => { planesSistema().then(res => setPlanes(res.data || [])).catch(() => setPlanes([])); }, []);
+
+    const limite = (v) => (v === null || v === undefined ? 'ilimitado' : v);
+    const plan = planes.find(p => String(p.id) === String(formData.plan_suscripcion_id));
+
+    return (
+        <>
+            <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2 mt-8 mb-5 pb-3 border-b border-slate-100">
+                <RocketLaunchIcon className="w-5 h-5" /> Suscripción al sistema
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
                 <div className="md:col-span-8">
                     <label className={labelClass}>Plan contratado <span className="text-red-500">*</span></label>
@@ -100,15 +110,15 @@ const EmpresaForm = ({ formData, handleChange }) => {
                         <select value={formData.plan_suscripcion_id || ''}
                             onChange={(e) => handleChange('plan_suscripcion_id', e.target.value)}
                             className={`${inputClass} bg-white`} required>
-                            <option value="">-- Seleccionar plan --</option>
+                            <option value="">Seleccionar plan</option>
                             {planes.map(p => (
                                 <option key={p.id} value={p.id}>{p.nombre} — S/ {Number(p.precio_mensual).toFixed(2)} / mes</option>
                             ))}
                         </select>
                     </div>
-                    {planSeleccionado && (
-                        <p className="mt-1 text-[11px] text-slate-500">
-                            Incluye {limite(planSeleccionado.max_sucursales)} sucursales ({limite(planSeleccionado.max_cajas_por_sucursal)} cajas c/u) · {limite(planSeleccionado.max_clientes)} clientes · {limite(planSeleccionado.max_empleados)} empleados
+                    {plan && (
+                        <p className="mt-1.5 text-xs text-slate-500">
+                            {limite(plan.max_sucursales)} sucursales ({limite(plan.max_cajas_por_sucursal)} cajas c/u) · {limite(plan.max_clientes)} clientes · {limite(plan.max_empleados)} empleados · {limite(plan.max_productos)} productos
                         </p>
                     )}
                 </div>
@@ -121,9 +131,10 @@ const EmpresaForm = ({ formData, handleChange }) => {
                             onChange={(e) => handleChange('suscripcion_vence', e.target.value)}
                             className={inputClass} />
                     </div>
+                    <p className="mt-1.5 text-xs text-slate-500">Vacío = no vence. Al registrar un pago se extiende solo.</p>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

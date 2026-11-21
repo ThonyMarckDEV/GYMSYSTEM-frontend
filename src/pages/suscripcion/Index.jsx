@@ -50,7 +50,7 @@ const Index = () => {
                 <div className="text-xs text-slate-600 leading-5">
                     <div><b>{limite(row.max_sucursales)}</b> sucursales · <b>{limite(row.max_cajas_por_sucursal)}</b> cajas c/u</div>
                     <div><b>{limite(row.max_clientes)}</b> clientes</div>
-                    <div><b>{limite(row.max_empleados)}</b> empleados</div>
+                    <div><b>{limite(row.max_empleados)}</b> empleados · <b>{limite(row.max_productos)}</b> productos</div>
                 </div>
             )
         },

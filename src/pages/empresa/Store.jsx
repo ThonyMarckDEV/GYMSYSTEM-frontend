@@ -18,7 +18,7 @@ const Store = () => {
             />
             <AlertMessage type={alert?.type} message={alert?.message} details={alert?.details} onClose={() => setAlert(null)} />
             <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-                <EmpresaForm formData={formData} handleChange={handleChange} />
+                <EmpresaForm formData={formData} handleChange={handleChange} conSuscripcion />
                 <p className="mt-4 text-xs text-slate-500">
                     Luego de registrarla, usa <b>Entrar</b> en el listado y crea su administrador desde <b>Empleados → Agregar</b>.
                 </p>
