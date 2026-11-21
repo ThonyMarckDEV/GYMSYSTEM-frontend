@@ -14,8 +14,9 @@ export const AuthProvider = ({ children }) => {
     // Multitenant
     const [empresa, setEmpresa] = useState(null);             // La empresa (edición empresa única)
     const [esSuperAdmin, setEsSuperAdmin] = useState(false);
-    const [sucursal, setSucursal] = useState(null);           // Sucursal fija del usuario (null = todas)
-    const [sucursalActiva, setSucursalActivaState] = useState(getSucursalActiva()); // Modo sucursal del superadmin
+    const [sucursal, setSucursal] = useState(null);           // Sede con la que trabaja ahora: fija o elegida (null = todas)
+    const [sedeFija, setSedeFija] = useState(false);          // true = sede asignada al usuario (no la puede cambiar)
+    const [sucursalActiva, setSucursalActivaState] = useState(getSucursalActiva()); // Sede elegida en el menú lateral
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -47,8 +48,12 @@ export const AuthProvider = ({ children }) => {
             setEsSuperAdmin(!!userData.es_superadmin);
             setSucursal(userData.sucursal || null);
 
-            // Solo el superadmin puede elegir sucursal: al resto se le limpia
-            if (!userData.es_superadmin && getSucursalActiva()) {
+            setSedeFija(!!userData.sede_fija);
+
+            // Elige sede en el menú: el personal sin sede fija. Al cliente y a
+            // quien tiene sede asignada se le limpia cualquier sede guardada.
+            const esCliente = (userData.rol?.nombre || userData.rol) === 'cliente';
+            if ((esCliente || userData.sede_fija) && getSucursalActiva()) {
                 clearSucursalActiva();
                 setSucursalActivaState(null);
             }
@@ -71,6 +76,7 @@ export const AuthProvider = ({ children }) => {
         setEmpresa(null);
         setEsSuperAdmin(false);
         setSucursal(null);
+        setSedeFija(false);
         setIsAuthenticated(false);
         setLoading(false);
     };
@@ -86,7 +92,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     /**
-     * Superadmin: modo global (null) o modo sucursal.
+     * Personal sin sede fija: todas las sedes (null) o modo sucursal.
      * Recarga la app para que todas las vistas vuelvan a pedir datos de esa sede.
      */
     const cambiarSucursal = (nuevaSucursal) => {
@@ -119,6 +125,7 @@ export const AuthProvider = ({ children }) => {
             actualizarEmpresa,
             esSuperAdmin,
             sucursal,
+            sedeFija,
             sucursalActiva,
             cambiarSucursal,
             isAuthenticated, 

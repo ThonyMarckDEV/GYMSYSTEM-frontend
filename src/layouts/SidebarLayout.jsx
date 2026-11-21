@@ -12,7 +12,7 @@ import { EnLayoutContext } from "components/Shared/LoadingScreen";
 const SidebarLayout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const { esSuperAdmin, sucursalActiva, can } = useAuth();
+  const { sucursalActiva, can } = useAuth();
 
   // El modo oscuro vale solo dentro del sistema: el login siempre se ve claro
   useEffect(() => {
@@ -47,9 +47,9 @@ const SidebarLayout = () => {
         >
           {/* mt-12 en móvil (botón de menú) y en PC (campanita y tema arriba a la derecha) */}
           <div className="mt-12 min-w-0">
-            {esSuperAdmin && sucursalActiva && (
+            {sucursalActiva && (
               <div className="mx-6 mt-4 px-4 py-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-xs font-semibold">
-                Modo sucursal: estás viendo solo la sede {sucursalActiva.nombre}. Cámbialo a "Todas" en el menú lateral para el modo global.
+                Modo sucursal: estás viendo solo la sede {sucursalActiva.nombre}. Cámbialo a "Todas las sedes" en el menú lateral.
               </div>
             )}
             <EnLayoutContext.Provider value={true}>
